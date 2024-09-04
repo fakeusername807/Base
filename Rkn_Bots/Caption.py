@@ -66,7 +66,7 @@ async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
     await insert(user_id)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
-        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀꜰᴜʟʟ ᴍᴏᴠɪᴇꜱ & ꜱᴇʀɪᴇꜱ ᴘʀᴏᴠɪᴅᴇʀ ʙᴏᴛ ᴊᴜꜱᴛ ꜱᴇɴᴅ ᴍᴇ ᴀɴʏ ᴍᴏᴠɪᴇꜱ & ꜱᴇʀɪᴇꜱ ɴᴀᴍᴇ. ☜ </blockquote><b>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
+        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO CAPTION ʙᴏᴛ ᴊᴜꜱᴛ CLICK /help For understanding ☜ </blockquote><b>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
         has_spoiler=True, 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
@@ -78,7 +78,7 @@ async def help_cmd(bot, message):
     user_id = int(message.from_user.id)
     await insert(user_id)
     await message.reply_photo(photo="https://graph.org/file/4919d255d25a7305bdec5.jpg",
-        caption=f"<blockquote>•••[( Get Help )]•••\n⚠️ ALTER ⚠️\n• add this bot in your channel with all admin permission\n• use this command in your channel \n• this command work only channel\n\n•> /set_caption - set new caption in your channel\n•> /del_caption - delete your caption\nFormat - SEE IMAG \n file_name = original file name</blockquote>", 
+        caption=f"<blockquote>•••[( Get Help )]•••\n⚠️ ALTER ⚠️\n• 1st <u>make admin this bot in your channel with all admin permission</u>\n• use this command in your channel \n• this command work only channel\n\n•> /set_caption - set new caption in your channel\n•> /del_caption - delete your caption\nFormat - SEE IMAG \n file_name = original file name</blockquote>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
             types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
@@ -86,18 +86,14 @@ async def help_cmd(bot, message):
 
 @Client.on_message(filters.command("set_caption") & filters.private)
 async def setCaption_cmd(bot, message):
-    user_id = int(message.from_user.id)
-    await insert(user_id)
-    await message.reply_text(text="Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨", 
+    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</blockquote></pre>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
             ]]))
 
 @Client.on_message(filters.command("del_caption") & filters.private)
-async def setCaption_cmd(bot, message):
-    user_id = int(message.from_user.id)
-    await insert(user_id)
-    await message.reply_text(text="<pre>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</pre>", 
+async def delCaption_cmd(bot, message):
+    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</blockquote></pre>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
             ]]))
