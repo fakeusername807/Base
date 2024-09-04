@@ -70,7 +70,7 @@ async def start_cmd(bot, message):
         has_spoiler=True, 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
-            types.InlineKeyboardButton('Help Group', url='https://t.me/Harshit_contact_bot')
+            types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
             ]]))
     
 
