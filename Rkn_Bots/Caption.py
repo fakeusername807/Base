@@ -83,7 +83,24 @@ async def help_cmd(bot, message):
             types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
             types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
             ]]))
-    
+
+@Client.on_message(filters.command("set_caption") & filters.private)
+async def setCaption_cmd(bot, message):
+    user_id = int(message.from_user.id)
+    await insert(user_id)
+    await message.reply_text(text="Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨", 
+        reply_markup=types.InlineKeyboardMarkup([[
+            types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
+            ]]))
+
+@Client.on_message(filters.command("del_caption") & filters.private)
+async def setCaption_cmd(bot, message):
+    user_id = int(message.from_user.id)
+    await insert(user_id)
+    await message.reply_text(text="<pre>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</pre>", 
+        reply_markup=types.InlineKeyboardMarkup([[
+            types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
+            ]]))
 
 # this command works on channels only 
 @Client.on_message(filters.command("set_caption") & filters.channel)
