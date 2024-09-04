@@ -78,20 +78,7 @@ async def help_cmd(bot, message):
     user_id = int(message.from_user.id)
     await insert(user_id)
     await message.reply_photo(photo="https://graph.org/file/4919d255d25a7305bdec5.jpg",
-        caption=f"<blockquote>•••[( Get Help )]•••
-
-⚠️ ALTER ⚠️
-• add this bot in your channel with
-all admin permission
-• use this command in your channel 
-• this command work only channel
-• keep file without forward tag
-
-•> /set_caption - set new caption in your channel
-•> /del_caption - delete your caption
-Format - SEE IMAG 
-{file_name} = original file name</blockquote>",
-        has_spoiler=True, 
+        caption=f"<blockquote>•••[( Get Help )]•••\n⚠️ ALTER ⚠️\n• add this bot in your channel with all admin permission\n• use this command in your channel \n• this command work only channel\n\n•> /set_caption - set new caption in your channel\n•> /del_caption - delete your caption\nFormat - SEE IMAG \n{file_name} = original file name</blockquote>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
             types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
