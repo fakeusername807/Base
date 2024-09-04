@@ -89,14 +89,14 @@ async def help_cmd(bot, message):
 
 @Client.on_message(filters.command("set_caption") & filters.private)
 async def setCaption_cmd(bot, message):
-    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</blockquote></pre>", 
+    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel\nMake Admin With Edit Rights For edit Caption\nAnd do this cammand where🙃</blockquote></pre>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
             ]]))
 
 @Client.on_message(filters.command("del_caption") & filters.private)
 async def delCaption_cmd(bot, message):
-    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel Make Admin With Edit Rights For edit Caption ✨</blockquote></pre>", 
+    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel\nMake Admin With Edit Rights For edit Caption\nAnd do this cammand where🙃</blockquote></pre>", 
         reply_markup=types.InlineKeyboardMarkup([[
             types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
             ]]))
