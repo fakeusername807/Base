@@ -23,7 +23,7 @@ async def react_msg(bot, message):
         "😡"
     ]
     rnd_emoji = random.choice(emojis)
-    await client.send_reaction(
+    await bot.send_reaction(
         chat_id=message.chat.id, message_id=message.id, emoji=rnd_emoji, big=True
     )
     return
