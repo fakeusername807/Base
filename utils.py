@@ -1,6 +1,6 @@
 import asyncio, os, re, random, pytz, requests, json
 
-async def react_msg(client, message):
+async def react_msg(bot, message):
     emojis = [
         "👍", "👎", "❤", "🔥", 
         "🥰", "👏", "😁", "🤔",
