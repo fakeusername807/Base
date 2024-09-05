@@ -65,9 +65,6 @@ async def restart_bot(b, m):
 async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
     await insert(user_id)
-    m=await message.reply_sticker("CAACAgQAAxkBAAIjiWauJFj9Dg6KAZCB8o28_Bapa4k_AAJrEwACJsW5UUJCTxkrCrqZHgQ") 
-    await asyncio.sleep(3)
-    await m.delete()
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
         caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO CAPTION ʙᴏᴛ ᴊᴜꜱᴛ CLICK /help For understanding ☜ </blockquote><b>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
         has_spoiler=True, 
