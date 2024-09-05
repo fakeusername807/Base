@@ -64,7 +64,7 @@ async def restart_bot(b, m):
     
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
-    await react_msg(client, message)
+    await react_msg(bot, message)
     user_id = int(message.from_user.id)
     await insert(user_id)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
