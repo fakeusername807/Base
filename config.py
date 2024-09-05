@@ -15,14 +15,14 @@ class Rkn_Bots(object):
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 
     # start_pic
-    RKN_PIC = os.environ.get("RKN_PIC", "https://graph.org/file/c748879538a3c96b10696.jpg")
+    RKN_PIC = os.environ.get("RKN_PIC", "https://graph.org/file/8487c51d55be5b4e17222.jpg")
 
     # wes response configuration
     BOT_UPTIME = time.time()
     PORT = int(os.environ.get("PORT", "8080"))
 
     # force subs channel ( required.. 😥)
-    FORCE_SUB = os.environ.get("FORCE_SUB", "hgbot") 
+    FORCE_SUB = os.environ.get("FORCE_SUB", "hgbotz") 
     
     # database config ( required.. 😥)
     DB_NAME = os.environ.get("DB_NAME", "HGBOTZ")     
