@@ -11,6 +11,13 @@ from .database import total_user, getid, delete, addCap, updateCap, insert, chnl
 from pyrogram.errors import FloodWait
 from utils import react_msg 
 
+buttons = [[
+        InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
+        InlineKeyboardButton('✨ 𝙲𝙾𝙽𝚃𝙰𝙲𝚃 ✨', url="https://t.me/Harshit_contact_bot")
+    ],[
+        InlineKeyboardButton('〄 Add to me group 〄', url="https://t.me/Reaction_99bot?startgroup=botstart")
+    ]]
+
 @Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN)  & filters.command(["stats"]))
 async def all_db_users_here(client, message):
     start_t = time.time()
@@ -66,106 +73,13 @@ async def restart_bot(b, m):
 async def start_cmd(bot, message):
     await react_msg(bot, message)
     user_id = int(message.from_user.id)
+    reply_markup=InlineKeyboardMarkup(buttons)
     await insert(user_id)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
         caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO CAPTION ʙᴏᴛ ᴊᴜꜱᴛ CLICK /help For understanding ☜ </blockquote><b>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
         has_spoiler=True, 
-        reply_markup=types.InlineKeyboardMarkup([[
-            types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
-            types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
-            ]]))
+        reply_markup=reply_markup)
 
 @Client.on_message(filters.all)
 async def send_reaction(bot, message):
     await react_msg(bot, message)
-
-@Client.on_message(filters.command("help") & filters.private)
-async def help_cmd(bot, message):
-    user_id = int(message.from_user.id)
-    await insert(user_id)
-    await message.reply_photo(photo="https://graph.org/file/4919d255d25a7305bdec5.jpg",
-        caption=f"<blockquote>•••[( Get Help )]•••\n⚠️ ALTER ⚠️\n• 1st <u>make admin this bot in your channel with all admin permission</u>\n• use this command in your channel \n• this command work only channel\n\n•> /set_caption - set new caption in your channel\n•> /del_caption - delete your caption\nFormat - SEE IMAG \n file_name = original file name</blockquote>", 
-        reply_markup=types.InlineKeyboardMarkup([[
-            types.InlineKeyboardButton('Main Channel', url='https://t.me/hgbotz'),
-            types.InlineKeyboardButton('Help Group', url='https://t.me/HGBOTZ_support')
-            ]]))
-
-@Client.on_message(filters.command("set_caption") & filters.private)
-async def setCaption_cmd(bot, message):
-    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel\nMake Admin With Edit Rights For edit Caption\nAnd do this cammand where🙃</blockquote></pre>", 
-        reply_markup=types.InlineKeyboardMarkup([[
-            types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
-            ]]))
-
-@Client.on_message(filters.command("del_caption") & filters.private)
-async def delCaption_cmd(bot, message):
-    await message.reply_text(text="<pre><blockquote>Buddy This Cammand Work Only Channel\nMake Admin With Edit Rights For edit Caption\nAnd do this cammand where🙃</blockquote></pre>", 
-        reply_markup=types.InlineKeyboardMarkup([[
-            types.InlineKeyboardButton('Contact☄️', url='https://t.me/Harshit_contact_bot')
-            ]]))
-
-# this command works on channels only 
-@Client.on_message(filters.command("set_caption") & filters.channel)
-async def setCaption(bot, message):
-    if len(message.command) < 2:
-        return await message.reply(
-            "Exam.: /set_caption <code> set your caption ( use {file_name} to show file name</code>)"
-        )
-    chnl_id = message.chat.id
-    caption = (
-        message.text.split(" ", 1)[1] if len(message.text.split(" ", 1)) > 1 else None
-    )
-    chkData = await chnl_ids.find_one({"chnl_id": chnl_id})
-    if chkData:
-        await updateCap(chnl_id, caption)
-        return await message.reply(f"Successfully Updated Your Caption.\n\nYour New Caption: `{caption}`")
-    else:
-        await addCap(chnl_id, caption)
-        return await message.reply(f"Successfully Updated Your Caption.\n\nYour New Caption: `{caption}`")
-
-
-# this command works on channels only 
-@Client.on_message(filters.command(["delcaption", "del_caption", "delete_caption"]) & filters.channel)
-async def delCaption(_, msg):
-    chnl_id = msg.chat.id
-    try:
-        await chnl_ids.delete_one({"chnl_id": chnl_id})
-        return await msg.reply("<b>Successfully deleted your caption..From now i will use my default caption</b>")
-    except Exception as e:
-        rkn = await msg.reply(f"Error: {e}")
-        await asyncio.sleep(5)
-        await rkn.delete()
-        return
-
-
-@Client.on_message(filters.channel)
-async def auto_edit_caption(bot, message):
-    chnl_id = message.chat.id
-    if message.media:
-        for file_type in ("video", "audio", "document", "voice"):
-            obj = getattr(message, file_type, None)
-            if obj and hasattr(obj, "file_name"):
-                file_name = obj.file_name
-                file_name = (
-                    re.sub(r"@\w+\s*", "", file_name)
-                    .replace("_", " ")
-                    .replace(".", " ")
-                )
-                cap_dets = await chnl_ids.find_one({"chnl_id": chnl_id})
-                try:
-                    if cap_dets:
-                        cap = cap_dets["caption"]
-                        replaced_caption = cap.format(file_name=file_name)
-                        await message.edit(replaced_caption)
-                    else:
-                        replaced_caption = Rkn_Bots.DEF_CAP.format(file_name=file_name)
-                        await message.edit(replaced_caption)
-                except FloodWait as e:
-                    await asyncio.sleep(e.x)
-                    continue
-    return
-
-# Rkn Developer 
-# Don't Remove Credit 😔
-# Telegram Channel @RknDeveloper & @Rkn_Botz
-# Developer @RknDeveloperr
