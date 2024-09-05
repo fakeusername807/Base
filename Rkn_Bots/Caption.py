@@ -9,6 +9,7 @@ from config import Rkn_Bots
 import asyncio, re, time, sys
 from .database import total_user, getid, delete, addCap, updateCap, insert, chnl_ids
 from pyrogram.errors import FloodWait
+from pyrogram.types import *
 from utils import react_msg 
 
 buttons = [[
