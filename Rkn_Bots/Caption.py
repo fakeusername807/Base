@@ -9,6 +9,7 @@ from config import Rkn_Bots
 import asyncio, re, time, sys
 from .database import total_user, getid, delete, addCap, updateCap, insert, chnl_ids
 from pyrogram.errors import FloodWait
+from utils import react_msg 
 
 @Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN)  & filters.command(["stats"]))
 async def all_db_users_here(client, message):
@@ -63,6 +64,7 @@ async def restart_bot(b, m):
     
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
+    await react_msg(client, message)
     user_id = int(message.from_user.id)
     await insert(user_id)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
