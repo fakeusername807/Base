@@ -76,7 +76,7 @@ async def start_cmd(bot, message):
             ]]))
 
 @Client.on_message(filters.all)
-async def react_emoji(bot, message):
+async def send_reaction(bot, message):
     await react_msg(bot, message)
     await message.reply(text="")
 
