@@ -78,7 +78,6 @@ async def start_cmd(bot, message):
 @Client.on_message(filters.all)
 async def send_reaction(bot, message):
     await react_msg(bot, message)
-    await message.reply(text="")
 
 @Client.on_message(filters.command("help") & filters.private)
 async def help_cmd(bot, message):
