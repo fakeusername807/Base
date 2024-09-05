@@ -43,7 +43,7 @@ async def broadcast(bot, message):
         await rkn.edit(f"bot ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ started...")
         async for user in all_users:
             try:
-               Releep(1)
+                time.sleep(1)
                 await message.reply_to_message.copy(user['_id'])
                 success += 1
             except errors.InputUserDeactivated:
