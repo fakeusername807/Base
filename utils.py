@@ -20,7 +20,7 @@ async def react_msg(bot, message):
         "🆒", "💘", "🙉", "🦄",
         "😘", "💊", "🙊", "😎",
         "👾", "🤷‍♂", "🤷", "🤷‍♀",
-        "😡", "🤡"
+        "😡", "🤡", "😅", "🫠"
     ]
     rnd_emoji = random.choice(emojis)
     await bot.send_reaction(
