@@ -84,7 +84,7 @@ async def start_cmd(bot, message):
         reply_markup=reply_markup)
 
 @Client.on_message(filters.command("start") & filters.group)
-async def start_cmd(bot, message):
+async def group_start_cmd(bot, message):
     await react_msg(bot, message)
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(group_buttons)
