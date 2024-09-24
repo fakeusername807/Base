@@ -70,7 +70,7 @@ async def restart_bot(b, m):
     await rkn_msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
     
-@Client.on_message(filters.command("start") & filters.private)
+@Client.on_message(filters.command("start") & filters.all)
 async def start_cmd(bot, message):
     await react_msg(bot, message)
     user_id = int(message.from_user.id)
