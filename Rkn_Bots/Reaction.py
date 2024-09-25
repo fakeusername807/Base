@@ -91,7 +91,7 @@ async def group_start_cmd(bot, message):
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(group_buttons)
     await insert(user_id)
-    await message.reply_text(text=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Grouop/Chat to see Magic☜ </blockquote></b>",
+    await message.reply_text(text=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>",
         reply_markup=reply_markup)
 
 @Client.on_message(filters.all)
@@ -101,9 +101,8 @@ async def send_reaction(bot, message):
 
 @Client.on_message(filters.command("dice"))
 async def roll_dice(bot, message):
-    m=await bot.send_dice(message.chat.id, "🎲")
-    await asyncio.sleep(20)
-    await m.delete()
+    await bot.send_dice(message.chat.id, "🎲")
+    
 
 @Client.on_message(filters.command("arrow"))                                      
 async def roll_arrow(bot, message):
@@ -124,32 +123,3 @@ async def roll_throw(bot, message):
 @Client.on_message(filters.command(["bowling", "tenpins"]))
 async def roll_bowling(bot, message):
     await bot.send_dice(message.chat.id, "🎳")
-
-@Client.on_message(filters.command("brain", ".") & filters.me)
-async def pijtau(client: Client, message: Message):
-    if message.forward_from:
-        return
-    animation_interval = 1
-    animation_ttl = range(0, 14)
-    await message.edit("brain")
-    animation_chars = [          
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠         <(^_^ <)🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠       <(^_^ <)  🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠     <(^_^ <)    🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠   <(^_^ <)      🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠 <(^_^ <)        🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n🧠<(^_^ <)         🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n(> ^_^)>🧠         🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n  (> ^_^)>🧠       🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n    (> ^_^)>🧠     🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n      (> ^_^)>🧠   🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n        (> ^_^)>🧠 🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n          (> ^_^)>🧠🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n           (> ^_^)>🗑",
-              "YOᑌᖇ ᗷᖇᗩIᑎ ➡️ 🧠\n\n           <(^_^ <)🗑",
-          ]
-    for i in animation_ttl:
-        	
-            await asyncio.sleep(animation_interval)
-            await message.edit(animation_chars[i %14 ])
-		
