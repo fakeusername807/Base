@@ -106,7 +106,7 @@ async def roll_dice(bot, message):
 
 @Client.on_message(filters.command("arrow") & filters.group)                                      
 async def roll_arrow(bot, message):
-    await bot.send_dice(message.chat.id, "🎯")
+    await bot.send_diceee(message.chat.id, "🎯")
 
 @Client.on_message(filters.command("goal") & filters.group)
 async def roll_goal(bot, message):
