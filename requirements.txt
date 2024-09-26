@@ -4,3 +4,4 @@ motor
 aiohttp
 pytz
 requests
+python-telegram-bot
