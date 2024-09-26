@@ -101,7 +101,7 @@ async def send_reaction(bot, message):
 
 @Client.on_message(filters.command("dice") & filters.group)
 async def roll_dice(bot, message):
-    await bot.send_dice(message.chat.id, "🎲")
+    await bot.sendMessage(message.chat.id, "🎲")
     
 
 @Client.on_message(filters.command("arrow") & filters.group)                                      
