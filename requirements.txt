@@ -1,6 +1,7 @@
-pyrofork==2.3.43
+pyrofork
 tgcrypto
 motor
 aiohttp
 pytz
 requests
+asyncio
