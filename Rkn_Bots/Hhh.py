@@ -1,7 +1,7 @@
 import random
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from config import Config 
+from config import Rkn_Bots
 
 # Define choices
 CHOICES = ["rock", "paper", "scissors"]
@@ -36,7 +36,7 @@ def determine_winner(user_choice: str, bot_choice: str) -> str:
 
 def main():
     # Replace 'YOUR_TOKEN' with your actual bot token
-    updater = Updater("YOUR_TOKEN")
+    updater = Updater("BOT_TOKEN")
 
     dispatcher = updater.dispatcher
 
