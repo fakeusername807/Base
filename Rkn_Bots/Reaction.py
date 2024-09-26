@@ -97,29 +97,3 @@ async def group_start_cmd(bot, message):
 @Client.on_message(filters.all)
 async def send_reaction(bot, message):
     await react_msg(bot, message)
-
-
-@Client.on_message(filters.command("dice") & filters.group)
-async def roll_dice(bot, message):
-    await bot.sendMessage(message.chat.id, "🎲")
-    
-
-@Client.on_message(filters.command("arrow") & filters.group)                                      
-async def roll_arrow(bot, message):
-    await bot.send_diceee(message.chat.id, "🎯")
-
-@Client.on_message(filters.command("goal") & filters.group)
-async def roll_goal(bot, message):
-    await bot.send_dice(message.chat.id, "⚽️")
-
-@Client.on_message(filters.command("luck") & filters.group)
-async def roll_luck(bot, message):
-    await bot.send_dice(message.chat.id, "🎰")
-
-@Client.on_message(filters.command("throw") & filters.group)
-async def roll_throw(bot, message):
-    await bot.send_dice(message.chat.id, "🏀")
-
-@Client.on_message(filters.command(["bowling", "tenpins"]))
-async def roll_bowling(bot, message):
-    await bot.send_dice(message.chat.id, "🎳")
