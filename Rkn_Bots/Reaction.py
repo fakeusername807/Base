@@ -100,7 +100,7 @@ async def send_reaction(bot, message):
 
 @Client.on_message(filters.command("dice"))
 async def roll_dice(bot, message):
-    await bot.send_dice(message.chat.id, "🎲")
+    await message.reply_emoji(emoji="🎲")
 
 @Client.on_message(filters.command("arrow"))                                      
 async def roll_arrow(bot, message):
