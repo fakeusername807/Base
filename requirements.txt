@@ -4,4 +4,3 @@ motor
 aiohttp
 pytz
 requests
-python-telegram-bot==13.7
