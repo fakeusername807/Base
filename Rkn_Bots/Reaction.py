@@ -81,7 +81,7 @@ async def start_cmd(bot, message):
     reply_markup=InlineKeyboardMarkup(buttons)
     await insert(user_id)
     await message.reply_photo(photo="https://envs.sh/SQw.jpg",
-        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
+        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
         has_spoiler=True, 
         reply_markup=reply_markup)
 
@@ -91,7 +91,7 @@ async def group_start_cmd(bot, message):
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(group_buttons)
     await insert(user_id)
-    await message.reply_text(text=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>",
+    await message.reply_text(text=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>",
         reply_markup=reply_markup)
 
 @Client.on_message(filters.all)
