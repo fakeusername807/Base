@@ -9,7 +9,6 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 async def tic_cmnd(client, message):
     chat_id = message.chat.id
     text = "Let's play Tic Tac Toe! You are X, and the bot is O."
-    await message.reply_text(text=text)
     reset_board(chat_id)
     await send_game_board(client, chat_id)
 
