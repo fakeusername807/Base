@@ -6,7 +6,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Starting the Tic-Tac-Toe game
 @Client.on_message(filters.command("tic"))
-async def start(client, message):
+async def tic_cmnd(client, message):
     chat_id = message.chat.id
     text = "Let's play Tic Tac Toe! You are X, and the bot is O."
     reset_board(chat_id)
