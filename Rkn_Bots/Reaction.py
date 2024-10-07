@@ -88,6 +88,7 @@ async def restart_bot(b, m):
     
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
+    client = bot
     if AUTH_CHANNEL:
         try:
             btn = await is_subscribed(client, message, AUTH_CHANNEL)
