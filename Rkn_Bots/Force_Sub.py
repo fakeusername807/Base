@@ -2,7 +2,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import UserNotParticipant
 from config import Rkn_Bots as Config
-from helper.database import db
+from .database import db
 
 async def not_subscribed(_, client, message):
     if not await db.is_user_exist(message.from_user.id):
