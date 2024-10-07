@@ -1,12 +1,12 @@
 from pyrogram import Client, filters, enums 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import UserNotParticipant
-from config import Rkn_Bots as Config
-from .database import insert
+from config import Config
+from helper.database import db
 
 async def not_subscribed(_, client, message):
-    user_id = int(message.from_user.id)
-    await insert(user_id)
+    if not await db.is_user_exist(message.from_user.id):
+        await db.add_user(message.from_user.id)
     if not Config.FORCE_SUB:
         return False
     try:             
@@ -22,8 +22,8 @@ async def not_subscribed(_, client, message):
 
 @Client.on_message(filters.private & filters.create(not_subscribed))
 async def forces_sub(client, message):
-    buttons = [[InlineKeyboardButton(text="📢 Join Update Channel 📢", url=f"https://t.me/{Config.FORCE_SUB}") ]]
-    text = "**Sᴏʀʀy Dᴜᴅᴇ Yᴏᴜ'ʀᴇ Nᴏᴛ Jᴏɪɴᴇᴅ My Cʜᴀɴɴᴇʟ 😐. Sᴏ Pʟᴇᴀꜱᴇ Jᴏɪɴ Oᴜʀ Uᴩᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ Tᴏ Use Me**"
+    buttons = [[InlineKeyboardButton(text="Join 🔑", url=f"https://t.me/{Config.FORCE_SUB}") ]]
+    text = "**Join My Updates Channel To Use Me 🔒...**"
     try:
         user = await client.get_chat_member(Config.FORCE_SUB, message.from_user.id)    
         if user.status == enums.ChatMemberStatus.BANNED:                                   
@@ -31,4 +31,3 @@ async def forces_sub(client, message):
     except UserNotParticipant:                       
         return await message.reply_text(text=text, reply_markup=InlineKeyboardMarkup(buttons))
     return await message.reply_text(text=text, reply_markup=InlineKeyboardMarkup(buttons))
-          
