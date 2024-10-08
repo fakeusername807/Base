@@ -5,7 +5,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import Client, filters 
 
 # Start command to choose difficulty
-@Client.on_message(filters.command("tic"))
+@Client.on_message(filters.command("tac"))
 async def start(client, message):
     chat_id = update.message.chat_id
     text = "Let's play Tic Tac Toe! You are X, and the bot is O. Choose difficulty:"
