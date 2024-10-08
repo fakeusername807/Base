@@ -1,48 +1,50 @@
 import json
 import os
 import random
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler
-from uuid import uuid4
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client, filters 
+
 
 TOKEN = "YOUR_BOT_TOKEN"
 
 application = Application.builder().token(TOKEN).build()
 
 # Start command to choose difficulty
-async def start(update: Update, context):
+@Client.on_message(filters.command("tic"))
+async def start(client, message):
     chat_id = update.message.chat_id
-    message = "Let's play Tic Tac Toe! You are X, and the bot is O. Choose difficulty:"
+    text = "Let's play Tic Tac Toe! You are X, and the bot is O. Choose difficulty:"
     keyboard = [
         [InlineKeyboardButton("Easy", callback_data="difficulty_easy")],
         [InlineKeyboardButton("Medium", callback_data="difficulty_medium")],
         [InlineKeyboardButton("Hard", callback_data="difficulty_hard")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup)
+    await client.send_message(chat_id=chat_id, text=text, reply_markup=reply_markup)
 
 # Handle difficulty selection and edit message
-async def handle_difficulty(update: Update, context):
-    query = update.callback_query
-    difficulty = query.data.split("_")[1]
-    chat_id = query.message.chat_id
+@Client.on_callback_query()
+async def handle_difficulty(client, callback_query):
+    callback_data = callback_query.data
+    difficulty = callback_query.data.split("_")[1]
+    chat_id = callback_query.message.chat_id
 
-    context.user_data['difficulty'] = difficulty
+    client.user_data['difficulty'] = difficulty
 
     # Edit message to show mode set and button to start game
-    await query.edit_message_text(text=f"Mode set to {difficulty.capitalize()}",
+    await callback_query.edit_message_text(text=f"Mode set to {difficulty.capitalize()}",
                                   reply_markup=InlineKeyboardMarkup(
                                       [[InlineKeyboardButton("Play Game", callback_data="start_game")]]))
 
 # Start game when play game is clicked
-async def start_game(update: Update, context):
-    query = update.callback_query
-    chat_id = query.message.chat_id
+async def start_game(client, message):
+    callback_query = client.callback_query
+    chat_id = callback_query.message.chat_id
     reset_board(chat_id)
     await send_game_board(chat_id, context, query.message.message_id)
 
 # Send game board
-async def send_game_board(chat_id, context, message_id=None):
+async def send_game_board(client, chat_id, message_id=None):
     board = load_board(chat_id)
     keyboard = [
         [InlineKeyboardButton(board[0] or ".", callback_data="0"),
@@ -58,9 +60,9 @@ async def send_game_board(chat_id, context, message_id=None):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if message_id:
-        await context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text="Tic Tac Toe", reply_markup=reply_markup)
+        await client.edit_message_text(chat_id=chat_id, message_id=message_id, text="Tic Tac Toe", reply_markup=reply_markup)
     else:
-        await context.bot.send_message(chat_id=chat_id, text="Tic Tac Toe", reply_markup=reply_markup)
+        await client.send_message(chat_id=chat_id, text="Tic Tac Toe", reply_markup=reply_markup)
 
 # Reset game board
 def reset_board(chat_id):
@@ -80,45 +82,45 @@ def load_board(chat_id):
     return ["", "", "", "", "", "", "", "", ""]
 
 # Handle moves and update the board
-async def handle_move(update: Update, context):
-    query = update.callback_query
-    chat_id = query.message.chat_id
-    message_id = query.message.message_id
-    callback_data = query.data
+@Client.on_callback_query()
+async def handle_move(client, callback_query):
+    chat_id = callback_query.message.chat_id
+    message_id = callback_query.message.message_id
+    callback_data = callback_query.data
     board = load_board(chat_id)
 
     if board[int(callback_data)] == "":
         board[int(callback_data)] = "X"  # Player move
 
         if check_winner(board, "X"):
-            await context.bot.send_message(chat_id=chat_id, text=f"You win, <a href='tg://user?id={update.effective_user.id}'>{update.effective_user.first_name}</a>!", parse_mode="HTML")
+            await client.send_message(chat_id=chat_id, text=f"You win, <a href='tg://user?id={update.effective_user.id}'>{update.effective_user.first_name}</a>!", parse_mode="HTML")
             reset_board(chat_id)
-            await send_game_board(chat_id, context, message_id)
+            await send_game_board(client, chat_id, message_id)
             return
 
         if is_board_full(board):
-            await context.bot.send_message(chat_id=chat_id, text="It's a draw!")
+            await client.send_message(chat_id=chat_id, text="It's a draw!")
             reset_board(chat_id)
-            await send_game_board(chat_id, context, message_id)
+            await send_game_board(client, chat_id, message_id)
             return
 
-        difficulty = context.user_data.get('difficulty', 'easy')
+        difficulty = client.user_data.get('difficulty', 'easy')
         board = bot_move(board, difficulty)
 
         if check_winner(board, "O"):
-            await context.bot.send_message(chat_id=chat_id, text="The bot wins!")
+            await client.send_message(chat_id=chat_id, text="The bot wins!")
             reset_board(chat_id)
-            await send_game_board(chat_id, context, message_id)
+            await send_game_board(client, chat_id, message_id)
             return
 
         if is_board_full(board):
-            await context.bot.send_message(chat_id=chat_id, text="It's a draw!")
+            await client.send_message(chat_id=chat_id, text="It's a draw!")
             reset_board(chat_id)
-            await send_game_board(chat_id, context, message_id)
+            await send_game_board(client, chat_id, message_id)
             return
 
         save_board(chat_id, board)
-        await send_game_board(chat_id, context, message_id)
+        await send_game_board(client, chat_id, message_id)
 
 # Check if player wins
 def check_winner(board, player):
@@ -183,18 +185,7 @@ def find_winning_move(board, player):
     return None
 
 # Command to directly send a game board
-async def game(update: Update, context):
-    chat_id = update.message.chat_id
+async def game(client, chat_id, message_id=None):
+    chat_id = chat_id
     reset_board(chat_id)
-    await send_game_board(chat_id, context)
-
-# Add handlers to the application
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CallbackQueryHandler(handle_difficulty, pattern="^difficulty_"))
-application.add_handler(CallbackQueryHandler(start_game, pattern="^start_game"))
-application.add_handler(CallbackQueryHandler(handle_move, pattern="^[0-8]$"))
-application.add_handler(CommandHandler("game", game))
-
-# Run the bot
-if __name__ == '__main__':
-    application.run_polling()
+    await send_game_board(client, chat_id)
