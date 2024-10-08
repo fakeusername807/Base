@@ -4,11 +4,6 @@ import random
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import Client, filters 
 
-
-TOKEN = "YOUR_BOT_TOKEN"
-
-application = Application.builder().token(TOKEN).build()
-
 # Start command to choose difficulty
 @Client.on_message(filters.command("tic"))
 async def start(client, message):
