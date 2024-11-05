@@ -86,6 +86,7 @@ async def restart_bot(b, m):
     await rkn_msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
     
+NOTIFICATION_CHANNEL_ID = -1002346166150
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
     client = bot
@@ -105,6 +106,8 @@ async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(buttons)
     await insert(user_id)
+    notification_text = f"🎉 New user started the bot: {message.from_user.mention} (ID: {user_id})"
+    await client.send_message(NOTIFICATION_CHANNEL_ID, notification_text)
     await message.reply_photo(photo="https://envs.sh/SQw.jpg",
         caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
         has_spoiler=True, 
