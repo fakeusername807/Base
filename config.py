@@ -16,7 +16,7 @@ class Rkn_Bots(object):
     # Rkn client config  ( required.. 😥)
     API_ID = os.environ.get("API_ID", "25492855")
     API_HASH = os.environ.get("API_HASH", "61876db014de51a4ace6b169608be4f1")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7080367896:AAG2YkXiDMwNzeANmHYoG-nSUTNFdIfWcL4")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 
     # start_pic
     RKN_PIC = os.environ.get("RKN_PIC", "https://graph.org/file/8487c51d55be5b4e17222.jpg")
@@ -30,7 +30,7 @@ class Rkn_Bots(object):
     
     # database config ( required.. 😥)
     DB_NAME = os.environ.get("DB_NAME", "HGBOTZ")     
-    DB_URL = os.environ.get("DB_URL", "mongodb+srv://david:Nath@cluster0.dv0ma.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    DB_URL = os.environ.get("DB_URL", "")
 
     # default caption 
     DEF_CAP = os.environ.get("DEF_CAP", "{filename}")
