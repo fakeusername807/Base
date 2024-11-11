@@ -9,17 +9,17 @@ from os import environ
 
 id_pattern = re.compile(r'^.\d+$')
 
-AUTH_CHANNEL = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('AUTH_CHANNEL', '').split()] # give channel id with seperate space. Ex : ('-10073828 -102782829 -1007282828')
+AUTH_CHANNEL = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('AUTH_CHANNEL', '-1002166149059').split()] # give channel id with seperate space. Ex : ('-10073828 -102782829 -1007282828')
 
 class Rkn_Bots(object):
     
     # Rkn client config  ( required.. 😥)
     API_ID = os.environ.get("API_ID", "25492855")
     API_HASH = os.environ.get("API_HASH", "61876db014de51a4ace6b169608be4f1")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7080367896:AAG2YkXiDMwNzeANmHYoG-nSUTNFdIfWcL4")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 
     # start_pic
-    RKN_PIC = os.environ.get("RKN_PIC", "https://graph.org/file/8487c51d55be5b4e17222.jpg")
+    RKN_PIC = os.environ.get("RKN_PIC", "https://i.ibb.co/dMJFrqQ/photo-2024-09-25-11-37-05-7435920937339322372.jpg")
 
     # wes response configuration
     BOT_UPTIME = time.time()
@@ -30,10 +30,10 @@ class Rkn_Bots(object):
     
     # database config ( required.. 😥)
     DB_NAME = os.environ.get("DB_NAME", "HGBOTZ")     
-    DB_URL = os.environ.get("DB_URL", "mongodb+srv://david:Nath@cluster0.dv0ma.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    DB_URL = os.environ.get("DB_URL", "")
 
     # default caption 
-    DEF_CAP = os.environ.get("DEF_CAP", "{filename}")
+    DEF_CAP = os.environ.get("DEF_CAP", "")
 
     # sticker Id
     STICKER_ID = os.environ.get("STICKER_ID", "CAACAgIAAxkBAAELFqBllhB70i13m-woXeIWDXU6BD2j7wAC9gcAAkb7rAR7xdjVOS5ziTQE")
