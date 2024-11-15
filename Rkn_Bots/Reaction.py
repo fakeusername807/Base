@@ -1,8 +1,3 @@
-# (c) @RknDeveloperr
-# Rkn Developer 
-# Don't Remove Credit 😔
-# Telegram Channel @RknDeveloper & @Rkn_Botz
-# Developer @RknDeveloperr
 
 from pyrogram import Client, filters, errors, types
 from config import Rkn_Bots, AUTH_CHANNEL
@@ -121,6 +116,35 @@ async def group_start_cmd(bot, message):
     await insert(user_id)
     await message.reply_text(text=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>",
         reply_markup=reply_markup)
+
+
+#----------------------Fin.py - - - - - - - - - - - - - - - - 
+
+@Client.on_message(filters.command("dice"))
+async def roll_dice(bot, message):
+    await bot.send_dice(message.chat.id, "🎲")
+
+@Client.on_message(filters.command("arrow"))                                      
+async def roll_arrow(bot, message):
+    await bot.send_dice(message.chat.id, "🎯")
+
+@Client.on_message(filters.command("goal"))
+async def roll_goal(bot, message):
+    await bot.send_dice(message.chat.id, "⚽️")
+
+@Client.on_message(filters.command("luck"))
+async def roll_luck(bot, message):
+    await bot.send_dice(message.chat.id, "🎰")
+
+@Client.on_message(filters.command("throw"))
+async def roll_throw(bot, message):
+    await bot.send_dice(message.chat.id, "🏀")
+
+@Client.on_message(filters.command(["bowling", "tenpins"]))
+async def roll_bowling(bot, message):
+    await bot.send_dice(message.chat.id, "🎳")
+
+#--------- react.py-------
 
 @Client.on_message(filters.all)
 async def send_reaction(bot, message):
