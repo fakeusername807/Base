@@ -12,11 +12,31 @@ buttons = [[
         InlineKeyboardButton('✨ 𝙲𝙾𝙽𝚃𝙰𝙲𝚃 ✨', url="https://t.me/Harshit_contact_bot")
     ],[
         InlineKeyboardButton('〄 Add to me group 〄', url="https://t.me/Reaction_99bot?startgroup=botstart")
+    ],[
+        InlineKeyboardButton('ˣ 𝙰𝙳𝙳 𝙼𝙴 𝚃𝙾 𝚈𝙾𝚄𝚁 𝙲𝙷𝙰𝙽𝙽𝙴𝙻 ˣ', url='https://t.me/Reaction_99bot?startchannel&admin=post_messages+edit_messages+delete_messages'),
+    ],[
+        InlineKeyboardButton('❗️ʜᴇʟᴘ', callback_data='help'), 
+        InlineKeyboardButton('🦋 𝙰𝙱𝙾𝚄𝚃', callback_data='about')
     ]]
 
-group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
-             ],[
-                  InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ")]] 
+
+back_button = [[
+                 InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
+                 InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+              ],[
+                 InlineKeyboardButton('🔙 back', callback_data='back')
+              ]]
+
+about_buttons = [[
+        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
+        ],[
+        InlineKeyboardButton('❗️ʜᴇʟᴘ', callback_data='help'), 
+        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='home')
+        ],[
+        InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
+        InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+        ]]
+
 
 async def is_subscribed(bot, query, channel):
     btn = []
@@ -104,7 +124,7 @@ async def start_cmd(bot, message):
     notification_text = f"🎉 New user started the bot: {message.from_user.mention} (ID: {user_id})"
     await bot.send_message(NOTIFICATION_CHANNEL_ID, notification_text)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
-        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><spoiler>🔋Maintained by <a href='https://t.me/Harshit_contact_bot'>ℍ𝕒ℝ𝕤ℍ𝕚𝕋</a></spoiler><b>",
+        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>""",
         has_spoiler=True, 
         reply_markup=reply_markup)
 
@@ -144,6 +164,22 @@ async def roll_throw(bot, message):
 async def roll_bowling(bot, message):
     await bot.send_dice(message.chat.id, "🎳")
 
+
+@Client.on_callback_query(filters.regex('help'))
+async def show_help_callback(client, callback_query: CallbackQuery):
+    await callback_query.answer()  # Acknowledge the callback
+    await callback_query.message.edit_text(text=script.HELP_TXT, reply_markup=InlineKeyboardMarkup(back_button))
+
+@Client.on_callback_query(filters.regex('back'))
+async def back_callback(client, callback_query: CallbackQuery):
+    await callback_query.answer()  # Acknowledge the callback
+    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons))
+
+@Client.on_callback_query(filters.regex('about'))
+async def about_callback(client, callback_query: CallbackQuery):
+    await callback_query.answer()# Acknowledge the callback
+    await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
+        
 #--------- react.py-------
 
 @Client.on_message(filters.all)
