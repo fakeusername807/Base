@@ -27,4 +27,5 @@ class script(object):
 ◉ /luck
 ◉ /throw
 ◉ /bowling
-◉ /tenpins</blockquote></b>"""
+◉ /tenpins</blockquote></b>
+<b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
