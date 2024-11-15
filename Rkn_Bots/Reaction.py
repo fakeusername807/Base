@@ -126,7 +126,7 @@ async def start_cmd(bot, message):
     notification_text = f"🎉 New user started the bot: {message.from_user.mention} (ID: {user_id})"
     await bot.send_message(NOTIFICATION_CHANNEL_ID, notification_text)
     await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
-        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b><blockquote>ɪ ᴀᴍ SIMPEL 😁 BUT ᴘᴏᴡᴇʀꜰᴜʟʟ AUTO REACTION ʙᴏᴛ ᴊᴜꜱᴛ Make Admin in Your Group/Chat to see Magic☜ </blockquote></b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>""",
+        caption=f"<b>Hᴇʟʟᴏ 😎 {message.from_user.mention} ✨</b>\n<b>ɪ ᴀᴍ sɪᴍᴘʟᴇ ʙᴜᴛ ᴘᴏᴡᴇʀꜰᴜʟʟ ᴀᴜᴛᴏ ʀᴇᴀᴄᴛɪᴏɴ ʙᴏᴛ.\n\nᴊᴜsᴛ ᴀᴅᴅ ᴍᴇ ᴀs ᴀ ᴀᴅᴍɪɴ ɪɴ ʏᴏᴜʀ ᴄʜᴀɴɴᴇʟ ᴏʀ ɢʀᴏᴜᴘ ᴛʜᴇɴ sᴇᴇ ᴍʏ ᴘᴏᴡᴇʀ</b>\n<blockquote expandable>For Fun Use These Commands\n◉ /dice\n◉ /arrow\n◉ /goal\n◉ /luck\n◉ /throw\n◉ /bowling\n◉ /tenpins</blockquote>\n<b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>""",
         has_spoiler=True, 
         reply_markup=reply_markup)
 
