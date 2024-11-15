@@ -125,4 +125,3 @@ async def group_start_cmd(bot, message):
 @Client.on_message(filters.group | filters.channel & filters.private))
 async def send_reaction(bot, message):
     await react_msg(bot, message)
-    return
