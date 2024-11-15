@@ -6,6 +6,8 @@ from .database import total_user, getid, delete, addCap, updateCap, insert, chnl
 from pyrogram.errors import *
 from pyrogram.types import *
 from utils import react_msg 
+from Script import script
+
 
 buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
