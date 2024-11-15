@@ -21,6 +21,11 @@ buttons = [[
         InlineKeyboardButton('🦋 𝙰𝙱𝙾𝚄𝚃', callback_data='about')
     ]]
 
+group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
+               ],[
+                  InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ")
+                ]] 
+
 
 back_button = [[
                  InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
