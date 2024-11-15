@@ -33,7 +33,7 @@ about_buttons = [[
         InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
         ],[
         InlineKeyboardButton('❗️ʜᴇʟᴘ', callback_data='help'), 
-        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='home')
+        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
         ],[
         InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
         InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
