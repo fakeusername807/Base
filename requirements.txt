@@ -1,8 +1,6 @@
-pyrofork==2.3.43
-https://codeload.github.com/KurimuzonAkuma/pyrogram/zip/refs/heads/dev
+pyrofork
 tgcrypto
 motor
 aiohttp
 pytz
 requests
-asyncio
