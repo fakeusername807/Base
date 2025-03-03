@@ -149,7 +149,7 @@ async def group_start_cmd(bot, message):
 
 @Client.on_message(filters.command("dice"))
 async def roll_dice(bot, message):
-    await bot.send_dice(message.chat.id, "🎲")
+    await message.reply_dice("🎲")
 
 @Client.on_message(filters.command("arrow"))                                      
 async def roll_arrow(bot, message):
