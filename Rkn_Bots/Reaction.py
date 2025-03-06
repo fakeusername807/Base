@@ -142,6 +142,7 @@ async def group_start_cmd(bot, message):
     reply_markup=InlineKeyboardMarkup(group_buttons)
     await insert(user_id)
     await message.reply_text(text=script.START_TXT.format(message.from_user.mention),
+        message_effect_id = 5044134455711629726, 
         reply_markup=reply_markup)
 
 
