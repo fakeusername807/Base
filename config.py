@@ -39,7 +39,7 @@ class Rkn_Bots(object):
     STICKER_ID = os.environ.get("STICKER_ID", "CAACAgIAAxkBAAELFqBllhB70i13m-woXeIWDXU6BD2j7wAC9gcAAkb7rAR7xdjVOS5ziTQE")
 
     # admin id  ( required.. 😥)
-    ADMIN = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6359874284').split()]
+    ADMIN = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6359874284 7609503336').split()]
     
 
 # Rkn Developer 
