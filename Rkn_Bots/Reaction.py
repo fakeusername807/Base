@@ -192,18 +192,21 @@ async def about_callback(client, callback_query: CallbackQuery):
 @Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command(["msg"]))
 async def send_message_to_channel(bot, message):
     # Check if the command is used correctly
-    if len(message.command) < 3:
-        await message.reply_text("**Usage:** /msg <channel_id> <message>")
+    if len(message.command) < 4:
+        await message.reply_text("**Usage:** /msg <channel_id> <loop_time> <message>")
         return
 
-    # Extract channel ID and message from the command
+    # Extract channel ID, loop time, and message from the command
     channel_id = message.command[1]
-    msg_text = " ".join(message.command[2:])
+    loop_time = int(message.command[2])  # Number of times to send the message
+    msg_text = " ".join(message.command[3:])  # The message to send
 
     try:
-        # Send the message to the specified channel
-        await bot.send_message(int(channel_id), msg_text)
-        await message.reply_text(f"Message sent successfully to channel/group {channel_id}!")
+        # Loop and send the message
+        for i in range(loop_time):
+            await bot.send_message(int(channel_id), msg_text)
+            await asyncio.sleep(1)  # Add a small delay to avoid spamming
+        await message.reply_text(f"Message sent {loop_time} times to channel/group {channel_id}!")
     except Exception as e:
         await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
 
