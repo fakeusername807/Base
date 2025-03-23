@@ -188,7 +188,25 @@ async def back_callback(client, callback_query: CallbackQuery):
 async def about_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()# Acknowledge the callback
     await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
-        
+
+@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command(["msg"]))
+async def send_message_to_channel(bot, message):
+    # Check if the command is used correctly
+    if len(message.command) < 3:
+        await message.reply_text("**Usage:** /msg <channel_id> <message>")
+        return
+
+    # Extract channel ID and message from the command
+    channel_id = message.command[1]
+    msg_text = " ".join(message.command[2:])
+
+    try:
+        # Send the message to the specified channel
+        await bot.send_message(int(channel_id), msg_text)
+        await message.reply_text(f"Message sent successfully to channel/group {channel_id}!")
+    except Exception as e:
+        await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
+
 #--------- react.py-------
 
 @Client.on_message(filters.all)
