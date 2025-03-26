@@ -1,4 +1,4 @@
-
+import requests
 from pyrogram import Client, filters, errors, types
 from config import Rkn_Bots, AUTH_CHANNEL
 import asyncio, re, time, sys, random
@@ -209,6 +209,59 @@ async def send_message_to_channel(bot, message):
         await message.reply_text(f"Message sent {loop_time} times to channel/group {channel_id}!")
     except Exception as e:
         await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
+
+
+
+@Client.on_message(filters.command("m3u8") & filters.private)
+async def extract_m3u8(client, message):
+    try:
+        if len(message.command) < 2:
+            return await message.reply("Please provide a URL after the command.\nExample: `/m3u8 https://example.com/stream`", parse_mode="markdown")
+
+        url = message.command[1]
+        msg = await message.reply("🔄 Scanning for M3U8 streams...")
+
+        # Fetch webpage content
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+        except Exception as e:
+            return await msg.edit(f"❌ Failed to fetch URL: {str(e)}")
+
+        # Search for M3U8 patterns
+        patterns = [
+            r'(https?://[^\s]+?\.m3u8)',
+            r'src="(https?://[^"]+?\.m3u8)"',
+            r'file:\s*"(https?://[^"]+?\.m3u8)"',
+            r'hlsManifestUrl":"([^"]+)"'
+        ]
+
+        found_urls = []
+        for pattern in patterns:
+            matches = re.findall(pattern, response.text)
+            found_urls.extend(matches)
+
+        # Remove duplicates
+        unique_urls = list(set(found_urls))
+
+        if not unique_urls:
+            return await msg.edit("❌ No M3U8 streams found in the page source")
+
+        # Format results
+        result = "**Found M3U8 Streams:**\n\n" + "\n".join(
+            [f"`{i+1}.` {url}" for i, url in enumerate(unique_urls[:5])]  # Show first 5 results
+        )
+
+        await msg.edit(result + "\n\n⚠️ These streams may require specific players like VLC")
+
+    except Exception as e:
+        await message.reply(f"Error: {str(e)}")
+
+
 
 #--------- react.py-------
 
