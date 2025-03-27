@@ -7,6 +7,8 @@
 import re, time, os
 from os import environ
 
+CRIC_API_KEY = "79261425-9b54-4e25-850c-c13b6e90b101"
+
 id_pattern = re.compile(r'^.\d+$')
 
 AUTH_CHANNEL = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('AUTH_CHANNEL', '-1002166149059').split()] # give channel id with seperate space. Ex : ('-10073828 -102782829 -1007282828')
