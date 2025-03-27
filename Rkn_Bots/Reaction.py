@@ -1,6 +1,6 @@
 import requests
 from pyrogram import Client, filters, errors, types
-from config import Rkn_Bots, AUTH_CHANNEL
+from config import Rkn_Bots, AUTH_CHANNEL, CRIC_API_KEY
 import asyncio, re, time, sys, random
 from .database import total_user, getid, delete, addCap, updateCap, insert, chnl_ids
 from pyrogram.errors import *
@@ -212,55 +212,97 @@ async def send_message_to_channel(bot, message):
 
 
 
-@Client.on_message(filters.command("m3u8") & filters.private)
-async def extract_m3u8(client, message):
+# Store active groups for IPL updates
+active_ipl_groups = {}
+
+async def fetch_ipl_scores():
+    url = "https://cricapi.com/api/matches"
+    params = {'apikey': CRIC_API_KEY}
+    
     try:
-        if len(message.command) < 2:
-            return await message.reply("Please provide a URL after the command.\nExample: `/m3u8 https://example.com/stream`", parse_mode="markdown")
+        response = requests.get(url, params=params)
+        data = response.json()
+        ipl_matches = [match for match in data['matches'] 
+                      if match['type'] == 'Twenty20' 
+                      and 'Indian Premier League' in match['series']]
+        return ipl_matches
+    except Exception as e:
+        print(f"Error fetching IPL scores: {e}")
+        return None
 
-        url = message.command[1]
-        msg = await message.reply("🔄 Scanning for M3U8 streams...")
+async def format_ipl_score(match):
+    status = match['status']
+    if match['matchStarted']:
+        if status == "completed":
+            score = f"🏏 **Final Score**\n{match['score']}"
+        else:
+            score = f"⚡ **Live Score**\n{match['score']}"
+    else:
+        score = "⏳ Match not started yet"
+    
+    return (
+        f"🏏 **IPL Live Update**\n\n"
+        f"**{match['team-1']} vs {match['team-2']}**\n"
+        f"📅 {match['date']}\n"
+        f"{score}\n"
+        f"📍 Venue: {match['venue']}\n"
+        f"🔴 Status: {status}\n"
+        f"🌐 Series: {match['series']}"
+    )
 
-        # Fetch webpage content
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
-        
-        try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-        except Exception as e:
-            return await msg.edit(f"❌ Failed to fetch URL: {str(e)}")
-
-        # Search for M3U8 patterns
-        patterns = [
-            r'(https?://[^\s]+?\.m3u8)',
-            r'src="(https?://[^"]+?\.m3u8)"',
-            r'file:\s*"(https?://[^"]+?\.m3u8)"',
-            r'hlsManifestUrl":"([^"]+)"'
-        ]
-
-        found_urls = []
-        for pattern in patterns:
-            matches = re.findall(pattern, response.text)
-            found_urls.extend(matches)
-
-        # Remove duplicates
-        unique_urls = list(set(found_urls))
-
-        if not unique_urls:
-            return await msg.edit("❌ No M3U8 streams found in the page source")
-
-        # Format results
-        result = "**Found M3U8 Streams:**\n\n" + "\n".join(
-            [f"`{i+1}.` {url}" for i, url in enumerate(unique_urls[:5])]  # Show first 5 results
-        )
-
-        await msg.edit(result + "\n\n⚠️ These streams may require specific players like VLC")
-
+@Client.on_message(filters.command(["ipl_on"]) & filters.group)
+async def enable_ipl_updates(client: Client, message: Message):
+    chat_id = message.chat.id
+    
+    # Check bot admin status
+    try:
+        member = await client.get_chat_member(chat_id, "me")
+        if not member.privileges.can_send_messages:
+            await message.reply("I need message sending permissions!")
+            return
     except Exception as e:
         await message.reply(f"Error: {str(e)}")
+        return
+    
+    active_ipl_groups[chat_id] = True
+    await message.reply("✅ IPL Live Updates Activated!\n\n"
+                       "Bot will now send live IPL scores every 2 minutes")
 
+@Client.on_message(filters.command(["ipl_off"]) & filters.group)
+async def disable_ipl_updates(client: Client, message: Message):
+    chat_id = message.chat.id
+    active_ipl_groups.pop(chat_id, None)
+    await message.reply("❌ IPL Updates Disabled")
+
+async def ipl_score_updater(client: Client):
+    while True:
+        try:
+            matches = await fetch_ipl_scores()
+            if matches:
+                for chat_id in active_ipl_groups.copy():
+                    try:
+                        for match in matches:
+                            if match['matchStarted']:
+                                formatted = await format_ipl_score(match)
+                                await client.send_message(
+                                    chat_id=chat_id,
+                                    text=formatted,
+                                    disable_notification=True
+                                )
+                                await asyncio.sleep(2)
+                    except Exception as e:
+                        print(f"Error sending to {chat_id}: {e}")
+                        del active_ipl_groups[chat_id]
+            await asyncio.sleep(120)  # 2 minutes interval
+        except Exception as e:
+            print(f"IPL Updater error: {e}")
+            await asyncio.sleep(60)
+
+async def start_ipl_scheduler(client):
+    asyncio.create_task(ipl_score_updater(client))
+
+# Add to client initialization
+Client.on_startup = start_ipl_scheduler
 
 
 #--------- react.py-------
