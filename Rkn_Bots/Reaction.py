@@ -250,7 +250,7 @@ async def format_ipl_score(match):
         f"🌐 Series: {match['series']}"
     )
 
-@Client.on_message(filters.command(["ipl_on"]) & filters.group)
+@Client.on_message(filters.command(["ipl_on"]) & filters.user(Rkn_Bots.ADMIN) & filters.group)
 async def enable_ipl_updates(client: Client, message: Message):
     chat_id = message.chat.id
     
@@ -268,7 +268,7 @@ async def enable_ipl_updates(client: Client, message: Message):
     await message.reply("✅ IPL Live Updates Activated!\n\n"
                        "Bot will now send live IPL scores every 2 minutes")
 
-@Client.on_message(filters.command(["ipl_off"]) & filters.group)
+@Client.on_message(filters.command(["ipl_off"]) & filters.user(Rkn_Bots.ADMIN) & filters.group)
 async def disable_ipl_updates(client: Client, message: Message):
     chat_id = message.chat.id
     active_ipl_groups.pop(chat_id, None)
