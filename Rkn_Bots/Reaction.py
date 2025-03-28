@@ -1,4 +1,4 @@
-import requests
+import requests, logging
 from pyrogram import Client, filters, errors, types
 from config import Rkn_Bots, AUTH_CHANNEL, CRIC_API_KEY
 import asyncio, re, time, sys, random
@@ -211,87 +211,143 @@ async def send_message_to_channel(bot, message):
         await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
 
 
+# Set up logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-# Store active groups for IPL updates
+# Store active groups
 active_ipl_groups = {}
 
 async def fetch_ipl_scores():
-    url = "https://cricapi.com/api/matches"
-    params = {'apikey': CRIC_API_KEY}
-    
     try:
-        response = requests.get(url, params=params)
+        url = "https://cricapi.com/api/matches"
+        params = {'apikey': CRIC_API_KEY}
+        
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
         data = response.json()
-        ipl_matches = [match for match in data['matches'] 
-                      if match['type'] == 'Twenty20' 
-                      and 'Indian Premier League' in match['series']]
+
+        if not data.get('matches'):
+            logger.warning("No matches found in API response")
+            return None
+
+        ipl_matches = [
+            match for match in data['matches']
+            if match.get('type') == 'Twenty20'
+            and 'Indian Premier League' in match.get('series', '')
+        ]
+        
         return ipl_matches
+
     except Exception as e:
-        print(f"Error fetching IPL scores: {e}")
+        logger.error(f"API Error: {str(e)}")
         return None
 
 async def format_ipl_score(match):
-    status = match['status']
-    if match['matchStarted']:
-        if status == "completed":
-            score = f"🏏 **Final Score**\n{match['score']}"
+    try:
+        team1 = match.get('team-1', 'N/A')
+        team2 = match.get('team-2', 'N/A')
+        status = match.get('status', 'Unknown')
+        score = match.get('score', 'Score not available')
+        venue = match.get('venue', 'Unknown venue')
+        date = match.get('date', 'Unknown date')
+        
+        if match.get('matchStarted'):
+            if status.lower() == "completed":
+                header = "🏏 **Match Completed**"
+            else:
+                header = "⚡ **Live Score Update**"
         else:
-            score = f"⚡ **Live Score**\n{match['score']}"
-    else:
-        score = "⏳ Match not started yet"
-    
-    return (
-        f"🏏 **IPL Live Update**\n\n"
-        f"**{match['team-1']} vs {match['team-2']}**\n"
-        f"📅 {match['date']}\n"
-        f"{score}\n"
-        f"📍 Venue: {match['venue']}\n"
-        f"🔴 Status: {status}\n"
-        f"🌐 Series: {match['series']}"
-    )
+            header = "⏰ **Upcoming Match**"
 
-@Client.on_message(filters.command(["ipl_on"]) & filters.user(Rkn_Bots.ADMIN) & filters.group)
+        return (
+            f"{header}\n\n"
+            f"**{team1} vs {team2}**\n"
+            f"📅 {date}\n"
+            f"📊 {score}\n"
+            f"🏟️ {venue}\n"
+            f"📢 Status: {status}"
+        )
+
+    except Exception as e:
+        logger.error(f"Formatting error: {str(e)}")
+        return None
+
+@Client.on_message(filters.command(["ipl_on"]) & filters.group)
 async def enable_ipl_updates(client: Client, message: Message):
     chat_id = message.chat.id
     active_ipl_groups[chat_id] = True
-    await message.reply("✅ IPL Live Updates Activated!\n\n"
-                       "Bot will now send live IPL scores every 2 minutes")
+    await message.reply(
+        "✅ IPL Live Updates Activated!\n"
+        "Bot will send live scores every 2 minutes\n"
+        "Use /ipl_status to check current status"
+    )
 
-@Client.on_message(filters.command(["ipl_off"]) & filters.user(Rkn_Bots.ADMIN) & filters.group)
+@Client.on_message(filters.command(["ipl_off"]) & filters.group)
 async def disable_ipl_updates(client: Client, message: Message):
     chat_id = message.chat.id
     active_ipl_groups.pop(chat_id, None)
     await message.reply("❌ IPL Updates Disabled")
 
+@Client.on_message(filters.command("ipl_status") & filters.group)
+async def check_ipl_status(client, message):
+    chat_id = message.chat.id
+    status = "🔴 Inactive"
+    
+    if active_ipl_groups.get(chat_id):
+        status = "🟢 Active"
+    
+    try:
+        matches = await fetch_ipl_scores()
+        match_status = f"Live Matches: {len(matches) if matches else 0}"
+    except:
+        match_status = "API Connection Failed"
+    
+    await message.reply(
+        f"**IPL Bot Status**\n\n"
+        f"• Updates: {status}\n"
+        f"• {match_status}\n"
+        f"• Next Check: Within 2 minutes"
+    )
+
 async def ipl_score_updater(client: Client):
+    logger.info("IPL Score Updater service started")
     while True:
         try:
             matches = await fetch_ipl_scores()
+            
             if matches:
-                for chat_id in active_ipl_groups.copy():
+                logger.info(f"Found {len(matches)} IPL matches")
+                for chat_id in list(active_ipl_groups.keys()):
                     try:
                         for match in matches:
-                            if match['matchStarted']:
+                            if match.get('matchStarted'):
                                 formatted = await format_ipl_score(match)
-                                await client.send_message(
-                                    chat_id=chat_id,
-                                    text=formatted,
-                                    disable_notification=True
-                                )
-                                await asyncio.sleep(2)
+                                if formatted:
+                                    await client.send_message(
+                                        chat_id=chat_id,
+                                        text=formatted,
+                                        disable_notification=True
+                                    )
+                                    await asyncio.sleep(2)
                     except Exception as e:
-                        print(f"Error sending to {chat_id}: {e}")
-                        del active_ipl_groups[chat_id]
-            await asyncio.sleep(120)  # 2 minutes interval
+                        logger.error(f"Error in {chat_id}: {str(e)}")
+                        active_ipl_groups.pop(chat_id, None)
+            else:
+                logger.info("No active IPL matches found")
+            
+            await asyncio.sleep(120)
+            
         except Exception as e:
-            print(f"IPL Updater error: {e}")
+            logger.error(f"Updater error: {str(e)}")
             await asyncio.sleep(60)
 
-async def start_ipl_scheduler(client):
+async def start_scheduler(client):
     asyncio.create_task(ipl_score_updater(client))
 
-# Add to client initialization
-Client.on_startup = start_ipl_scheduler
 
 
 #--------- react.py-------
