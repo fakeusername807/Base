@@ -253,17 +253,6 @@ async def format_ipl_score(match):
 @Client.on_message(filters.command(["ipl_on"]) & filters.user(Rkn_Bots.ADMIN) & filters.group)
 async def enable_ipl_updates(client: Client, message: Message):
     chat_id = message.chat.id
-    
-    # Check bot admin status
-    try:
-        member = await client.get_chat_member(chat_id, "me")
-        if not member.privileges.can_send_messages:
-            await message.reply("I need message sending permissions!")
-            return
-    except Exception as e:
-        await message.reply(f"Error: {str(e)}")
-        return
-    
     active_ipl_groups[chat_id] = True
     await message.reply("✅ IPL Live Updates Activated!\n\n"
                        "Bot will now send live IPL scores every 2 minutes")
