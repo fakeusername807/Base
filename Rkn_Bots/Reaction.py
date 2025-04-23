@@ -264,7 +264,7 @@ async def get_movie_assets(client, callback_query: CallbackQuery):
 • Backdrop: {format_url(hi_data.get("backdrop_path"))}
 """
 
-    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True, parse_mode="html")              
+    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True, parse_mode="HTML")              
 
 #--------- react.py-------
 
