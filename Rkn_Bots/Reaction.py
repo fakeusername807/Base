@@ -212,60 +212,30 @@ async def send_message_to_channel(bot, message):
 
 
 
-TMDB_API_KEY = "ec8c79cb7ce985249d2c690a90752c94"
+@Client.on_message(filters.command("poster"))
+async def poster_cmd(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("Please provide a movie name.\nUsage: `/poster Animal`", parse_mode="Markdown")
 
-# Step 1: Search Movie Handler
-@Client.on_message(filters.command("poster") & filters.private)
-async def search_movie(client, message):
     query = " ".join(message.command[1:])
+    api_url = f"http://hgbotz.serv00.net/tmdb/api.php?query={query}"
+
     async with aiohttp.ClientSession() as session:
-        url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&query={query}"
-        async with session.get(url) as resp:
+        async with session.get(api_url) as resp:
+            if resp.status != 200:
+                return await message.reply("Failed to fetch data.")
             data = await resp.json()
-    
-    results = data.get("results", [])[:10]
-    if not results:
-        return await message.reply("No movies found.")
-    
-    buttons = [
-        [InlineKeyboardButton(f"{movie['title']} ({movie['release_date'][:4]})", callback_data=f"get_{movie['id']}")]
-        for movie in results
-    ]
-    await message.reply("Choose a movie:", reply_markup=InlineKeyboardMarkup(buttons))
 
+    poster = data["posters"][0] if data.get("posters") else "N/A"
+    english = "\n".join(data.get("english_backdrops", [])) or "N/A"
+    hindi = "\n".join(data.get("hindi_backdrops", [])) or "N/A"
 
-# Step 2: Callback to get EN/HIN Backdrop & Poster
-@Client.on_callback_query(filters.regex(r"get_(\d+)"))
-async def get_movie_assets(client, callback_query: CallbackQuery):
-    movie_id = callback_query.data.split("_")[1]
+    text = f"<b>Movie:</b> <code>{query}</code>\n\n"
+    text += f"<b>Poster URL:</b>\n<code>{poster}</code>\n\n"
+    text += f"<b>English Backdrops:</b>\n<code>{english}</code>\n\n"
+    text += f"<b>Hindi Backdrops:</b>\n<code>{hindi}</code>"
 
-    async with aiohttp.ClientSession() as session:
-        # English
-        en_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=en-US"
-        async with session.get(en_url) as en_resp:
-            en_data = await en_resp.json()
-
-        # Hindi
-        hi_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=hi-IN"
-        async with session.get(hi_url) as hi_resp:
-            hi_data = await hi_resp.json()
-
-    def format_url(path):
-        return f"https://image.tmdb.org/t/p/original{path}" if path else "Not available"
-
-    reply_text = f"""{en_data.get("title", "Unknown Title")}
-
-English:
-• Poster: {format_url(en_data.get("poster_path"))}
-• Backdrop: {format_url(en_data.get("backdrop_path"))}
-
-Hindi:
-• Poster: {format_url(hi_data.get("poster_path"))}
-• Backdrop: {format_url(hi_data.get("backdrop_path"))}
-"""
-
-    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True)              
-
+    await message.reply(text, disable_web_page_preview=True, parse_mode="HTML")
 #--------- react.py-------
 
 @Client.on_message(filters.all)
