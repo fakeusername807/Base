@@ -212,7 +212,7 @@ async def send_message_to_channel(bot, message):
 
 
 
-@Client.on_message(filters.command("poster"))
+@Client.on_message(filters.command("poster") & filters.all)
 async def poster_cmd(client, message: Message):
     if len(message.command) < 2:
         return await message.reply("Please provide a movie name.\nUsage: `/poster Animal`", parse_mode="Markdown")
