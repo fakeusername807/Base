@@ -235,7 +235,7 @@ async def poster_cmd(client, message: Message):
     text += f"<b>English Backdrops:</b>\n<code>{english}</code>\n\n"
     text += f"<b>Hindi Backdrops:</b>\n<code>{hindi}</code>"
 
-    await message.reply(text, disable_web_page_preview=True, parse_mode="HTML")
+    await message.reply(text, disable_web_page_preview=True)
 #--------- react.py-------
 
 @Client.on_message(filters.all)
