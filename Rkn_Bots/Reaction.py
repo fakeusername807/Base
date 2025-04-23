@@ -7,7 +7,7 @@ from pyrogram.errors import *
 from pyrogram.types import *
 from utils import react_msg 
 from Script import script
-
+import aiohttp
 
 buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
@@ -211,7 +211,60 @@ async def send_message_to_channel(bot, message):
         await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
 
 
-                
+
+TMDB_API_KEY = "ec8c79cb7ce985249d2c690a90752c94"
+
+# Step 1: Search Movie Handler
+@Client.on_message(filters.command("poster") & filters.private)
+async def search_movie(client, message):
+    query = " ".join(message.command[1:])
+    async with aiohttp.ClientSession() as session:
+        url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&query={query}"
+        async with session.get(url) as resp:
+            data = await resp.json()
+    
+    results = data.get("results", [])[:10]
+    if not results:
+        return await message.reply("No movies found.")
+    
+    buttons = [
+        [InlineKeyboardButton(f"{movie['title']} ({movie['release_date'][:4]})", callback_data=f"get_{movie['id']}")]
+        for movie in results
+    ]
+    await message.reply("Choose a movie:", reply_markup=InlineKeyboardMarkup(buttons))
+
+
+# Step 2: Callback to get EN/HIN Backdrop & Poster
+@Client.on_callback_query(filters.regex(r"get_(\d+)"))
+async def get_movie_assets(client, callback_query: CallbackQuery):
+    movie_id = callback_query.data.split("_")[1]
+
+    async with aiohttp.ClientSession() as session:
+        # English
+        en_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=en-US"
+        async with session.get(en_url) as en_resp:
+            en_data = await en_resp.json()
+
+        # Hindi
+        hi_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=hi-IN"
+        async with session.get(hi_url) as hi_resp:
+            hi_data = await hi_resp.json()
+
+    def format_url(path):
+        return f"https://image.tmdb.org/t/p/original{path}" if path else "Not available"
+
+    reply_text = f"""<b>{en_data.get("title", "Unknown Title")}</b>
+
+<b>English:</b>
+• Poster: {format_url(en_data.get("poster_path"))}
+• Backdrop: {format_url(en_data.get("backdrop_path"))}
+
+<b>Hindi:</b>
+• Poster: {format_url(hi_data.get("poster_path"))}
+• Backdrop: {format_url(hi_data.get("backdrop_path"))}
+"""
+
+    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True, parse_mode="html")              
 
 #--------- react.py-------
 
