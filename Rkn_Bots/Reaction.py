@@ -253,18 +253,18 @@ async def get_movie_assets(client, callback_query: CallbackQuery):
     def format_url(path):
         return f"https://image.tmdb.org/t/p/original{path}" if path else "Not available"
 
-    reply_text = f"""<b>{en_data.get("title", "Unknown Title")}</b>
+    reply_text = f"""{en_data.get("title", "Unknown Title")}
 
-<b>English:</b>
+English:
 • Poster: {format_url(en_data.get("poster_path"))}
 • Backdrop: {format_url(en_data.get("backdrop_path"))}
 
-<b>Hindi:</b>
+Hindi:
 • Poster: {format_url(hi_data.get("poster_path"))}
 • Backdrop: {format_url(hi_data.get("backdrop_path"))}
 """
 
-    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True, parse_mode="HTML")              
+    await callback_query.message.edit_text(reply_text, disable_web_page_preview=True)              
 
 #--------- react.py-------
 
