@@ -1,9 +1,9 @@
 
 import motor.motor_asyncio
-from config import Rkn_Bots
+from config import HgBotz 
 
-client = motor.motor_asyncio.AsyncIOMotorClient(Rkn_Bots.DB_URL)
-db = client[Rkn_Bots.DB_NAME]
+client = motor.motor_asyncio.AsyncIOMotorClient(HgBotz.DB_URL)
+db = client[HgBotz.DB_NAME]
 chnl_ids = db.chnl_ids
 users = db.users
 
@@ -34,7 +34,3 @@ async def addCap(chnl_id, caption):
 async def updateCap(chnl_id, caption):
     await chnl_ids.update_one({"chnl_id": chnl_id}, {"$set": {"caption": caption}})
 
-# Rkn Developer 
-# Don't Remove Credit 😔
-# Telegram Channel @RknDeveloper & @Rkn_Bots
-# Developer @RknDeveloperr
