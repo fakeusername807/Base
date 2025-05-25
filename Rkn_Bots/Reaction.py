@@ -1,6 +1,6 @@
 import requests
 from pyrogram import Client, filters, errors, types
-from config import Rkn_Bots, AUTH_CHANNEL
+from config import HgBotz, AUTH_CHANNEL
 import asyncio, re, time, sys, random
 from .database import total_user, getid, delete, addCap, updateCap, insert, chnl_ids
 from pyrogram.errors import *
@@ -36,10 +36,7 @@ back_button = [[
 
 about_buttons = [[
         InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
-        ],[
-        InlineKeyboardButton('❗️ʜᴇʟᴘ', callback_data='help'), 
-        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
-        ],[
+       ],[
         InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
         InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
         ]]
@@ -57,7 +54,7 @@ async def is_subscribed(bot, query, channel):
             pass
     return btn
 
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN)  & filters.command(["stats"]))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN)  & filters.command(["stats"]))
 async def all_db_users_here(client, message):
     start_t = time.time()
     rkn = await message.reply_text("Processing...")
@@ -68,7 +65,7 @@ async def all_db_users_here(client, message):
     await rkn.edit(text=f"**--Bot Processed--** \n\n**Bot Started UpTime:** {uptime} \n**Bot Current Ping:** `{time_taken_s:.3f} ᴍꜱ` \n**All Bot Users:** `{total_users}`")
 
 
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command(["broadcast"]))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN) & filters.command(["broadcast"]))
 async def broadcast(bot, message):
     if (message.reply_to_message):
         rkn = await message.reply_text("Bot Processing.\nI am checking all bot users.")
@@ -101,14 +98,14 @@ async def broadcast(bot, message):
         await rkn.edit(f"<u>ʙʀᴏᴀᴅᴄᴀsᴛ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</u>\n\n• ᴛᴏᴛᴀʟ ᴜsᴇʀs: {tot}\n• sᴜᴄᴄᴇssғᴜʟ: {success}\n• ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs: {blocked}\n• ᴅᴇʟᴇᴛᴇᴅ ᴀᴄᴄᴏᴜɴᴛs: {deactivated}\n• ᴜɴsᴜᴄᴄᴇssғᴜʟ: {failed}")
         
 # Restart to cancell all process 
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command("restart"))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN) & filters.command("restart"))
 async def restart_bot(b, m):
     rkn_msg = await b.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙸𝙽𝙶...**", chat_id=m.chat.id)       
     await asyncio.sleep(3)
     await rkn_msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
     
-NOTIFICATION_CHANNEL_ID = -1002346166150
+
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
     client = bot
@@ -127,10 +124,7 @@ async def start_cmd(bot, message):
             print(e)
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(buttons)
-    await insert(user_id)
-    notification_text = f"🎉 New user started the bot: {message.from_user.mention} (ID: {user_id})"
-    await bot.send_message(NOTIFICATION_CHANNEL_ID, notification_text)
-    await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
+    await message.reply_text(
         caption=script.START_TXT.format(message.from_user.mention),
         has_spoiler=True, 
         reply_markup=reply_markup)
@@ -144,34 +138,6 @@ async def group_start_cmd(bot, message):
     await message.reply_text(text=script.START_TXT.format(message.from_user.mention),
         message_effect_id = 5044134455711629726, 
         reply_markup=reply_markup)
-
-
-#----------------------Fin.py - - - - - - - - - - - - - - - - 
-
-@Client.on_message(filters.command("dice"))
-async def roll_dice(bot, message):
-    await bot.send_dice(message.chat.id, "🎲")
-
-
-@Client.on_message(filters.command("arrow"))                                      
-async def roll_arrow(bot, message):
-    await bot.send_dice(message.chat.id, "🎯")
-
-@Client.on_message(filters.command("goal"))
-async def roll_goal(bot, message):
-    await bot.send_dice(message.chat.id, "⚽️")
-
-@Client.on_message(filters.command("luck"))
-async def roll_luck(bot, message):
-    await bot.send_dice(message.chat.id, "🎰")
-
-@Client.on_message(filters.command("throw"))
-async def roll_throw(bot, message):
-    await bot.send_dice(message.chat.id, "🏀")
-
-@Client.on_message(filters.command(["bowling", "tenpins"]))
-async def roll_bowling(bot, message):
-    await bot.send_dice(message.chat.id, "🎳")
 
 
 @Client.on_callback_query(filters.regex('help'))
@@ -188,56 +154,3 @@ async def back_callback(client, callback_query: CallbackQuery):
 async def about_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()# Acknowledge the callback
     await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
-
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command(["msg"]))
-async def send_message_to_channel(bot, message):
-    # Check if the command is used correctly
-    if len(message.command) < 4:
-        await message.reply_text("**Usage:** /msg <channel_id> <loop_time> <message>")
-        return
-
-    # Extract channel ID, loop time, and message from the command
-    channel_id = message.command[1]
-    loop_time = int(message.command[2])  # Number of times to send the message
-    msg_text = " ".join(message.command[3:])  # The message to send
-
-    try:
-        # Loop and send the message
-        for i in range(loop_time):
-            await bot.send_message(int(channel_id), msg_text)
-            await asyncio.sleep(1)  # Add a small delay to avoid spamming
-        await message.reply_text(f"Message sent {loop_time} times to channel/group {channel_id}!")
-    except Exception as e:
-        await message.reply_text(f"Failed to send message to channel/group {channel_id}. Error: {str(e)}")
-
-
-
-@Client.on_message(filters.command("poster") & filters.all)
-async def poster_cmd(client, message: Message):
-    if len(message.command) < 2:
-        return await message.reply("Please provide a movie name.\nUsage: `/poster Animal`", parse_mode="Markdown")
-
-    query = " ".join(message.command[1:])
-    api_url = f"http://hgbotz.serv00.net/tmdb/api.php?query={query}"
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(api_url) as resp:
-            if resp.status != 200:
-                return await message.reply("Failed to fetch data.")
-            data = await resp.json()
-
-    poster = data["posters"][0] if data.get("posters") else "N/A"
-    english = "\n".join(data.get("english_backdrops", [])) or "N/A"
-    hindi = "\n".join(data.get("hindi_backdrops", [])) or "N/A"
-
-    text = f"<b>Movie:</b> <code>{query}</code>\n\n"
-    text += f"<b>Poster URL:</b>\n<code>{poster}</code>\n\n"
-    text += f"<b>English Backdrops:</b>\n<code>{english}</code>\n\n"
-    text += f"<b>Hindi Backdrops:</b>\n<code>{hindi}</code>"
-
-    await message.reply(text, disable_web_page_preview=True)
-#--------- react.py-------
-
-@Client.on_message(filters.all)
-async def send_reaction(bot, message):
-    await react_msg(bot, message)
