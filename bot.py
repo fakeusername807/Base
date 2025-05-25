@@ -13,7 +13,7 @@ class HgBotz(Client):
             api_hash=HgBotz.API_HASH,
             bot_token=HgBotz.BOT_TOKEN,
             workers=200,
-            plugins={"root": "Rkn_Bots"},
+            plugins={"root": "HgBotz"},
             sleep_threshold=15,
         )
 
@@ -22,7 +22,7 @@ class HgBotz(Client):
         me = await self.get_me()
         self.uptime = HgBotz.BOT_UPTIME
         self.force_channel = HgBotz.FORCE_SUB
-        if Rkn_Bots.FORCE_SUB:
+        if HgBotz.FORCE_SUB:
             try:
                 link = await self.export_chat_invite_link(Rkn_Bots.FORCE_SUB)
                 self.invitelink = link
