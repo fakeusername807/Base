@@ -27,10 +27,3 @@ async def getid():
 async def delete(id):
     await users.delete_one(id)
                      
-async def addCap(chnl_id, caption):
-    dets = {"chnl_id": chnl_id, "caption": caption}
-    await chnl_ids.insert_one(dets)
-
-async def updateCap(chnl_id, caption):
-    await chnl_ids.update_one({"chnl_id": chnl_id}, {"$set": {"caption": caption}})
-
