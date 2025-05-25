@@ -2,10 +2,9 @@ import requests
 from pyrogram import Client, filters, errors, types
 from config import HgBotz, AUTH_CHANNEL
 import asyncio, re, time, sys, random
-from .database import total_user, getid, delete, addCap, updateCap, insert, chnl_ids
+from .database import total_user, getid, delete insert
 from pyrogram.errors import *
 from pyrogram.types import *
-from utils import react_msg 
 from Script import script
 import aiohttp
 
@@ -125,19 +124,9 @@ async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(buttons)
     await message.reply_text(
-        caption=script.START_TXT.format(message.from_user.mention),
-        has_spoiler=True, 
+        text=script.START_TXT.format(message.from_user.mention),
         reply_markup=reply_markup)
 
-@Client.on_message(filters.command("start") & filters.group)
-async def group_start_cmd(bot, message):
-    await react_msg(bot, message)
-    user_id = int(message.from_user.id)
-    reply_markup=InlineKeyboardMarkup(group_buttons)
-    await insert(user_id)
-    await message.reply_text(text=script.START_TXT.format(message.from_user.mention),
-        message_effect_id = 5044134455711629726, 
-        reply_markup=reply_markup)
 
 
 @Client.on_callback_query(filters.regex('help'))
