@@ -3,7 +3,7 @@
 from aiohttp import web
 from pyrogram import Client
 from config import HgBotz, HgBotz as HgBotz 
-from HgBotz.web_support import web_server
+from Rkn_Bots.web_support import web_server
 
 class HgBotz(Client):
     def __init__(self):
@@ -13,7 +13,7 @@ class HgBotz(Client):
             api_hash=HgBotz.API_HASH,
             bot_token=HgBotz.BOT_TOKEN,
             workers=200,
-            plugins={"root": "HgBotz"},
+            plugins={"root": "Rkn_Bots"},
             sleep_threshold=15,
         )
 
