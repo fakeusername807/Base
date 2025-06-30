@@ -3,7 +3,7 @@
 from aiohttp import web
 from pyrogram import Client
 from config import HgBotz, HgBotz as HgBotz 
-from Rkn_Bots.web_support import web_server
+from HgBotz.web_support import web_server
 
 class HgBotz(Client):
     def __init__(self):
@@ -24,7 +24,7 @@ class HgBotz(Client):
         self.force_channel = HgBotz.FORCE_SUB
         if HgBotz.FORCE_SUB:
             try:
-                link = await self.export_chat_invite_link(Rkn_Bots.FORCE_SUB)
+                link = await self.export_chat_invite_link(HgBotz.FORCE_SUB)
                 self.invitelink = link
             except Exception as e:
                 print(e)
@@ -33,7 +33,7 @@ class HgBotz(Client):
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
-        await web.TCPSite(app, bind_address, Rkn_Bots.PORT).start()
+        await web.TCPSite(app, bind_address, HgBotz.PORT).start()
         print(f"{me.first_name} Iꜱ Sᴛᴀʀᴛᴇᴅ.....✨️")
         for id in HgBotz.ADMIN:
             try:
