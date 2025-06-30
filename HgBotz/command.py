@@ -14,6 +14,8 @@ from pyrogram import Client, filters
 import json
 from urllib.parse import unquote, parse_qs, urlparse
 
+
+
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
 buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
@@ -71,6 +73,7 @@ update_button = InlineKeyboardMarkup(
         [InlineKeyboardButton("💥 𝚄𝚙𝚍𝚊𝚝𝚎 𝙲𝚑𝚊𝚗𝚗𝚎𝚕", url="https://t.me/hgbotz")]
     ]
 )
+
 
 
 
@@ -353,9 +356,13 @@ async def bms_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**Book My Show Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**BookMyShow Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
+        )
+        await client.send_message(chat_id=dump_chat, 
+        text=f"**BookMyShow Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        disable_web_page_preview=False, reply_markup=update_button
         )
     else:
         await message.reply("❌ No image found.")
@@ -434,6 +441,7 @@ async def shemaroo_handler(client, message):
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "shemaroo")
 
+
 async def handle_generic_ott(client, message, url, ott_name):
     msg = await message.reply("🔍")
     
@@ -450,6 +458,10 @@ async def handle_generic_ott(client, message, url, ott_name):
         text=f"**{ott_name.upper()} Poster: 🎬 {title} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
+    )
+    await client.send_message(chat_id =dump_chat, 
+        text=f"**{ott_name.upper()} Poster: 🎬 {title} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        disable_web_page_preview=False, reply_markup=update_button
     )
 
 
@@ -535,6 +547,10 @@ async def handle_apple_request(client, message, url):
             text=f"**🎬 {title}**\n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
+        await client.send_message(chat_id=dump_chat, 
+            text=f"**🎬 {title}**\n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            disable_web_page_preview=False, reply_markup=update_button
+        )
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
         
@@ -592,6 +608,10 @@ async def yt_thumbnail(client: Client, message: Message):
     msg = await message.reply("🔍")
     await asyncio.sleep(3)
     await msg.edit_text(
+            text=f"**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            disable_web_page_preview=False, reply_markup=update_button
+    )
+    await client.send_message(chat_id =dump_chat, 
             text=f"**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
@@ -741,6 +761,10 @@ async def handle_airtel_request(client, message, url):
             text=f"**{ott_name} Poster: 🎬  {title} ({year})** \n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
+        await client.send_message(chat_id =dump_chat, 
+            text=f"**{ott_name} Poster: 🎬  {title} ({year})** \n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            disable_web_page_preview=False, reply_markup=update_button
+        )
         
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
@@ -871,6 +895,10 @@ async def handle_zee_request(client, message, url):
 
         
         await msg.edit_text(
+            text=f"**🎬 {title} \n\n {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            disable_web_page_preview=False, reply_markup=update_button
+        )
+        await client.send_message(chat_id =dump_chat, 
             text=f"**🎬 {title} \n\n {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
