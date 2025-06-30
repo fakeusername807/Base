@@ -76,7 +76,7 @@ update_button = InlineKeyboardMarkup(
 
 
 
-
+dump_chat = 
 # 🧩 Environment Variables
 FORCE_SUB_CHANNEL = os.getenv("FORCE_SUB_CHANNEL", "HGBOTZ")  # e.g. @YourChannelUsername or -100xxxxxxxxxx
 FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Hey {} , Seems Like You Haven't Joined Our Channel(s).\n Please Join Below & Then Try Again .</b>")  # Image to show when not subscribed
@@ -1042,11 +1042,12 @@ async def prime_command(client, message):
             # Format and send movie response
             response = format_movie_response(result)
             await status_msg.edit_text(response, disable_web_page_preview=False, reply_markup=update_button)
+            await client.send_message(chat_id = dump_chat, response, disable_web_page_preview=False, reply_markup=update_button)
         
         elif result['type'] == 'series':
             # Format series response with buttons
             response, keyboard = format_series_response(result)
-            await status_msg.edit_text(response, reply_markup=keyboard)
+            await status_msg.edit_text(response, disable_web_page_preview=False, reply_markup=keyboard)
             
             # Store season data for callback handling
             user_data[message.from_user.id] = {
