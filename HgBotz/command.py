@@ -1,6 +1,6 @@
 import requests
 from pyrogram import Client, filters, errors, types, enums 
-from config import Rkn_Bots, AUTH_CHANNEL
+from config import HgBotz, AUTH_CHANNEL
 import os, asyncio, re, time, sys, random, html
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
@@ -13,8 +13,58 @@ from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 import json
 from urllib.parse import unquote, parse_qs, urlparse
-# In-memory game storage
-games = {}
+
+#-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
+buttons = [[
+        InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
+        InlineKeyboardButton('🦋 about', callback_data='about')
+    ],[
+        InlineKeyboardButton('〄 Add to me group 〄', url="https://t.me/Reaction_99bot?startgroup&admin=post_messages+edit_messages+delete_messages")
+    ],[
+        InlineKeyboardButton('🎮 games', callback_data='games'), 
+        InlineKeyboardButton('POSTERs', callback_data='poster'), 
+    ]]
+
+group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
+               ],[
+                  InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ")
+                ]] 
+
+
+back_button = [[
+                 InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
+                 InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+              ],[
+                 InlineKeyboardButton('🔙 back', callback_data='back')
+              ]]
+
+games_buttons = [[        
+        InlineKeyboardButton('🎮 TIC TAC TOE', callback_data='ttt') 
+        ],[
+        InlineKeyboardButton('🎮 Rock paper scissor', callback_data='sps')
+        ],[
+        InlineKeyboardButton('More Timepaas 😂', callback_data='dice')
+        ],[
+        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
+        InlineKeyboardButton('BACK 🔙', callback_data='back')
+        ]]
+
+
+poster_buttons = [[        
+        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
+        InlineKeyboardButton('BACK 🔙', callback_data='back')
+        ]]
+
+about_buttons = [[
+        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
+        ],[
+        InlineKeyboardButton('🎮 games', callback_data='games'), 
+        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
+        ],[
+        InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
+        InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+        ]]
+
 
 update_button = InlineKeyboardMarkup(
     [
@@ -78,18 +128,7 @@ def force_sub_filter():
 
 
 
-
-LINK_REGEX = r"(?<![\w/:])(@(?!admin\b)\w+|/(?!(\/|http))\w+)\b"
-@Client.on_message(
-    filters.regex(LINK_REGEX) & 
-    filters.chat(-1002688791671) &  # Specific chat ID
-    ~filters.user(Rkn_Bots.ADMIN)          # Exclude admins
-)
-async def link_delete_handler(_, message):
-    await message.delete()
-
-
-@Client.on_message(filters.command("auth") & filters.user(Rkn_Bots.ADMIN))
+@Client.on_message(filters.command("auth") & filters.user(HgBotz.ADMIN))
 async def auth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to authorize.\nUsage: `/auth -1001234567890`")
@@ -100,7 +139,7 @@ async def auth_cmd(client, message):
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
-@Client.on_message(filters.command("unauth") & filters.user(Rkn_Bots.ADMIN))
+@Client.on_message(filters.command("unauth") & filters.user(HgBotz.ADMIN))
 async def unauth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to unauthorize.\nUsage: `/unauth -1001234567890`")
@@ -111,7 +150,7 @@ async def unauth_cmd(client, message):
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
-@Client.on_message(filters.command("auth_chat") & filters.user(Rkn_Bots.ADMIN))
+@Client.on_message(filters.command("auth_chat") & filters.user(HgBotz.ADMIN))
 async def list_auth_chats(client, message):
     auth_chats = await get_all_authorized_chats()
     text = "**🔐 Authorized Chats:**\n"
@@ -120,6 +159,8 @@ async def list_auth_chats(client, message):
     await message.reply(text if text.strip() != "**🔐 Authorized Chats:**" else "🚫 No authorized chats found.")
 
 
+
+#-----------------------SEARCH FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("search") & filters.private)
 async def pvt_search_cmd(client, message: Message):
         await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
@@ -223,6 +264,9 @@ async def search_callback(client, query: CallbackQuery):
     )
     await query.answer()
 
+
+
+#-----------------------IMGBB UPLOAD FUNCTION - - - - - - - - - - - - - - - 
 # Get your free API key from https://api.imgbb.com/
 IMG_BB_API_KEY = "3f9544c78f25c9ad94ab949cd2673b00"  # Replace with your actual key
 
@@ -263,6 +307,9 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
         print(f"ImgBB Upload Error: {e}")
         return image_url
 
+
+
+#-----------------------BMS EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 
 API_KEY = "fb85462f11c8c1e571b32fb8c739f71263a9bc8f"
 SEARCH_ENDPOINT = "https://google.serper.dev/images"
@@ -315,6 +362,7 @@ async def bms_handler(client, message):
 
 
 
+#-----------------------OG OR TWITTER EXTRACT FROM META FUNCTION FOR DETAILS SEE AHA OR SHEMAROOME - - - - - - - - - - - - - - - 
 # ✅ Universal Poster Extractor Function
 def extract_ott_poster(url):
     headers = {
@@ -340,6 +388,9 @@ def extract_ott_poster(url):
 
     return None
 
+
+
+#-----------------------AHA POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("aha") & filters.group & force_sub_filter())
 async def aha_handler(client, message):
     chat_id = message.chat.id
@@ -360,6 +411,9 @@ async def aha_handler(client, message):
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "aha")
 
+
+
+#-----------------------SHEMAROOME POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("shemaroo") & filters.group & force_sub_filter())
 async def shemaroo_handler(client, message):
     chat_id = message.chat.id
@@ -399,6 +453,8 @@ async def handle_generic_ott(client, message, url, ott_name):
     )
 
 
+
+#-----------------------APPLE POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 def extract_apple_poster(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -483,6 +539,9 @@ async def handle_apple_request(client, message, url):
         await message.reply(f"⚠️ Error: {e}")
         
 
+
+
+#-----------------------YT THUMBNAIL EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Regex to extract video ID from any YouTube URL
 YOUTUBE_REGEX = r"(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})"
 # Ordered list of thumbnail types
@@ -536,6 +595,10 @@ async def yt_thumbnail(client: Client, message: Message):
             text=f"**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
+
+
+
+#-----------------------AIRTEL POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Configure headers to mimic a real browser
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36",
@@ -683,6 +746,9 @@ async def handle_airtel_request(client, message, url):
         await message.reply(f"❌ Error: {str(e)}")
 
 
+
+
+#-----------------------ZEE POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Configure headers to mimic a real browser
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36",
@@ -814,6 +880,9 @@ async def handle_zee_request(client, message, url):
 
 
 
+
+
+#-----------------------AMAZON PRIME FUNCTION - - - - - - - - - - - - - - - 
 # Initialize a persistent HTTP session
 session = requests.Session()
 session.headers.update({
@@ -1006,70 +1075,8 @@ async def handle_season_selection(client, callback_query):
 
 
 
-buttons = [[
-        InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
-        InlineKeyboardButton('🦋 about', callback_data='about')
-    ],[
-        InlineKeyboardButton('〄 Add to me group 〄', url="https://t.me/Reaction_99bot?startgroup&admin=post_messages+edit_messages+delete_messages")
-    ],[
-        InlineKeyboardButton('🎮 games', callback_data='games'), 
-        InlineKeyboardButton('POSTERs', callback_data='poster'), 
-    ]]
 
-group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
-               ],[
-                  InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ")
-                ]] 
-
-
-back_button = [[
-                 InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
-                 InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
-              ],[
-                 InlineKeyboardButton('🔙 back', callback_data='back')
-              ]]
-
-games_buttons = [[        
-        InlineKeyboardButton('🎮 TIC TAC TOE', callback_data='ttt') 
-        ],[
-        InlineKeyboardButton('🎮 Rock paper scissor', callback_data='sps')
-        ],[
-        InlineKeyboardButton('More Timepaas 😂', callback_data='dice')
-        ],[
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
-        InlineKeyboardButton('BACK 🔙', callback_data='back')
-        ]]
-
-
-poster_buttons = [[        
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
-        InlineKeyboardButton('BACK 🔙', callback_data='back')
-        ]]
-
-about_buttons = [[
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
-        ],[
-        InlineKeyboardButton('🎮 games', callback_data='games'), 
-        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
-        ],[
-        InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
-        InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
-        ]]
-
-
-async def is_subscribed(bot, query, channel):
-    btn = []
-    for id in channel:
-        chat = await bot.get_chat(int(id))
-        try:
-            await bot.get_chat_member(id, query.from_user.id)
-        except UserNotParticipant:
-            btn.append([InlineKeyboardButton(f'Join {chat.title}', url=chat.invite_link)])
-        except Exception as e:
-            pass
-    return btn
-
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN)  & filters.command(["stats"]))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN)  & filters.command(["stats"]))
 async def all_db_users_here(client, message):
     start_t = time.time()
     rkn = await message.reply_text("Processing...")
@@ -1080,7 +1087,7 @@ async def all_db_users_here(client, message):
     await rkn.edit(text=f"**--Bot Processed--** \n\n**Bot Started UpTime:** {uptime} \n**Bot Current Ping:** `{time_taken_s:.3f} ᴍꜱ` \n**All Bot Users:** `{total_users}`")
 
 
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command(["broadcast"]))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN) & filters.command(["broadcast"]))
 async def broadcast(bot, message):
     if (message.reply_to_message):
         rkn = await message.reply_text("Bot Processing.\nI am checking all bot users.")
@@ -1113,30 +1120,19 @@ async def broadcast(bot, message):
         await rkn.edit(f"<u>ʙʀᴏᴀᴅᴄᴀsᴛ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</u>\n\n• ᴛᴏᴛᴀʟ ᴜsᴇʀs: {tot}\n• sᴜᴄᴄᴇssғᴜʟ: {success}\n• ʙʟᴏᴄᴋᴇᴅ ᴜsᴇʀs: {blocked}\n• ᴅᴇʟᴇᴛᴇᴅ ᴀᴄᴄᴏᴜɴᴛs: {deactivated}\n• ᴜɴsᴜᴄᴄᴇssғᴜʟ: {failed}")
         
 # Restart to cancell all process 
-@Client.on_message(filters.private & filters.user(Rkn_Bots.ADMIN) & filters.command("restart"))
+@Client.on_message(filters.private & filters.user(HgBotz.ADMIN) & filters.command("restart"))
 async def restart_bot(b, m):
     rkn_msg = await b.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙸𝙽𝙶...**", chat_id=m.chat.id)       
     await asyncio.sleep(3)
     await rkn_msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
     
+
+
+
 NOTIFICATION_CHANNEL_ID = -1002346166150
 @Client.on_message(filters.command("start") & filters.private)
 async def start_cmd(bot, message):
-    client = bot
-    if AUTH_CHANNEL:
-        try:
-            btn = await is_subscribed(client, message, AUTH_CHANNEL)
-            if btn:
-                username = (await client.get_me()).username
-                if message.command:
-                    btn.append([InlineKeyboardButton("♻️ Try Again ♻️", url=f"https://t.me/{username}?start=true")])
-                else:
-                    btn.append([InlineKeyboardButton("♻️ Try Again ♻️", url=f"https://t.me/{username}?start=true")])
-                await message.reply_text(text=f"<b>👋 Hello {message.from_user.mention},\n\nPlease join the channel then click on try again button. 😇</b>", reply_markup=InlineKeyboardMarkup(btn))
-                return
-        except Exception as e:
-            print(e)
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(buttons)
     await insert(user_id)
@@ -1148,6 +1144,9 @@ async def start_cmd(bot, message):
         reply_markup=reply_markup)
 
 
+
+
+#-----------------------callback FUNCTION - - - - - - - - - - - - - - - 
 
 @Client.on_callback_query(filters.regex('poster'))
 async def poster_callback(client, callback_query: CallbackQuery):
@@ -1188,8 +1187,8 @@ async def dice_callback(client, callback_query: CallbackQuery):
 
 
         
+#-----------------------TMDB FUNCTION - - - - - - - - - - - - - - - 
 
- 
 #--------- poster.py-------
 @Client.on_message(filters.command(["poster", "p", "pos"]) & filters.private)
 async def pvt_cmd(client, message: Message):
