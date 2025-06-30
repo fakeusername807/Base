@@ -1,11 +1,13 @@
-
 import motor.motor_asyncio
-from config import HgBotz 
+from config import HgBotz
 
 client = motor.motor_asyncio.AsyncIOMotorClient(HgBotz.DB_URL)
 db = client[HgBotz.DB_NAME]
 chnl_ids = db.chnl_ids
 users = db.users
+group_settings = db.group_settings
+
+
 
 #insert user data
 async def insert(user_id):
@@ -27,3 +29,24 @@ async def getid():
 async def delete(id):
     await users.delete_one(id)
                      
+async def get_all_users(self):
+        return self.users.find({})
+
+
+
+# Authorize a chat
+async def authorize_chat(chat_id: int):
+    await group_settings.update_one({"_id": chat_id}, {"$set": {"auth": True}}, upsert=True)
+
+# Unauthorize a chat
+async def unauthorize_chat(chat_id: int):
+    await group_settings.delete_one({"_id": chat_id})
+
+# Check if a chat is authorized
+async def is_chat_authorized(chat_id: int) -> bool:
+    chat = await group_settings.find_one({"_id": chat_id})
+    return chat is not None
+
+# Get all authorized chats
+async def get_all_authorized_chats():
+    return group_settings.find({})
