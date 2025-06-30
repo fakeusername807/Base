@@ -24,7 +24,7 @@ class HgBotz(Client):
         self.force_channel = HgBotz.FORCE_SUB
         if HgBotz.FORCE_SUB:
             try:
-                link = await self.export_chat_invite_link(Rkn_Bots.FORCE_SUB)
+                link = await self.export_chat_invite_link(HgBotz.FORCE_SUB)
                 self.invitelink = link
             except Exception as e:
                 print(e)
