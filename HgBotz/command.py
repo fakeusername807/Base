@@ -63,7 +63,7 @@ update_button = InlineKeyboardMarkup(
 
 
 
-dump_chat = 
+dump_chat = -1002637710224
 # 🧩 Environment Variables
 FORCE_SUB_CHANNEL = os.getenv("FORCE_SUB_CHANNEL", "HGBOTZ")  # e.g. @YourChannelUsername or -100xxxxxxxxxx
 FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Hey {} , Seems Like You Haven't Joined Our Channel(s).\n Please Join Below & Then Try Again .</b>")  # Image to show when not subscribed
