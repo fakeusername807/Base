@@ -354,7 +354,7 @@ async def bms_handler(client, message):
         await message.reply("❌ No image found.")
 
 
-@Client.on_message(filters.command("crunchyrool") & filters.group & force_sub_filter())
+@Client.on_message(filters.command("crunchyroll") & filters.group & force_sub_filter())
 async def bms_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
@@ -1182,7 +1182,7 @@ async def restart_bot(b, m):
 
 
 NOTIFICATION_CHANNEL_ID = -1002346166150
-@Client.on_message(filters.command("start") & filters.private)
+@Client.on_message(filters.command("start") & filters.all)
 async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
     reply_markup=InlineKeyboardMarkup(buttons)
