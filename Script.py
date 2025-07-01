@@ -1,7 +1,51 @@
 class script(object):
-    START_TXT = """𝗛𝗲𝗹𝗹𝗼 {} 💞
+    START_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a><b>Hello!! {} ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
+This bot fetches posters from different OTTs !
+
+➥ Forward Speed: High 🚀
+➥ Developed By: @HGBOTZ
+➥ Details /help</b>
 <b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
 
+    
+    HELP_TXT = """Poster Extractor 
+<b>/prime prime_video_url
+/zee zee5_video_url
+/apple apple_tv_video_url
+/airtel airtelxstream_url
+<blockquote expandable>Supported AirtelxStream Otts 👇
+Sony LIV
+ZEE5
+Sun NXT
+Lionsgate Play
+Hoichoi
+ShemarooMe
+Eros Now
+Hungama
+ManoramaMax
+Aha
+Chaupal
+Ultra
+EPICon
+Docubay
+Playflix K-Drama
+Stage
+Kanccha Lannka
+Namma Flix
+Klikk
+Raj Digital
+Shorts TV
+Dollywood Play
+MX Player</blockquote>
+/yt YouTube_url
+/aha aha_url
+/shemaroo ShemarooMe_url
+<blockquote>For Theater Print or Leatest Realese</blockquote>
+/bms leatest_release
+/poster Movie/Series_name
+<blockquote>Powered By  @HGBOTZ</blockquote></b>""" 
+    
+    
     ABOUT_TXT = """<b><blockquote>⍟───[ MY ᴅᴇᴛᴀɪʟꜱ ]───⍟</blockquote>
     
 ‣ ᴍʏ ɴᴀᴍᴇ : <a href=https://t.me/Reaction_99bot>Prachi 💞</a>
@@ -14,7 +58,11 @@ class script(object):
 ‣ ʙᴜɪʟᴅ sᴛᴀᴛᴜs : ᴠ2.7.1 [sᴛᴀʙʟᴇ]></b>
 """
 
-    HELP_TXT = """<b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
+    
+    HOME_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a><b>Hello!!ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
+This bot fetches posters from different OTTs using API automatically!
 
-    HOME_TXT = """
+➥ Forward Speed: High 🚀
+➥ Developed By: @HGBOTZ
+➥ Details /help</b>
 <b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
