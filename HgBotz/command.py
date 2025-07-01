@@ -325,6 +325,10 @@ def get_google_poster(query):
         return None
 
 # 🚀 Telegram /bms command
+@Client.on_message(filters.command("bms") & filters.private)
+async def pvt_bms_cmd(client, message: Message):
+        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+    
 @Client.on_message(filters.command("bms") & filters.group & force_sub_filter())
 async def bms_handler(client, message):
     chat_id = message.chat.id
@@ -353,9 +357,12 @@ async def bms_handler(client, message):
     else:
         await message.reply("❌ No image found.")
 
-
+@Client.on_message(filters.command("crunchyroll") & filters.private)
+async def pvt_crun_cmd(client, message: Message):
+        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+    
 @Client.on_message(filters.command("crunchyroll") & filters.group & force_sub_filter())
-async def bms_handler(client, message):
+async def crunchyroll_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
