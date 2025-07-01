@@ -1198,7 +1198,7 @@ async def start_cmd(bot, message):
 
 @Client.on_message(filters.command("help") & filters.all)
 async def help_cmd(client, message: Message):
-        await message.reply_text(text=script.HELP_TXT, disable_web_page_preview = False, reply_markup=InlineKeyboardMarkup(help_buttons)) 
+        await message.reply_text(text=script.HELP_TXT, disable_web_page_preview = False, reply_markup=InlineKeyboardMarkup(help_buttons), invert_media=True) 
     
 
 #-----------------------callback FUNCTION - - - - - - - - - - - - - - - 
