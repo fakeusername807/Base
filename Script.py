@@ -8,7 +8,7 @@ This bot fetches posters from different OTTs !
 <b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
 
     
-    HELP_TXT = """Poster Extractor 
+    HELP_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a>Poster Extractor 
 <b>/prime prime_video_url
 /zee zee5_video_url
 /apple apple_tv_video_url
@@ -46,7 +46,7 @@ MX Player</blockquote>
 <blockquote>Powered By  @HGBOTZ</blockquote></b>""" 
     
     
-    ABOUT_TXT = """<b><blockquote>⍟───[ MY ᴅᴇᴛᴀɪʟꜱ ]───⍟</blockquote>
+    ABOUT_TXT = """<a href='https://envs.sh/dlY.jpg/HGBOTZ.jpg'> </a><b><blockquote>⍟───[ MY ᴅᴇᴛᴀɪʟꜱ ]───⍟</blockquote>
     
 ‣ ᴍʏ ɴᴀᴍᴇ : <a href=https://t.me/Reaction_99bot>Prachi 💞</a>
 ‣ ᴍʏ ʙᴇsᴛ ғʀɪᴇɴᴅ : <a href='tg://settings'>ᴛʜɪs ᴘᴇʀsᴏɴ</a> 
