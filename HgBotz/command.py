@@ -385,6 +385,10 @@ def extract_ott_poster(url):
 
 
 #-----------------------AHA POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
+@Client.on_message(filters.command("aha") & filters.private)
+async def pvt_aha_cmd(client, message: Message):
+        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+    
 @Client.on_message(filters.command("aha") & filters.group & force_sub_filter())
 async def aha_handler(client, message):
     chat_id = message.chat.id
@@ -408,6 +412,10 @@ async def aha_handler(client, message):
 
 
 #-----------------------SHEMAROOME POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
+@Client.on_message(filters.command("shemaroo") & filters.private)
+async def pvt_shemaroo_cmd(client, message: Message):
+        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+    
 @Client.on_message(filters.command("shemaroo") & filters.group & force_sub_filter())
 async def shemaroo_handler(client, message):
     chat_id = message.chat.id
@@ -1154,13 +1162,17 @@ async def start_cmd(bot, message):
     await insert(user_id)
     notification_text = f"🎉 New user started the bot: {message.from_user.mention} (ID: {user_id})"
     await bot.send_message(NOTIFICATION_CHANNEL_ID, notification_text)
-    await message.reply_photo(photo=Rkn_Bots.RKN_PIC,
-        caption=script.START_TXT.format(message.from_user.mention),
-        has_spoiler=True, 
+    await message.reply_text(
+        text=script.START_TXT.format(message.from_user.mention),
+        disable_web_page_preview = False, 
+        invert_media = True, 
         reply_markup=reply_markup)
 
 
-
+@Client.on_message(filters.command("help") & filters.all)
+async def help_cmd(client, message: Message):
+        await message.reply_text(text=script.HELP_TXT, disable_web_page_preview = False, reply_markup=InlineKeyboardMarkup(help_buttons)) 
+    
 
 #-----------------------callback FUNCTION - - - - - - - - - - - - - - - 
 
@@ -1178,7 +1190,7 @@ async def games_callback(client, callback_query: CallbackQuery):
 @Client.on_callback_query(filters.regex('back'))
 async def back_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons))
+    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons), disable_web_page_preview=False)
 
 @Client.on_callback_query(filters.regex('about'))
 async def about_callback(client, callback_query: CallbackQuery):
