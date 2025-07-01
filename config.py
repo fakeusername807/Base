@@ -11,9 +11,9 @@ AUTH_CHANNEL = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('
 class HgBotz(object):
     
     
-    API_ID = os.environ.get("API_ID", "")
-    API_HASH = os.environ.get("API_HASH", "")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    API_ID = os.environ.get("API_ID", "25492855")
+    API_HASH = os.environ.get("API_HASH", "61876db014de51a4ace6b169608be4f1")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7999210242:AAE2cNUSIbubvCHY1Uy6LslOsLT2rcD4Mpk")
 
 
     # wes response configuration
@@ -24,13 +24,10 @@ class HgBotz(object):
     FORCE_SUB = os.environ.get("FORCE_SUB", "hgbotz") 
     
     # database config ( required.. 😥)
-    DB_NAME = os.environ.get("DB_NAME", "HGBOTZ")     
-    DB_URL = os.environ.get("DB_URL", "")
+    DB_NAME = os.environ.get("DB_NAME", "Postersbot")     
+    DB_URL = os.environ.get("DB_URL", "mongodb+srv://harsh:gunnu@cluster0.0uqkd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
-
-    # sticker Id
-    STICKER_ID = os.environ.get("STICKER_ID", "CAACAgIAAxkBAAELFqBllhB70i13m-woXeIWDXU6BD2j7wAC9gcAAkb7rAR7xdjVOS5ziTQE")
 
     # admin id  ( required.. 😥)
-    ADMIN = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6359874284 7609503336').split()]
+    ADMIN = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '6359874284').split()]
     
