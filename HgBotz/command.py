@@ -303,7 +303,7 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
 API_KEY = "fb85462f11c8c1e571b32fb8c739f71263a9bc8f"
 SEARCH_ENDPOINT = "https://google.serper.dev/images"
 
-def get_bms_poster(query):
+def get_google_poster(query):
     headers = {
         "Content-Type": "application/json",
         "X-API-KEY": API_KEY
@@ -317,7 +317,7 @@ def get_bms_poster(query):
 
         images = results.get("images", [])
         for img in images:
-            if "bmscdn.com" in img["imageUrl"]:  # Optional: prioritize BookMyShow
+            if "bmscdn.com" in img["imageUrl"] or "imgsrv.crunchyroll.com" in img["imageUrl"]:  # Optional: prioritize BookMyShow
                 return img["imageUrl"]
         return images[0]["imageUrl"] if images else None
     except Exception as e:
@@ -337,7 +337,7 @@ async def bms_handler(client, message):
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
 
-    img_url = get_bms_poster(query + " bookmyshow+landscape+poster")
+    img_url = get_google_poster(query + " bookmyshow+landscape+poster")
     image_url = await upload_to_imgbb(img_url)
     
     if img_url:
@@ -353,6 +353,34 @@ async def bms_handler(client, message):
     else:
         await message.reply("❌ No image found.")
 
+
+@Client.on_message(filters.command("crunchyrool") & filters.group & force_sub_filter())
+async def bms_handler(client, message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+    
+    if len(message.command) < 2:
+        return await message.reply("❌ Usage: `/crunchyroll kaiju no. 8`")
+
+    query = " ".join(message.command[1:])
+    msg = await message.reply("🔍")
+
+    img_url = get_google_poster(query + " crunchyrool+landscape+poster")
+    image_url = await upload_to_imgbb(img_url)
+    
+    if img_url:
+        await msg.edit_text(
+        text=f"**Crunchyrool Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        disable_web_page_preview=False,
+        reply_markup=update_button
+        )
+        await client.send_message(chat_id=dump_chat, 
+        text=f"**Crunchyrool Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        disable_web_page_preview=False, reply_markup=update_button
+        )
+    else:
+        await message.reply("❌ No image found.")
 
 
 #-----------------------OG OR TWITTER EXTRACT FROM META FUNCTION FOR DETAILS SEE AHA OR SHEMAROOME - - - - - - - - - - - - - - - 
