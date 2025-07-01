@@ -1,6 +1,6 @@
 import requests
 from pyrogram import Client, filters, errors, types, enums 
-from config import HgBotz, AUTH_CHANNEL
+from config import HgBotz
 import os, asyncio, re, time, sys, random, html
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
