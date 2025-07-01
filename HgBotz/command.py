@@ -6,7 +6,6 @@ from .database import total_user, getid, delete, insert, get_all_users, authoriz
 from pyrogram.errors import *
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram.enums import ChatMemberStatus
-from utils import react_msg 
 from Script import script
 import aiohttp
 from bs4 import BeautifulSoup
