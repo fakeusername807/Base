@@ -1,5 +1,5 @@
 class script(object):
-    START_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a><b>Hello!! {} ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
+    START_TXT = """<a href='https://envs.sh/u09.jpg/HGBOTZ.jpg'> </a><b>Hello!! {} ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
 This bot fetches posters from different OTTs !
 
 ➥ Forward Speed: High 🚀
@@ -8,7 +8,7 @@ This bot fetches posters from different OTTs !
 <b><blockquote>Maintained By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"""
 
     
-    HELP_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a>Poster Extractor 
+    HELP_TXT = """<a href='https://envs.sh/u09.jpg/HGBOTZ.jpg'> </a>Poster Extractor 
 <b>/prime prime_video_url
 /zee zee5_video_url
 /apple apple_tv_video_url
@@ -59,7 +59,7 @@ MX Player</blockquote>
 """
 
     
-    HOME_TXT = """<a href='https://envs.sh/u0n.jpg/HGBOTZ.jpg'> </a><b>Hello!!ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
+    HOME_TXT = """<a href='https://envs.sh/u09.jpg/HGBOTZ.jpg'> </a><b>Hello!!ㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ ㅤㅤㅤㅤ ㅤㅤㅤㅤㅤㅤ ㅤㅤㅤ❄️
 This bot fetches posters from different OTTs using API automatically!
 
 ➥ Forward Speed: High 🚀
