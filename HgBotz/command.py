@@ -21,10 +21,7 @@ buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
         InlineKeyboardButton('🦋 about', callback_data='about')
     ],[
-        InlineKeyboardButton('〄 Add to me group 〄', url="https://t.me/Reaction_99bot?startgroup&admin=post_messages+edit_messages+delete_messages")
-    ],[
-        InlineKeyboardButton('🎮 games', callback_data='games'), 
-        InlineKeyboardButton('POSTERs', callback_data='poster'), 
+        InlineKeyboardButton('𝙷𝚎𝚕𝚙 ‼️', callback_data='help')
     ]]
 
 group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
@@ -40,19 +37,9 @@ back_button = [[
                  InlineKeyboardButton('🔙 back', callback_data='back')
               ]]
 
-games_buttons = [[        
-        InlineKeyboardButton('🎮 TIC TAC TOE', callback_data='ttt') 
-        ],[
-        InlineKeyboardButton('🎮 Rock paper scissor', callback_data='sps')
-        ],[
-        InlineKeyboardButton('More Timepaas 😂', callback_data='dice')
-        ],[
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
-        InlineKeyboardButton('BACK 🔙', callback_data='back')
-        ]]
 
 
-poster_buttons = [[        
+help_buttons = [[        
         InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
         InlineKeyboardButton('BACK 🔙', callback_data='back')
         ]]
@@ -60,7 +47,7 @@ poster_buttons = [[
 about_buttons = [[
         InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
         ],[
-        InlineKeyboardButton('🎮 games', callback_data='games'), 
+        InlineKeyboardButton('𝙷𝚎𝚕𝚙 ‼️', callback_data='help'), 
         InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
         ],[
         InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
@@ -1177,10 +1164,10 @@ async def start_cmd(bot, message):
 
 #-----------------------callback FUNCTION - - - - - - - - - - - - - - - 
 
-@Client.on_callback_query(filters.regex('poster'))
+@Client.on_callback_query(filters.regex('help'))
 async def poster_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.POSTER_TXT, reply_markup=InlineKeyboardMarkup(poster_buttons))
+    await callback_query.message.edit_text(text=script.HELP_TXT, reply_markup=InlineKeyboardMarkup(help_buttons))
 
 
 @Client.on_callback_query(filters.regex('games'))
@@ -1198,20 +1185,6 @@ async def about_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()# Acknowledge the callback
     await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
 
-@Client.on_callback_query(filters.regex('ttt'))
-async def ttt_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.TTT_TXT, reply_markup=InlineKeyboardMarkup(back_button))
-
-@Client.on_callback_query(filters.regex('sps'))
-async def rps_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.RPS_TXT, reply_markup=InlineKeyboardMarkup(back_button))
-
-@Client.on_callback_query(filters.regex('dice'))
-async def dice_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.DICE_TXT, reply_markup=InlineKeyboardMarkup(back_button))
 
 
 
