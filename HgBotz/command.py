@@ -1037,7 +1037,7 @@ async def prime_command(client, message):
             # Format and send movie response
             response = format_movie_response(result)
             await status_msg.edit_text(response, disable_web_page_preview=False, reply_markup=update_button)
-            await client.send_message(chat_id = dump_chat, response, disable_web_page_preview=False, reply_markup=update_button)
+            
         
         elif result['type'] == 'series':
             # Format series response with buttons
