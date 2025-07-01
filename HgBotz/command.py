@@ -1178,7 +1178,7 @@ async def help_cmd(client, message: Message):
 @Client.on_callback_query(filters.regex('help'))
 async def poster_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.HELP_TXT, reply_markup=InlineKeyboardMarkup(help_buttons))
+    await callback_query.message.edit_text(text=script.HELP_TXT, reply_markup=InlineKeyboardMarkup(help_buttons), disable_web_page_preview=False, invert_media=True)
 
 
 @Client.on_callback_query(filters.regex('games'))
@@ -1189,12 +1189,12 @@ async def games_callback(client, callback_query: CallbackQuery):
 @Client.on_callback_query(filters.regex('back'))
 async def back_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons), disable_web_page_preview=False)
+    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons), disable_web_page_preview=False, invert_media=True)
 
 @Client.on_callback_query(filters.regex('about'))
 async def about_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()# Acknowledge the callback
-    await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
+    await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons), disable_web_page_preview=False, invert_media=True)
 
 
 
