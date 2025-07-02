@@ -378,12 +378,12 @@ async def crunchyroll_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**Crunchyrool Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: **{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**Crunchyrool Poster: 🎬 {query} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
@@ -484,12 +484,12 @@ async def handle_generic_ott(client, message, url, ott_name):
     title = url.split("/")[-1].replace('-', ' ').title()
 
     await msg.edit_text(
-        text=f"**{ott_name.upper()} Poster: 🎬 {title} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-        text=f"**{ott_name.upper()} Poster: 🎬 {title} **\n\n**{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
     )
 
@@ -573,11 +573,11 @@ async def handle_apple_request(client, message, url):
             title = "Unknown Title" 
         
         await msg.edit_text(
-            text=f"**🎬 {title}**\n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-            text=f"**🎬 {title}**\n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
     except Exception as e:
@@ -637,11 +637,11 @@ async def yt_thumbnail(client: Client, message: Message):
     msg = await message.reply("🔍")
     await asyncio.sleep(3)
     await msg.edit_text(
-            text=f"**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-            text=f"**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
 
@@ -787,11 +787,11 @@ async def handle_airtel_request(client, message, url):
 
         
         await msg.edit_text(
-            text=f"**{ott_name} Poster: 🎬  {title} ({year})** \n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**{ott_name} Poster: 🎬  {title} ({year})** \n\n**{image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**{ott_name} Poster: 🎬 {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
@@ -933,11 +933,11 @@ async def handle_zee_request(client, message, url):
             title = "Unknown Title" 
        
         await msg.edit_text(
-            text=f"**🎬 {title} \n\n {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**🎬 {title} \n\n {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
@@ -1011,7 +1011,7 @@ def extract_amazon(link):
 
 def format_movie_response(data):
     """Format movie response with posters as links"""
-    response = f"🎬 **{data['title']}** ({data['year']})\n\n{data['landscape']}\n\n"
+    response = f"**PrimeVideo Poster: {data['landscape']}\n\n🎬 **{data['title']} ({data['year']})**\n\n"
     
     # Landscape posters section
     response += "**🌄 Landscape Posters:**\n"
