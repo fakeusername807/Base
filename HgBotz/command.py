@@ -925,7 +925,7 @@ async def handle_zee_request(client, message, url):
         msg = await message.reply("🔍")
         
         # Get poster URL
-        poster_url, tiltle, year= extract_zee_poster(url)
+        poster_url, title, year= extract_zee_poster(url)
         
         if not poster_url:
             await msg.edit_text("⚠️ Failed to extract poster. The page structure might have changed or content is region-locked.")
@@ -936,7 +936,7 @@ async def handle_zee_request(client, message, url):
 
        
         await msg.edit_text(
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} ({year}) **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
