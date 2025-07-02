@@ -11,7 +11,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 import json
-from urllib.parse import unquote, parse_qs
+from urllib.parse import unquote, parse_qs, urlparse
 from PIL import Image
 from io import BytesIO
 
