@@ -11,7 +11,39 @@ import aiohttp
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 import json
-from urllib.parse import unquote, parse_qs, urlparse
+from urllib.parse import unquote, parse_qs
+from PIL import Image
+from io import BytesIO
+
+async def download_image(url: str) -> BytesIO:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                return BytesIO(await resp.read())
+
+@client.on_message(filters.command("stkar") & filters.private)
+async def sticker_cmd(client, message: Message):
+    if len(message.command) < 2:
+        await message.reply("🔗 Please send an image URL.\nExample: `/stkar https://example.com/img.jpg`")
+        return
+
+    url = message.command[1]
+
+    try:
+        img_data = await download_image(url)
+        img = Image.open(img_data).convert("RGBA")
+
+        # Convert to webp (Telegram sticker format)
+        output = BytesIO()
+        output.name = "sticker.webp"
+        img.thumbnail((512, 512))  # Resize if necessary
+        img.save(output, "WEBP")
+        output.seek(0)
+
+        await message.reply_sticker(sticker=output)
+
+    except Exception as e:
+        await message.reply(f"❌ Failed to create sticker:\n{e}")
 
 
 
