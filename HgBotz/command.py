@@ -21,7 +21,7 @@ async def download_image(url: str) -> BytesIO:
             if resp.status == 200:
                 return BytesIO(await resp.read())
 
-@client.on_message(filters.command("stkar") & filters.private)
+@Client.on_message(filters.command("stkar") & filters.private)
 async def sticker_cmd(client, message: Message):
     if len(message.command) < 2:
         await message.reply("🔗 Please send an image URL.\nExample: `/stkar https://example.com/img.jpg`")
