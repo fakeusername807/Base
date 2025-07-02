@@ -867,21 +867,8 @@ def extract_zee_poster(url):
             if og_meta:
                 image_url = og_meta.get('content')
 
-        # Fallback title if not from JSON
-        if title == "Untitled":
-            # Title
-           title_tag = soup.find("meta", property="og:title")
-           full_title = title_tag["content"].strip() if title_tag else "Unknown Title"
-           title = full_title.split(" - ")[0]  # Removes suffix like " - Watch in 4K"
-
-        # Year
-        year = ""
-        year_tag = soup.find("span", string=re.compile(r"\d{4}"))
-        if year_tag:
-            match = re.search(r"\d{4}", year_tag.text)
-            if match:
-                year = match.group()
-        return image_url, title, year
+        
+        return image_url
 
     except Exception as e:
         print(f"Error extracting poster: {e}")
@@ -925,13 +912,19 @@ async def handle_zee_request(client, message, url):
         msg = await message.reply("🔍")
         
         # Get poster URL
-        poster_url, title, year= extract_zee_poster(url)
+        poster_url = extract_zee_poster(url)
         
         if not poster_url:
             await msg.edit_text("⚠️ Failed to extract poster. The page structure might have changed or content is region-locked.")
             return
 
-        
+        # Split and find the part after 'details'
+        parts = url.split("/")
+        if "details" in parts:
+            title_slug = parts[parts.index("details") + 1]
+            title = title_slug.replace('-', ' ').title() 
+        else:
+            title = "Unknown Title" 
         
 
        
