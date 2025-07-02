@@ -916,13 +916,22 @@ async def handle_zee_request(client, message, url):
         msg = await message.reply("🔍")
         
         # Get poster URL
-        poster_url, title = extract_zee_poster(url)
+        poster_url = extract_zee_poster(url)
         
         if not poster_url:
             await msg.edit_text("⚠️ Failed to extract poster. The page structure might have changed or content is region-locked.")
             return
 
         
+        
+# Split and find the part after 'details'
+        parts = url.split("/")
+        if "details" in parts:
+            title_slug = parts[parts.index("details") + 1]
+            title = title_slug.replace('-', ' ').title() 
+        else:
+            title = "Unknown Title" 
+       
         await msg.edit_text(
             text=f"**🎬 {title} \n\n {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
