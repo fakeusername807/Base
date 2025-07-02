@@ -552,8 +552,6 @@ async def handle_apple_request(client, message, url):
         await message.reply("❌ Invalid apple tv Please provide a valid URL.\n\nExample: /apple `https://tv.apple.com/us/movie/love-kills/umc.cmc.6h7aqbqodyqkeyzvzkkdzjv13`")
         return
     
-    
-    
     try:
         # Send processing status
         msg = await message.reply("🔍")
@@ -577,7 +575,7 @@ async def handle_apple_request(client, message, url):
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
     except Exception as e:
