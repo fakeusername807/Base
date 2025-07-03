@@ -7,6 +7,8 @@ from pyrogram.errors import *
 from pyrogram.types import *
 from Script import script
 import aiohttp
+import openai
+from datetime import datetime 
 
 buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
@@ -105,41 +107,141 @@ async def restart_bot(b, m):
     os.execl(sys.executable, sys.executable, *sys.argv)
     
 
-@Client.on_message(filters.command("start") & filters.private)
-async def start_cmd(bot, message):
-    client = bot
-    if AUTH_CHANNEL:
-        try:
-            btn = await is_subscribed(client, message, AUTH_CHANNEL)
-            if btn:
-                username = (await client.get_me()).username
-                if message.command:
-                    btn.append([InlineKeyboardButton("♻️ Try Again ♻️", url=f"https://t.me/{username}?start=true")])
-                else:
-                    btn.append([InlineKeyboardButton("♻️ Try Again ♻️", url=f"https://t.me/{username}?start=true")])
-                await message.reply_text(text=f"<b>👋 Hello {message.from_user.mention},\n\nPlease join the channel then click on try again button. 😇</b>", reply_markup=InlineKeyboardMarkup(btn))
-                return
-        except Exception as e:
-            print(e)
-    user_id = int(message.from_user.id)
-    reply_markup=InlineKeyboardMarkup(buttons)
+
+
+openai.api_key = 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
+
+
+
+# In-memory storage for user states
+user_states = {}
+
+@Client.on_message(filters.command(["start", "help"]))
+async def start_command(client, message: Message):
     await message.reply_text(
-        text=script.START_TXT.format(message.from_user.mention),
-        reply_markup=reply_markup)
+        "✨ Welcome to Cosmic Insights Bot! ✨\n\n"
+        "Get personalized astrology reports based on your birth details.\n\n"
+        "To begin, use:\n/horoscope\n\n"
+        "Need help? Contact @YourSupport"
+    )
 
+@Client.on_message(filters.command("horoscope"))
+async def horoscope_command(client, message: Message):
+    user_id = message.from_user.id
+    user_states[user_id] = "waiting_date"
+    
+    await message.reply_text(
+        "🌌 Let's explore your cosmic blueprint! 🌌\n\n"
+        "Please send your birth date in DD/MM/YYYY format:\n"
+        "Example: 15/08/1990"
+    )
 
+@Client.on_message(filters.private & filters.text)
+async def handle_messages(client, message: Message):
+    user_id = message.from_user.id
+    current_state = user_states.get(user_id)
 
-@Client.on_callback_query(filters.regex('help'))
-async def show_help_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.HELP_TXT, reply_markup=InlineKeyboardMarkup(back_button))
+    if not current_state:
+        return
 
-@Client.on_callback_query(filters.regex('back'))
-async def back_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Acknowledge the callback
-    await callback_query.message.edit_text(text=script.HOME_TXT, reply_markup=InlineKeyboardMarkup(buttons))
+    text = message.text.strip()
 
-@Client.on_callback_query(filters.regex('about'))
-async def about_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()# Acknowledge the callback
-    await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons))
+    try:
+        if current_state == "waiting_date":
+            # Validate date format
+            if not re.match(r"^\d{2}/\d{2}/\d{4}$", text):
+                raise ValueError("Invalid format. Use DD/MM/YYYY")
+                
+            datetime.strptime(text, "%d/%m/%Y")
+            user_states[user_id] = {"date": text, "state": "waiting_time"}
+            
+            await message.reply_text(
+                "⏱ Great! Now send your birth time (24-hour format):\n"
+                "Example: 14:30"
+            )
+            
+        elif current_state["state"] == "waiting_time":
+            # Validate time format
+            if not re.match(r"^\d{1,2}:\d{2}$", text):
+                raise ValueError("Invalid format. Use HH:MM")
+                
+            time_parts = text.split(":")
+            if not (0 <= int(time_parts[0]) <= 23 and 0 <= int(time_parts[1]) <= 59):
+                raise ValueError("Invalid time. Hours: 0-23, Minutes: 0-59")
+                
+            user_states[user_id]["time"] = text
+            user_states[user_id]["state"] = "waiting_place"
+            
+            await message.reply_text(
+                "📍 Now send your birth place (City, Country):\n"
+                "Example: Mumbai, India"
+            )
+            
+        elif current_state["state"] == "waiting_place":
+            if len(text) < 3:
+                raise ValueError("Place name too short")
+                
+            birth_details = user_states[user_id]
+            del user_states[user_id]  # Clear user state
+            
+            # Show processing message
+            processing = await message.reply_text(
+                "🔮 Calculating your cosmic blueprint...\n"
+                "This may take 20-30 seconds..."
+            )
+            
+            # Generate astrology report
+            report = await generate_astrology_report(
+                birth_details["date"],
+                birth_details["time"],
+                text
+            )
+            
+            # Send results
+            await processing.delete()
+            await message.reply_text(
+                f"🌟 **Your Cosmic Insights Report** 🌟\n\n"
+                f"**Birth Details:**\n"
+                f"Date: {birth_details['date']}\n"
+                f"Time: {birth_details['time']}\n"
+                f"Place: {text}\n\n"
+                f"{report}",
+                parse_mode="markdown"
+            )
+            
+    except ValueError as e:
+        await message.reply_text(f"❌ Error: {str(e)}\nPlease try again.")
+    except Exception as e:
+        await message.reply_text(f"🚨 System error: {str(e)}\nPlease try /horoscope again")
+        if user_id in user_states:
+            del user_states[user_id]
+
+async def generate_astrology_report(date: str, time: str, place: str) -> str:
+    """Generate astrology report using ChatGPT API"""
+    prompt = (
+        f"Act as a professional astrologer. Generate a detailed astrology report based on these birth details:\n"
+        f"- Date: {date}\n"
+        f"- Time: {time}\n"
+        f"- Place: {place}\n\n"
+        "Include these sections:\n"
+        "1. Sun Sign and Key Characteristics\n"
+        "2. Moon Sign and Emotional Nature\n"
+        "3. Ascendant/Rising Sign\n"
+        "4. Planetary Dominants\n"
+        "5. Life Path Insights\n"
+        "6. Current Cosmic Influences\n\n"
+        "Use Western astrology system. Provide 4-5 paragraphs of insightful, personalized interpretation."
+    )
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an expert astrologer with 30 years of experience."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1500,
+        temperature=0.7,
+    )
+    
+    return response.choices[0].message['content'].strip()
+
