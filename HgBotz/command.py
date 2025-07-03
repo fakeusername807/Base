@@ -305,35 +305,44 @@ async def download_image(url: str) -> BytesIO:
         async with session.get(url) as resp:
             if resp.status == 200:
                 return BytesIO(await resp.read())
+            else:
+                raise Exception(f"Failed to download image. Status code: {resp.status}")
 
 @Client.on_message(filters.command("stkar") & filters.group & force_sub_filter())
 async def sticker_cmd(client, message: Message):
     chat_id = message.chat.id
+
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
-    
-    if len(message.command) < 2:
-        await message.reply("🔗 Please send an image URL.\nExample: `/stkar https://example.com/img.jpg`")
-        return
-
-    url = message.command[1]
 
     try:
-        img_data = await download_image(url)
-        img = Image.open(img_data).convert("RGBA")
+        reply = message.reply_to_message
 
-        # Convert to webp (Telegram sticker format)
+        # ✅ Reply to image
+        if reply and reply.photo:
+            photo = await reply.download()
+            img = Image.open(photo).convert("RGBA")
+
+        # ✅ Image URL in command
+        elif len(message.command) >= 2:
+            url = message.command[1]
+            img_data = await download_image(url)
+            img = Image.open(img_data).convert("RGBA")
+
+        else:
+            return await message.reply("🔗 Please send an image URL or reply to an image.\nExample: `/stkar https://example.com/img.jpg`")
+
+        # 🔄 Convert to WebP
         output = BytesIO()
         output.name = "sticker.webp"
-        img.thumbnail((512, 512))  # Resize if necessary
+        img.thumbnail((512, 512))
         img.save(output, "WEBP")
         output.seek(0)
 
         await message.reply_sticker(sticker=output)
 
     except Exception as e:
-        await message.reply(f"❌ Failed to create sticker:\n{e}")
-
+        await message.reply(f"❌ Failed to create sticker:\n`{e}`")
 #-----------------------BMS EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 
 API_KEY = "fb85462f11c8c1e571b32fb8c739f71263a9bc8f"
