@@ -1,17 +1,18 @@
 
 
+
 from aiohttp import web
 from pyrogram import Client
-from config import HgBotz, HgBotz as HgBotz 
+from config import HgBotz, HgBotz as HGBOT 
 from HgBotz.web_support import web_server
 
 class HgBotz(Client):
     def __init__(self):
         super().__init__(
             name="HgBotz",
-            api_id=HgBotz.API_ID,
-            api_hash=HgBotz.API_HASH,
-            bot_token=HgBotz.BOT_TOKEN,
+            api_id=HGBOT.API_ID,
+            api_hash=HGBOT.API_HASH,
+            bot_token=HGBOT.BOT_TOKEN,
             workers=200,
             plugins={"root": "HgBotz"},
             sleep_threshold=15,
@@ -20,11 +21,11 @@ class HgBotz(Client):
     async def start(self):
         await super().start()
         me = await self.get_me()
-        self.uptime = HgBotz.BOT_UPTIME
-        self.force_channel = HgBotz.FORCE_SUB
-        if HgBotz.FORCE_SUB:
+        self.uptime = HGBOT.BOT_UPTIME
+        self.force_channel = HGBOT.FORCE_SUB
+        if HGBOT.FORCE_SUB:
             try:
-                link = await self.export_chat_invite_link(HgBotz.FORCE_SUB)
+                link = await self.export_chat_invite_link(HGBOT.FORCE_SUB)
                 self.invitelink = link
             except Exception as e:
                 print(e)
@@ -33,9 +34,9 @@ class HgBotz(Client):
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
-        await web.TCPSite(app, bind_address, HgBotz.PORT).start()
+        await web.TCPSite(app, bind_address, HGBOT.PORT).start()
         print(f"{me.first_name} Iꜱ Sᴛᴀʀᴛᴇᴅ.....✨️")
-        for id in HgBotz.ADMIN:
+        for id in HGBOT.ADMIN:
             try:
                 await self.send_message(id, f"**__{me.first_name}  Iꜱ Sᴛᴀʀᴛᴇᴅ.....✨️__**")
             except:
@@ -46,4 +47,3 @@ class HgBotz(Client):
         print("Bot Stopped 🙄")
         
 HgBotz().run()
-
