@@ -16,38 +16,28 @@ from PIL import Image
 from io import BytesIO
 
 
-# Step 1: Get filename + PHP URL from HubCloud
-async def extract_filename_and_php_link(hubcloud_url: str):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(hubcloud_url) as response:
-            if response.status != 200:
-                return {"error": f"Failed to fetch HubCloud page. Status: {response.status}"}
-            html = await response.text()
-
-    soup = BeautifulSoup(html, "html.parser")
-
-    # File name
-    file_name_div = soup.find("div", class_="card-header text-white bg-primary mb-3")
-    file_name = file_name_div.text.strip() if file_name_div else None
-
-    # PHP download link
-    php_link_tag = soup.select_one("div.vd a#download")
-    php_url = php_link_tag['href'] if php_link_tag else None
-
-    return {
-        "file_name": file_name,
-        "php_url": php_url
-    }
+# ========== Pixel Scraper ==========
+async def extract_pixel_real_link(url: str) -> str:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    return None
+                html = await resp.text()
+        soup = BeautifulSoup(html, "html.parser")
+        a_tag = soup.select_one("a#vd")
+        return a_tag["href"] if a_tag else None
+    except Exception:
+        return None
 
 
-# Step 2: Get download links from PHP page
+# ========== PHP Page Link Scraper ==========
 async def extract_links_from_php_page(php_url: str) -> dict:
     async with aiohttp.ClientSession() as session:
         async with session.get(php_url) as resp:
             if resp.status != 200:
                 return {"error": "Failed to load PHP page."}
             html = await resp.text()
-
     soup = BeautifulSoup(html, "html.parser")
 
     pixel_link = None
@@ -57,56 +47,98 @@ async def extract_links_from_php_page(php_url: str) -> dict:
     for a in soup.find_all("a", href=True):
         href = a["href"]
 
-        # Pixel links
-        if ("pixeldrain" in href and "api/file" in href) or "pixel.hubcdn.fans" in href:
+        if "pixel.hubcdn.fans" in href:
+            pixel_link = await extract_pixel_real_link(href)
+        elif "pixeldrain" in href and "api/file" in href:
             pixel_link = href
-
-        # FSL link
-        elif ("cdn.cdn3bot.xyz" in href) or ".r2.dev" in href:
+        elif "cdn.cdn3bot.xyz" in href:
             fsl_link = href
-
-        
+        elif ".r2.dev" in href or "amazonaws.com" in href or ".s3." in href:
+            fast_link = href
 
     return {
         "pixel_server": pixel_link,
         "fsl_server": fsl_link,
-        
+        "fast_server": fast_link
     }
 
 
-# Step 3: Pyrogram command handler
-@Client.on_message(filters.command("hubcloud") & filters.reply)
-async def handle_hubcloud_all(client: Client, message: Message):
-    reply = message.reply_to_message
-    if not reply or not reply.text.startswith("http"):
-        return await message.reply_text("❌ Reply to a HubCloud page URL (e.g. https://hubcloud.one/drive/...).")
+# ========== HubCloud Main Page Scraper ==========
+async def extract_filename_and_php_link(hubcloud_url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(hubcloud_url) as response:
+            if response.status != 200:
+                return {"error": f"Failed to fetch HubCloud page. Status: {response.status}"}
+            html = await response.text()
+    soup = BeautifulSoup(html, "html.parser")
 
-    url = reply.text.strip()
-    await message.reply_text("🔍 Fetching file info and download links...")
+    file_name_div = soup.find("div", class_="card-header text-white bg-primary mb-3")
+    file_name = file_name_div.text.strip() if file_name_div else "Unknown File"
 
-    base_data = await extract_filename_and_php_link(url)
-    if "error" in base_data or not base_data["php_url"]:
-        return await message.reply_text("❌ Could not extract PHP link from page.")
+    php_tag = soup.select_one("div.vd a#download")
+    php_url = php_tag["href"] if php_tag else None
 
-    file_name = base_data["file_name"] or "Unknown File"
-    php_url = base_data["php_url"]
+    return {
+        "file_name": file_name,
+        "php_url": php_url
+    }
 
-    # Step 2: Get Pixel + FSL
-    dl_links = await extract_links_from_php_page(php_url)
 
-    if "error" in dl_links:
-        return await message.reply_text("❌ Failed to extract download links.")
+# ========== /hdhub Command ==========
+@Client.on_message(filters.command("hubcloud"))
+async def hdhub_cmd(client: Client, message: Message):
+    # Support reply or links in message
+    input_text = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
+    reply_text = message.reply_to_message.text if message.reply_to_message and message.reply_to_message.text else None
 
-    pixel = dl_links.get("pixel_server")
-    fsl = dl_links.get("fsl_server")
+    links = []
+    if input_text:
+        links = [x.strip() for x in input_text.splitlines() if x.strip().startswith("http")]
+    elif reply_text:
+        links = [x.strip() for x in reply_text.splitlines() if x.strip().startswith("http")]
+    else:
+        return await message.reply_text("❌ Please reply to or provide 1 or more HubCloud links.")
 
-    # Final output
-    msg = f"<b>📁 File Name:</b> <code>{file_name}</code>\n"
-    msg += f"<b>🔗 PHP Page:</b> <a href='{php_url}'>Open Link</a>\n\n"
-    msg += f"📥 <b>PixelServer</b>: <a href='{pixel}'>Click Here</a>\n" if pixel else "❌ PixelServer not found.\n"
-    msg += f"📥 <b>FSL Server</b>: <a href='{fsl}'>Click Here</a>" if fsl else "❌ FSL Server not found."
+    results = []
 
-    await message.reply_text(msg,  disable_web_page_preview=True)
+    for url in links:
+        result_msg = f"<b>🔗 URL:</b> <a href='{url}'>Open HubCloud</a>\n"
+
+        base = await extract_filename_and_php_link(url)
+        if not base.get("php_url"):
+            result_msg += "❌ Failed to get PHP link.\n"
+            results.append(result_msg)
+            continue
+
+        php_url = base["php_url"]
+        file_name = base["file_name"]
+        result_msg += f"<b>📁 File:</b> <code>{file_name}</code>\n"
+        result_msg += f"<b>🌐 PHP:</b> <a href='{php_url}'>Open PHP Link</a>\n"
+
+        links_found = await extract_links_from_php_page(php_url)
+
+        # Add links
+        if links_found.get("pixel_server"):
+            result_msg += f"📥 <b>Pixel:</b> <a href='{links_found['pixel_server']}'>Download</a>\n"
+        else:
+            result_msg += "❌ Pixel not found\n"
+
+        if links_found.get("fsl_server"):
+            result_msg += f"🗂️ <b>FSL:</b> <a href='{links_found['fsl_server']}'>Download</a>\n"
+        else:
+            result_msg += "❌ FSL not found\n"
+
+        if links_found.get("fast_server"):
+            result_msg += f"⚡ <b>Fast:</b> <a href='{links_found['fast_server']}'>Download</a>\n"
+        else:
+            result_msg += "❌ Fast server not found\n"
+
+        results.append(result_msg)
+
+    # Send all combined
+    final_text = "\n\n".join(results)
+    await message.reply_text(final_text,  disable_web_page_preview=True)
+
 
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
 buttons = [[
