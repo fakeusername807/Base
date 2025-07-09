@@ -16,19 +16,43 @@ from PIL import Image
 from io import BytesIO
 
 
-
-async def extract_links_from_php_page(full_php_url: str):
+# Step 1: Get filename + PHP URL from HubCloud
+async def extract_filename_and_php_link(hubcloud_url: str):
     async with aiohttp.ClientSession() as session:
-        async with session.get(full_php_url) as response:
+        async with session.get(hubcloud_url) as response:
             if response.status != 200:
-                return {"error": f"Failed to load page. Status code: {response.status}"}
+                return {"error": f"Failed to fetch HubCloud page. Status: {response.status}"}
             html = await response.text()
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    # File name
+    file_name_div = soup.find("div", class_="card-header text-white bg-primary mb-3")
+    file_name = file_name_div.text.strip() if file_name_div else None
+
+    # PHP download link
+    php_link_tag = soup.select_one("div.vd a#download")
+    php_url = php_link_tag['href'] if php_link_tag else None
+
+    return {
+        "file_name": file_name,
+        "php_url": php_url
+    }
+
+
+# Step 2: Get download links from PHP page
+async def extract_links_from_php_page(php_url: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(php_url) as resp:
+            if resp.status != 200:
+                return {"error": "Failed to load PHP page."}
+            html = await resp.text()
 
     soup = BeautifulSoup(html, "html.parser")
     pixel_link, fsl_link = None, None
 
-    for a_tag in soup.find_all("a", href=True):
-        href = a_tag["href"]
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
         if "pixeldrain" in href and "api/file" in href:
             pixel_link = href
         elif "cdn.cdn3bot.xyz" in href:
@@ -40,26 +64,39 @@ async def extract_links_from_php_page(full_php_url: str):
     }
 
 
-@Client.on_message(filters.command("hubcloud678") & filters.reply & filters.all)
-async def hubcloud_scraper(client, message: Message):
+# Step 3: Pyrogram command handler
+@Client.on_message(filters.command("hubcloud") & filters.reply)
+async def handle_hubcloud_all(client: Client, message: Message):
     reply = message.reply_to_message
     if not reply or not reply.text.startswith("http"):
-        return await message.reply_text("❌ Reply to a message containing the HubCloud PHP link.")
+        return await message.reply_text("❌ Reply to a HubCloud page URL (e.g. https://hubcloud.one/drive/...).")
 
     url = reply.text.strip()
-    await message.reply_text("🔍 Fetching download links...")
+    await message.reply_text("🔍 Fetching file info and download links...")
 
-    links = await extract_links_from_php_page(url)
+    base_data = await extract_filename_and_php_link(url)
+    if "error" in base_data or not base_data["php_url"]:
+        return await message.reply_text("❌ Could not extract PHP link from page.")
 
-    if "error" in links:
-        return await message.reply_text(f"❌ Error: {links['error']}")
+    file_name = base_data["file_name"] or "Unknown File"
+    php_url = base_data["php_url"]
 
-    msg = "✅ <b>Download Links Found:</b>\n\n"
-    msg += f"📦 <b>PixelServer</b>: <a href='{links['pixel_server']}'>Click Here</a>\n" if links['pixel_server'] else "❌ PixelServer not found.\n"
-    msg += f"📥 <b>FSL Server</b>: <a href='{links['fsl_server']}'>Click Here</a>" if links['fsl_server'] else "❌ FSL Server not found."
+    # Step 2: Get Pixel + FSL
+    dl_links = await extract_links_from_php_page(php_url)
 
-    await message.reply_text(msg, disable_web_page_preview=True)
+    if "error" in dl_links:
+        return await message.reply_text("❌ Failed to extract download links.")
 
+    pixel = dl_links.get("pixel_server")
+    fsl = dl_links.get("fsl_server")
+
+    # Final output
+    msg = f"<b>📁 File Name:</b> <code>{file_name}</code>\n"
+    msg += f"<b>🔗 PHP Page:</b> <a href='{php_url}'>Open Link</a>\n\n"
+    msg += f"📥 <b>PixelServer</b>: <a href='{pixel}'>Click Here</a>\n" if pixel else "❌ PixelServer not found.\n"
+    msg += f"📥 <b>FSL Server</b>: <a href='{fsl}'>Click Here</a>" if fsl else "❌ FSL Server not found."
+
+    await message.reply_text(msg,  disable_web_page_preview=True)
 
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
 buttons = [[
