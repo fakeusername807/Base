@@ -49,18 +49,28 @@ async def extract_links_from_php_page(php_url: str) -> dict:
             html = await resp.text()
 
     soup = BeautifulSoup(html, "html.parser")
-    pixel_link, fsl_link = None, None
+
+    pixel_link = None
+    fsl_link = None
+    fast_link = None
 
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "pixeldrain" in href and "api/file" in href:
+
+        # Pixel links
+        if ("pixeldrain" in href and "api/file" in href) or "pixel.hubcdn.fans" in href:
             pixel_link = href
-        elif "cdn.cdn3bot.xyz" in href:
+
+        # FSL link
+        elif ("cdn.cdn3bot.xyz" in href) or ".r2.dev" in href:
             fsl_link = href
+
+        
 
     return {
         "pixel_server": pixel_link,
-        "fsl_server": fsl_link
+        "fsl_server": fsl_link,
+        
     }
 
 
