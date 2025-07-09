@@ -16,6 +16,51 @@ from PIL import Image
 from io import BytesIO
 
 
+
+async def extract_links_from_php_page(full_php_url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(full_php_url) as response:
+            if response.status != 200:
+                return {"error": f"Failed to load page. Status code: {response.status}"}
+            html = await response.text()
+
+    soup = BeautifulSoup(html, "html.parser")
+    pixel_link, fsl_link = None, None
+
+    for a_tag in soup.find_all("a", href=True):
+        href = a_tag["href"]
+        if "pixeldrain" in href and "api/file" in href:
+            pixel_link = href
+        elif "cdn.cdn3bot.xyz" in href:
+            fsl_link = href
+
+    return {
+        "pixel_server": pixel_link,
+        "fsl_server": fsl_link
+    }
+
+
+@Client.on_message(filters.command("hubcloud678") & filters.reply & filters.all)
+async def hubcloud_scraper(client, message: Message):
+    reply = message.reply_to_message
+    if not reply or not reply.text.startswith("http"):
+        return await message.reply_text("❌ Reply to a message containing the HubCloud PHP link.")
+
+    url = reply.text.strip()
+    await message.reply_text("🔍 Fetching download links...")
+
+    links = await extract_links_from_php_page(url)
+
+    if "error" in links:
+        return await message.reply_text(f"❌ Error: {links['error']}")
+
+    msg = "✅ <b>Download Links Found:</b>\n\n"
+    msg += f"📦 <b>PixelServer</b>: <a href='{links['pixel_server']}'>Click Here</a>\n" if links['pixel_server'] else "❌ PixelServer not found.\n"
+    msg += f"📥 <b>FSL Server</b>: <a href='{links['fsl_server']}'>Click Here</a>" if links['fsl_server'] else "❌ FSL Server not found."
+
+    await message.reply_text(msg, disable_web_page_preview=True)
+
+
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
 buttons = [[
         InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
