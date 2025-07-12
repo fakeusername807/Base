@@ -43,6 +43,9 @@ MX Player</blockquote>
 <blockquote>For Theater Print or Leatest Realese</blockquote>
 /bms leatest_release
 /poster Movie/Series_name
+/crunchyroll anime_name (70% Accuracy) 
+/stkar jpg/png_url To Make Sticker 
+/search content name To Copy Ott Content Url
 <blockquote>Powered By  @HGBOTZ</blockquote></b>""" 
     
     
