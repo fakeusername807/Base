@@ -204,14 +204,14 @@ async def process_and_send_movie(client: Client, movie_url: str):
         if gofile_links:
             text += "\n<b>🔰GoFile Link🔰 (Directly Leech)</b>\n"
             for i, link in enumerate(gofile_links, 1):
-                text += f"• {link}\n"
+                text += f"<b>• {link}</b>\n"
               
-        text += f"\n<b>🐬Stream Tape Link🐬</b>\n {watch_url} \n\n"
+        text += f"\n<b>🐬Stream Tape Link🐬\n {watch_url}</b> \n\n"
           
         if normal_links:
             text += "<b>🍿 All Cloud Urls 🍿</b>\n"
             for i, link in enumerate(normal_links, 1):
-                text += f"{i}. {link}\n"        
+                text += f"<b>{i}. {link}</b>\n"        
 
         text += f"\n<b><blockquote>Rss 😶 By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
         # Send to channel
