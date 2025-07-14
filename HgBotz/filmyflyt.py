@@ -1,3 +1,4 @@
+import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 import aiohttp
@@ -123,22 +124,76 @@ async def filmyfly_bypass(client, message: Message):
 
 
 
+
+
+
+async def extract_new1_links(url: str) -> list:
+    """Extract new1.filesdl.in links with their labels from linkmake.in page"""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers, timeout=10) as response:
+                if response.status != 200:
+                    return None
+                
+                html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                
+                links = []
+                containers = soup.find_all("div", class_="dlink dl")
+                
+                for container in containers:
+                    link_tag = container.find("a", title="new1.filesdl")
+                    if not link_tag:
+                        continue
+                    
+                    href = link_tag.get("href")
+                    label_div = link_tag.find("div", class_="dll")
+                    label = label_div.get_text(strip=True) if label_div else "Download Link"
+                    
+                    links.append((label, href))
+                
+                return links if links else None
+                
+    except Exception as e:
+        print(f"Scraping error: {e}")
+        return None
+
 @Client.on_message(filters.command("filesdl", prefixes="/"))
 async def get_filesdl_links(client, message: Message):
+    # Extract URL from command
     if len(message.command) < 2:
-        return await message.reply_text("Usage:\n/filesdl linkmake.in/view/...")
-
-    url = message.command[1]
-    links = await extract_new1_links_with_labels(url)
-
+        return await message.reply_text("**Usage:**\n`/filesdl https://linkmake.in/view/...`")
+    
+    url = message.command[1].strip()
+    if not url.startswith("http"):
+        url = "https://" + url
+    
+    # Show processing status
+    processing_msg = await message.reply_text("🔍 __Scraping linkmake.in page...__")
+    
+    # Extract links
+    links = await extract_new1_links(url)
+    
     if not links:
-        return await message.reply_text("❌ No new1.filesdl.in links found.")
-
-    formatted = ""
-    for link in links:
-        label = html.escape(link['label'])
-        href = html.escape(link['url'])
-        formatted += f"<b>{label}</b>\n<code>{href}</code>\n\n"
-
-    await message.reply_text(formatted,  disable_web_page_preview=True)
-
+        await processing_msg.delete()
+        return await message.reply_text("❌ No new1.filesdl.in links found or invalid URL.")
+    
+    # Prepare response
+    response_text = f"**✅ Found {len(links)} Download Links:**\n\n"
+    keyboard = []
+    
+    for i, (label, url) in enumerate(links, 1):
+        response_text += f"{i}. **{label}**\n`{url}`\n\n"
+        keyboard.append([InlineKeyboardButton(label, url=url)])
+    
+    # Send results with inline buttons
+    await processing_msg.delete()
+    await message.reply_text(
+        response_text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        disable_web_page_preview=True
+    )
