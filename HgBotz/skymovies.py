@@ -211,9 +211,9 @@ async def process_and_send_movie(client: Client, movie_url: str):
         if normal_links:
             text += "<b>🍿 All Cloud Urls 🍿</b>\n"
             for i, link in enumerate(normal_links, 1):
-                text += f"{i}. {link}\n"        
+                text += f"{i}. {link}\n\n"        
 
-        text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+        text += f"<b><blockquote>Rss 😶 By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
         # Send to channel
         await client.send_message(
             chat_id=TARGET_CHANNEL,
