@@ -51,10 +51,10 @@ async def get_final_download_links(cloud_url: str) -> dict:
 @Client.on_message(filters.command("b", prefixes="/"))
 async def filmyfly_bypass(client, message: Message):
     if len(message.command) < 2:
-        return await message.reply_text("❌ Usage:\n`/b <filmyfly.movie.page>`")
+        return await message.reply_text("❌ Usage:\n/b filmyfly.movie.page")
 
     movie_url = message.command[1]
-    await message.reply_chat_action("typing")
+    await message.reply_text(text="process") 
 
     try:
         # Step 1: Get LinkMake URL
