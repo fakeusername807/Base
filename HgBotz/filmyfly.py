@@ -129,7 +129,7 @@ def process_filmyfly_url(movie_url):
 
 # For Telegram bot (pseudo-code)
 @Client.on_message(filters.command("b") & filters.private)
-async def handle_b_command(message):
+async def filmyfly_bypass(client, message: Message):
     movie_url = message.text.split()[1]
     result = process_filmyfly_url(movie_url)
     bot.reply_to(message, result)
