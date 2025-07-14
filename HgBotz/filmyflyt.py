@@ -103,6 +103,7 @@ async def skymovies_full_command(client: Client, message: Message):
     # Step 4: Format output
     text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
     text += f" <b>Title</b> = <code>{title}</code>\n\n" 
+    text += f"<b>🐬Stream Tape Link🐬 \n {watch_url} \n\n</b>"
     text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
