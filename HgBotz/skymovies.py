@@ -106,12 +106,12 @@ async def skymovies_full_command(client: Client, message: Message):
     # Step 4: Format output
     text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
     text += f" <b>Title</b> = <code>{title}</code>\n\n" 
-    text += f"<b><blockquote>🐬Stream Tape Link🐬 \n {watch_url} \n\n</blockquote></b>"
+    text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n\n</b>"
     
     if gofile_links:
         text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
         for i, link in enumerate(gofile_links, 1):
-            text += f"<b>• {link}</b>\n"
+            text += f"<b>• {link}</b>\n\n"
 
     text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
    
@@ -201,12 +201,13 @@ async def process_and_send_movie(client: Client, movie_url: str):
         # Step 4: Format message
         text = " <b>🎬 New Movie Added! ✅</b>\n\n"
         text += f" <b>Title</b> = <code>{title}</code>\n\n" 
-        text += f"<b><blockquote>🐬Stream Tape Link🐬 \n {watch_url} \n\n</blockquote></b>"
         if gofile_links:
             text += "\n<b><blockquote>🔰GoFile Link🔰 Directly Leech</blockquote></b>\n"
             for i, link in enumerate(gofile_links, 1):
-                text += f"<b>• {link}</b>\n"
-                
+                text += f"<b>• {link}</b>\n\n"
+              
+        text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n\n</b>"
+          
         if normal_links:
             text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
             for i, link in enumerate(normal_links, 1):
