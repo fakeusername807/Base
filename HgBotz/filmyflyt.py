@@ -1,4 +1,4 @@
-from pyrogram import Client, filters
+from pyrogram import Client, filters, re
 from pyrogram.types import Message
 import aiohttp
 from bs4 import BeautifulSoup
@@ -65,6 +65,11 @@ async def skymovies_full_command(client: Client, message: Message):
 
     url = message.command[1]
     await message.reply("🔍 Scraping all links, please wait...")
+    
+    pattern = r'.*/(.*)\.html$'
+    match = re.match(pattern, url) 
+    if match:
+        title = match.group(1)
 
     # Step 1: Extract top 3 links
     data = await scrape_first_three_links(url)
@@ -79,25 +84,30 @@ async def skymovies_full_command(client: Client, message: Message):
     gdrive_links = await extract_external_links_gdrive(gdrive_redirect)
     server01_links = await extract_external_links_gdrive(server01_redirect)
 
-    # Step 3: Categorize gofile and others
+
+
+        # Step 3: Categorize gofile and others
     gofile_links = []
     normal_links = []
 
     for link in gdrive_links + server01_links:
         if "gofile.io" in link:
             gofile_links.append(link)
-        elif link.startswith("http"):
+        
+    for link in gdrive_links:
+        if link.startswith("http"):
             normal_links.append(link)
+
 
     # Step 4: Format output
     text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
-    
-    text += "<b>Cloud Urls 💥</b>\n"
+    text += f" <b>Title</b> = <code>{title}</code>\n\n" 
+    text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
 
     if gofile_links:
-        text += "\n<b>🔰GoFile Link🔰 </b>\n"
+        text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
         for i, link in enumerate(gofile_links, 1):
             text += f"<b>• {link}</b>\n"
 
