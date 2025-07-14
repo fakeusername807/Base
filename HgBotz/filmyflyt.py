@@ -90,18 +90,15 @@ async def skymovies_full_command(client: Client, message: Message):
             normal_links.append(link)
 
     # Step 4: Format output
-    text = "✅ <b>SkymoviesHD Extracted Links</b>\n\n"
-    text += f"<b>🎬 Watch Online:</b> <a href='{watch_url}'>Click Here</a>\n"
-    text += f"<b>📁 GDrive Redirect:</b> <a href='{gdrive_redirect}'>Click Here</a>\n"
-    text += f"<b>🖥️ SERVER 01 Redirect:</b> <a href='{server01_redirect}'>Click Here</a>\n\n"
-
-    text += "<b>📦 Final Download Links:</b>\n"
+    text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
+    
+    text += "<b>Cloud Urls 💥</b>\n"
     for i, link in enumerate(normal_links, 1):
-        text += f"{i}. <a href='{link}'>Link {i}</a>\n"
+        text += f"<b>{i}. {link}</b>\n"
 
     if gofile_links:
-        text += "\n<b>🟢 Gofile Links:</b>\n"
+        text += "\n<b>🔰GoFile Link🔰 </b>\n"
         for i, link in enumerate(gofile_links, 1):
-            text += f"• <a href='{link}'>Gofile {i}</a>\n"
+            text += f"<b>• {link}</b>\n"
 
     await message.reply(text,  disable_web_page_preview=True)
