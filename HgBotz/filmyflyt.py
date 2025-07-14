@@ -13,19 +13,25 @@ async def get_linkmake_url(filmyfly_url: str) -> str:
     return dlbtn.a["href"] if dlbtn and dlbtn.a else None
 
 # ─── 2. Extract filesdl.in/cloud links ──────────────────
-async def get_filesdl_cloud_links(linkmake_url: str) -> list:
-    async with aiohttp.ClientSession() as session:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        async with session.get(linkmake_url, headers=headers, timeout=15) as r:
+async def extract_new1_links(linkmake_url: str) -> list:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/120.0.0.0 Safari/537.36"
+    }
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(linkmake_url, timeout=20) as r:
             html = await r.text()
+
     soup = BeautifulSoup(html, "html.parser")
-    results = []
-    for div in soup.find_all("div", class_="dlink"):
-        a_tag = div.find("a")
-        label = div.get_text(strip=True)
-        if a_tag and a_tag["href"].startswith("http"):
-            results.append({"label": label, "url": a_tag["href"]})
-    return results
+    all_links = []
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "new1.filesdl.in" in href:
+            all_links.append(href)
+
+    return all_links
 
 # ─── 3. Extract final download links from cloud ─────────
 async def get_final_download_links(cloud_url: str) -> dict:
@@ -63,9 +69,9 @@ async def filmyfly_bypass(client, message: Message):
             return await message.reply_text("❌ Failed to extract LinkMake URL.")
 
         # Step 2: Get Cloud links
-        cloud_links = await get_filesdl_cloud_links(linkmake_url)
+        cloud_links = await extract_new1_links(linkmake_url)
         if not cloud_links:
-            return await message.reply_text("❌ No cloud links found on LinkMake page.")
+            return await message.reply_text(f"{linkmake_url} ❌ No cloud links found on LinkMake page.")
 
         # Step 3: For each cloud link, get final download links
         final_output = []
@@ -88,3 +94,18 @@ async def filmyfly_bypass(client, message: Message):
 
     except Exception as e:
         await message.reply_text(f"❌ Error:\n<code>{str(e)}</code>")
+
+
+@Client.on_message(filters.command("filesdl", prefixes="/"))
+async def send_filesdl_links(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply_text("Usage:\n/filesdl <linkmake.in/view/...>")
+
+    url = message.command[1]
+    links = await extract_new1_links(url)
+
+    if not links:
+        return await message.reply_text("❌ No filesdl.in links found on this page.")
+
+    formatted = "\n".join([f"<code>{link}</code>" for link in links])
+    await message.reply_text(f"🔗 Found {len(links)} links:\n\n{formatted}", parse_mode="html")
