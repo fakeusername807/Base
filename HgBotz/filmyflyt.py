@@ -1,4 +1,5 @@
-from pyrogram import Client, filters, re
+import re
+from pyrogram import Client, filters
 from pyrogram.types import Message
 import aiohttp
 from bs4 import BeautifulSoup
