@@ -117,7 +117,9 @@ async def skymovies_full_command(client: Client, message: Message):
    
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
-        
+ 
+    text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"   
+   
     await message.reply(text,  disable_web_page_preview=True)
 
 
@@ -210,6 +212,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
             for i, link in enumerate(normal_links, 1):
                 text += f"<b>{i}. {link}</b>\n"        
 
+        text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
         # Send to channel
         await client.send_message(
             chat_id=TARGET_CHANNEL,
