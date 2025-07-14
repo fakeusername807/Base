@@ -127,7 +127,7 @@ BASE_URL = "https://skymovieshd.land/"
 STATE_FILE = "skymovies_state.json"
 TARGET_CHANNEL = -1002615965065  # Your channel ID
 ADMIN_ID = 6359874284  # Your admin ID
-CHECK_INTERVAL = 1800  # 30 minutes in seconds
+CHECK_INTERVAL = 600  # 30 minutes in seconds
 
 # Load processed URLs
 def load_processed_urls():
