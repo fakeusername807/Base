@@ -132,4 +132,4 @@ def process_filmyfly_url(movie_url):
 async def filmyfly_bypass(client, message: Message):
     movie_url = message.text.split()[1]
     result = process_filmyfly_url(movie_url)
-    bot.reply_to(message, result)
+    client.reply(message, result)
