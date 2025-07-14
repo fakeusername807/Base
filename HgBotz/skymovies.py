@@ -119,13 +119,30 @@ async def skymovies_full_command(client: Client, message: Message):
 
 
 
-# Add these global variables at the top of your script
-LAST_CHECKED_MOVIES = []
-MONITOR_INTERVAL = 1800  # 30 minutes in seconds
-TARGET_CHANNEL = "-1002615965065"  # Change to your channel
-admin = "6359874284" 
-# Add this function to check for new movies
-async def get_latest_movies() -> List[Dict[str, str]]:
+
+
+# Configuration
+BASE_URL = "https://skymovieshd.land/"
+STATE_FILE = "skymovies_state.json"
+TARGET_CHANNEL = -1002615965065  # Your channel ID
+ADMIN_ID = 6359874284  # Your admin ID
+CHECK_INTERVAL = 1800  # 30 minutes in seconds
+
+# Load processed URLs
+def load_processed_urls():
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, "r") as f:
+            return json.load(f)
+    return {"processed_urls": []}
+
+# Save processed URLs
+def save_processed_urls(urls):
+    with open(STATE_FILE, "w") as f:
+        json.dump({"processed_urls": urls}, f)
+
+
+# Get latest movies from homepage
+async def get_latest_movies():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(BASE_URL, timeout=20) as resp:
@@ -137,7 +154,7 @@ async def get_latest_movies() -> List[Dict[str, str]]:
         fmvideo_divs = soup.find_all("div", class_="Fmvideo")
         
         movies = []
-        for div in fmvideo_divs[:10]:  # Check latest 10 movies
+        for div in fmvideo_divs[:15]:  # Get latest 15 movies
             a_tag = div.find("a")
             if a_tag:
                 title = a_tag.text.strip()
@@ -151,87 +168,90 @@ async def get_latest_movies() -> List[Dict[str, str]]:
     except Exception:
         return []
 
-# Add this background task
+# Process and send movie to channel
+async def process_and_send_movie(client: Client, movie_url: str):
+    try:
+        pattern = r'.*/(.*)\.html$'
+        match = re.match(pattern, movie_url) 
+        title = match.group(1) if match else "Unknown Title"
+
+        # Step 1: Extract top 3 links
+        data = await scrape_first_three_links(movie_url)
+        if "error" in data:
+            print(f"Error processing {movie_url}: {data['error']}")
+            return
+
+        watch_url = data.get("WATCH ONLINE", "")
+        gdrive_redirect = data.get("Google Drive Direct Links", "")
+        server01_redirect = data.get("SERVER 01", "")
+
+        # Step 2: Scrape GDrive & Server01 external links
+        gdrive_links = await extract_external_links_gdrive(gdrive_redirect)
+        server01_links = await extract_external_links_gdrive(server01_redirect)
+
+        # Step 3: Categorize links
+        gofile_links = [link for link in gdrive_links + server01_links if "gofile.io" in link]
+        normal_links = [link for link in gdrive_links if link.startswith("http")]
+
+        # Step 4: Format message
+        text = " <b>🎬 New Movie Added! ✅</b>\n\n"
+        text += f" <b>Title</b> = <code>{title}</code>\n\n" 
+        text += f"<b>🐬Stream Tape Link🐬 \n {watch_url} \n\n</b>"
+        
+        if normal_links:
+            text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
+            for i, link in enumerate(normal_links, 1):
+                text += f"<b>{i}. {link}</b>\n"
+
+        if gofile_links:
+            text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
+            for i, link in enumerate(gofile_links, 1):
+                text += f"<b>• {link}</b>\n"
+
+        # Send to channel
+        await client.send_message(
+            chat_id=TARGET_CHANNEL,
+            text=text,
+            disable_web_page_preview=True
+        )
+        print(f"Posted new movie: {title}")
+        
+    except Exception as e:
+        print(f"Error processing movie: {e}")
+
+# Background monitoring task
 async def monitor_new_movies(client: Client):
-    global LAST_CHECKED_MOVIES
+    print("🎥 Movie monitoring started...")
+    state = load_processed_urls()
+    processed_urls = set(state["processed_urls"])
     
     while True:
         try:
-            current_movies = await get_latest_movies()
+            print("🔍 Checking for new movies...")
+            movies = await get_latest_movies()
+            new_movies = [m for m in movies if m["url"] not in processed_urls]
             
-            if not LAST_CHECKED_MOVIES:
-                LAST_CHECKED_MOVIES = current_movies
-                await asyncio.sleep(MONITOR_INTERVAL)
-                continue
+            if new_movies:
+                print(f"🎉 Found {len(new_movies)} new movies!")
+                # Process in reverse order to send oldest first
+                for movie in reversed(new_movies):
+                    await process_and_send_movie(client, movie["url"])
+                    processed_urls.add(movie["url"])
+                    # Update state after each movie to prevent loss on crash
+                    save_processed_urls(list(processed_urls))
+                    await asyncio.sleep(10)  # Delay between processing
+            else:
+                print("🔄 No new movies found")
                 
-            # Find new movies that weren't in last check
-            new_movies = [
-                movie for movie in current_movies 
-                if movie not in LAST_CHECKED_MOVIES
-            ]
-            
-            # Process and send new movies
-            for movie in new_movies:
-                try:
-                    # Use the same logic as your /sky command
-                    url = movie["url"]
-                    pattern = r'.*/(.*)\.html$'
-                    match = re.match(pattern, url) 
-                    title = match.group(1) if match else movie["title"]
-                    
-                    data = await scrape_first_three_links(url)
-                    if "error" in data:
-                        continue
-                        
-                    watch_url = data.get("WATCH ONLINE")
-                    gdrive_redirect = data.get("Google Drive Direct Links")
-                    server01_redirect = data.get("SERVER 01")
-
-                    gdrive_links = await extract_external_links_gdrive(gdrive_redirect)
-                    server01_links = await extract_external_links_gdrive(server01_redirect)
-
-                    gofile_links = []
-                    normal_links = []
-
-                    for link in gdrive_links + server01_links:
-                        if "gofile.io" in link:
-                            gofile_links.append(link)
-                        
-                    for link in gdrive_links:
-                        if link.startswith("http"):
-                            normal_links.append(link)
-
-                    text = " <b>🎬 New Movie Added! ✅</b>\n\n"
-                    text += f" <b>Title</b> = <code>{title}</code>\n\n" 
-                    text += f"<b>🐬Stream Tape Link🐬 \n {watch_url} \n\n</b>"
-                    text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
-                    for i, link in enumerate(normal_links, 1):
-                        text += f"<b>{i}. {link}</b>\n"
-
-                    if gofile_links:
-                        text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
-                        for i, link in enumerate(gofile_links, 1):
-                            text += f"<b>• {link}</b>\n"
-
-                    await client.send_message(
-                        chat_id=TARGET_CHANNEL,
-                        text=text,
-                        disable_web_page_preview=True
-                    )
-                    
-                except Exception as e:
-                    print(f"Error processing {movie['title']}: {e}")
-            
-            LAST_CHECKED_MOVIES = current_movies
-            
         except Exception as e:
-            print(f"Monitoring error: {e}")
-        
-        await asyncio.sleep(MONITOR_INTERVAL)
+            print(f"⚠️ Monitoring error: {e}")
+            
+        await asyncio.sleep(CHECK_INTERVAL)
 
-# Add this handler to start monitoring when bot starts
-@Client.on_message(filters.command("startmonitor") & filters.user(admin))  # Only for admins
-async def start_monitoring(client: Client, message: Message):
-    await message.reply("🔄 Starting movie monitoring...")
+
+# Command to start monitoring manually
+@Client.on_message(filters.command("startmon") & filters.user(ADMIN_ID))
+async def start_monitoring_cmd(client: Client, message: Message):
     asyncio.create_task(monitor_new_movies(client))
+    await message.reply("✅ Movie monitoring started!")
 
