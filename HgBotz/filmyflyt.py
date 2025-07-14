@@ -2,7 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import aiohttp
 from bs4 import BeautifulSoup
-
+import html
 # ─── 1. Extract LinkMake URL ─────────────────────────────
 async def get_linkmake_url(filmyfly_url: str) -> str:
     async with aiohttp.ClientSession() as session:
@@ -12,6 +12,32 @@ async def get_linkmake_url(filmyfly_url: str) -> str:
     dlbtn = soup.find("div", class_="dlbtn")
     return dlbtn.a["href"] if dlbtn and dlbtn.a else None
 
+
+async def extract_new1_links_with_labels(linkmake_url: str) -> list:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(linkmake_url, timeout=20) as r:
+            html = await r.text()
+
+    soup = BeautifulSoup(html, "html.parser")
+    results = []
+
+    # ✅ This finds ALL <a href="https://new1.filesdl.in/..."> inside any <div class="dlink dl">
+    for div in soup.find_all("div", class_="dlink dl"):
+        a_tag = div.find("a", href=True)
+        label_tag = div.find("div", class_="dll")
+
+        if a_tag and "new1.filesdl.in" in a_tag["href"]:
+            url = a_tag["href"].strip()
+            label = label_tag.get_text(strip=True) if label_tag else "No Label"
+            results.append({"label": label, "url": url})
+
+    return results
 # ─── 2. Extract filesdl.in/cloud links ──────────────────
 async def extract_new1_links(linkmake_url: str) -> list:
     headers = {
@@ -96,16 +122,23 @@ async def filmyfly_bypass(client, message: Message):
         await message.reply_text(f"❌ Error:\n<code>{str(e)}</code>")
 
 
+
 @Client.on_message(filters.command("filesdl", prefixes="/"))
-async def send_filesdl_links(client, message: Message):
+async def get_filesdl_links(client, message: Message):
     if len(message.command) < 2:
-        return await message.reply_text("Usage:\n/filesdl <linkmake.in/view/...>")
+        return await message.reply_text("Usage:\n/filesdl linkmake.in/view/...")
 
     url = message.command[1]
-    links = await extract_new1_links(url)
+    links = await extract_new1_links_with_labels(url)
 
     if not links:
-        return await message.reply_text("❌ No filesdl.in links found on this page.")
+        return await message.reply_text("❌ No new1.filesdl.in links found.")
 
-    formatted = "\n".join([f"<code>{link}</code>" for link in links])
-    await message.reply_text(f"🔗 Found {len(links)} links:\n\n{formatted}", parse_mode="html")
+    formatted = ""
+    for link in links:
+        label = html.escape(link['label'])
+        href = html.escape(link['url'])
+        formatted += f"<b>{label}</b>\n<code>{href}</code>\n\n"
+
+    await message.reply_text(formatted,  disable_web_page_preview=True)
+
