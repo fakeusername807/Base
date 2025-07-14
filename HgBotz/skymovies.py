@@ -206,7 +206,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
             for i, link in enumerate(gofile_links, 1):
                 text += f"• {link}\n"
               
-        text += f"<b>🐬Stream Tape Link🐬</b>\n {watch_url} \n\n"
+        text += f"\n<b>🐬Stream Tape Link🐬</b>\n {watch_url} \n\n"
           
         if normal_links:
             text += "<b>🍿 All Cloud Urls 🍿</b>\n"
