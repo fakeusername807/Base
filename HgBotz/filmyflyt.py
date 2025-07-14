@@ -3,8 +3,8 @@ from pyrogram.types import Message
 import aiohttp
 from bs4 import BeautifulSoup
 
-# Scrape WATCH ONLINE and Google Drive Redirect
-async def scrape_first_two_links(page_url: str) -> dict:
+# Step 1: Scrape first 3 links
+async def scrape_first_three_links(page_url: str) -> dict:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(page_url, timeout=20) as resp:
@@ -18,12 +18,13 @@ async def scrape_first_two_links(page_url: str) -> dict:
             return {"error": "❌ <div class='Bolly'> not found"}
 
         a_tags = bolly_div.find_all("a")
-        if len(a_tags) < 2:
-            return {"error": "❌ Less than 2 links found"}
+        if len(a_tags) < 3:
+            return {"error": "❌ Less than 3 links found"}
 
         result = {
             a_tags[0].text.strip() or "WATCH ONLINE": a_tags[0].get("href", "").strip(),
-            a_tags[1].text.strip() or "Google Drive Direct Links": a_tags[1].get("href", "").strip()
+            a_tags[1].text.strip() or "Google Drive Direct Links": a_tags[1].get("href", "").strip(),
+            a_tags[2].text.strip() or "SERVER 01": a_tags[2].get("href", "").strip(),
         }
 
         return result
@@ -31,7 +32,7 @@ async def scrape_first_two_links(page_url: str) -> dict:
     except Exception as e:
         return {"error": f"❌ Exception in main page: {e}"}
 
-# Your provided GDrive redirect parser
+# Step 2: Your external link extractor
 async def extract_external_links_gdrive(url: str) -> list:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -41,7 +42,7 @@ async def extract_external_links_gdrive(url: str) -> list:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url, timeout=20) as response:
                 if response.status != 200:
-                    return [f"❌ Failed to fetch GDrive redirect page: {response.status}"]
+                    return [f"❌ Failed to fetch: {response.status}"]
 
                 html = await response.text()
                 soup = BeautifulSoup(html, "html.parser")
@@ -52,38 +53,55 @@ async def extract_external_links_gdrive(url: str) -> list:
                     if a.has_attr("href")
                 ]
 
-                return links if links else ["❌ No external links found on redirect page."]
-
+                return links if links else ["❌ No external links found."]
     except Exception as e:
-        return [f"❌ Exception while scraping GDrive redirect page: {e}"]
+        return [f"❌ Exception scraping link: {e}"]
 
-# Pyrogram command handler
-@Client.on_message(filters.command("skt") & filters.private)
-async def skymovies_gdrive_command(client: Client, message: Message):
+# Final Pyrogram command
+@Client.on_message(filters.command("sky") & filters.private)
+async def skymovies_full_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply("❌ Usage: /skt skymovieshd_url")
 
     url = message.command[1]
-    await message.reply("🔍 Scraping page, please wait...")
+    await message.reply("🔍 Scraping all links, please wait...")
 
-    # Step 1: Get watch & GDrive redirect links
-    data = await scrape_first_two_links(url)
+    # Step 1: Extract top 3 links
+    data = await scrape_first_three_links(url)
     if "error" in data:
         return await message.reply(data["error"])
 
     watch_url = data.get("WATCH ONLINE")
-    gdrive_redirect_url = data.get("Google Drive Direct Links")
+    gdrive_redirect = data.get("Google Drive Direct Links")
+    server01_redirect = data.get("SERVER 01")
 
-    # Step 2: Extract final links from GDrive redirect page
-    gdrive_links = await extract_external_links_gdrive(gdrive_redirect_url)
+    # Step 2: Scrape GDrive & Server01 external links
+    gdrive_links = await extract_external_links_gdrive(gdrive_redirect)
+    server01_links = await extract_external_links_gdrive(server01_redirect)
 
-    # Step 3: Compose reply
+    # Step 3: Categorize gofile and others
+    gofile_links = []
+    normal_links = []
+
+    for link in gdrive_links + server01_links:
+        if "gofile.io" in link:
+            gofile_links.append(link)
+        elif link.startswith("http"):
+            normal_links.append(link)
+
+    # Step 4: Format output
     text = "✅ <b>SkymoviesHD Extracted Links</b>\n\n"
-    text += f"🎬 <b>Watch Online:</b> <a href='{watch_url}'>Click Here</a>\n"
-    text += f"📁 <b>GDrive Redirect Page:</b> <a href='{gdrive_redirect_url}'>Click Here</a>\n\n"
-    text += "<b>📦 Final Download Links:</b>\n"
+    text += f"<b>🎬 Watch Online:</b> <a href='{watch_url}'>Click Here</a>\n"
+    text += f"<b>📁 GDrive Redirect:</b> <a href='{gdrive_redirect}'>Click Here</a>\n"
+    text += f"<b>🖥️ SERVER 01 Redirect:</b> <a href='{server01_redirect}'>Click Here</a>\n\n"
 
-    for i, link in enumerate(gdrive_links, start=1):
+    text += "<b>📦 Final Download Links:</b>\n"
+    for i, link in enumerate(normal_links, 1):
         text += f"{i}. <a href='{link}'>Link {i}</a>\n"
+
+    if gofile_links:
+        text += "\n<b>🟢 Gofile Links:</b>\n"
+        for i, link in enumerate(gofile_links, 1):
+            text += f"• <a href='{link}'>Gofile {i}</a>\n"
 
     await message.reply(text,  disable_web_page_preview=True)
