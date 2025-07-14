@@ -199,19 +199,19 @@ async def process_and_send_movie(client: Client, movie_url: str):
         normal_links = [link for link in gdrive_links if link.startswith("http")]
 
         # Step 4: Format message
-        text = " <b>🎬 New Movie Added! ✅</b>\n\n"
-        text += f" <b>Title</b> = <code>{title}</code>\n\n" 
+        text = "<b>🎬 New Movie Added! ✅</b>\n\n"
+        text += f"<b>Title 💫</b>: <code>{title}</code>\n\n" 
         if gofile_links:
-            text += "\n<b><blockquote>🔰GoFile Link🔰 Directly Leech</blockquote></b>\n"
+            text += "\n<b>🔰GoFile Link🔰 (Directly Leech)</b>\n"
             for i, link in enumerate(gofile_links, 1):
-                text += f"<b>• {link}</b>\n\n"
+                text += f"• {link}\n"
               
-        text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n\n</b>"
+        text += f"<b>🐬Stream Tape Link🐬</b>\n {watch_url} \n"
           
         if normal_links:
-            text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
+            text += "<b>🍿 All Cloud Urls 🍿</b>\n"
             for i, link in enumerate(normal_links, 1):
-                text += f"<b>{i}. {link}</b>\n"        
+                text += f"{i}. {link}\n"        
 
         text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
         # Send to channel
