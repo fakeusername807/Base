@@ -1,3 +1,6 @@
+from pyrogram import Client, filters
+from pyrogram.types import Message
+import aiohttp
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
