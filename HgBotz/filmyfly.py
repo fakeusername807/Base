@@ -98,19 +98,19 @@ ADMIN_ID = 6359874284  # Your admin ID
 CHECK_INTERVAL = 600  # 30 minutes in seconds
 
 # Load processed URLs
-def load_processed_urls():
+def load_ff_processed_urls():
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, "r") as f:
             return json.load(f)
     return {"processed_urls": []}
 
 # Save processed URLs
-def save_processed_urls(urls):
+def save_ff_processed_urls(urls):
     with open(STATE_FILE, "w") as f:
         json.dump({"processed_urls": urls}, f)
 
 # Get latest movies from homepage
-async def get_latest_movies():
+async def get_latest_ff_movies():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(BASE_URL, timeout=20) as resp:
@@ -137,7 +137,7 @@ async def get_latest_movies():
         return []
 
 # Process and send movie to channel
-async def process_and_send_movie(client: Client, input_url: str):
+async def process_and_send_ff_movie(client: Client, input_url: str):
     try:
         data = await fetch_filmy_json(input_url)
         title = data.get("title", "🎬 Movie Title")
@@ -196,23 +196,23 @@ async def process_and_send_movie(client: Client, input_url: str):
 # Background monitoring task
 async def monitor_new_ffly_movies(client: Client):
     print("🎥 Movie monitoring started...")
-    state = load_processed_urls()
+    state = load_ff_processed_urls()
     processed_urls = set(state["processed_urls"])
     
     while True:
         try:
             print("🔍 Checking for new movies...")
-            movies = await get_latest_movies()
+            movies = await get_latest_ff_movies()
             new_movies = [m for m in movies if m["url"] not in processed_urls]
             
             if new_movies:
                 print(f"🎉 Found {len(new_movies)} new movies!")
                 # Process in reverse order to send oldest first
                 for movie in reversed(new_movies):
-                    await process_and_send_movie(client, movie["url"])
+                    await process_and_send_ff_movie(client, movie["url"])
                     processed_urls.add(movie["url"])
                     # Update state after each movie to prevent loss on crash
-                    save_processed_urls(list(processed_urls))
+                    save_ff_processed_urls(list(processed_urls))
                     await asyncio.sleep(10)  # Delay between processing
             else:
                 print("🔄 No new movies found")
