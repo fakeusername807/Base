@@ -177,7 +177,8 @@ async def get_latest_movies():
 async def process_and_send_movie(client: Client, movie_url: str):
     try:
         pattern = r'.*/(.*)\.html$'
-        match = re.match(pattern, movie_url) 
+        match11 = re.match(pattern, movie_url) 
+        match = re.su(r'-',' ', match11) 
         title = match.group(1) if match else "Unknown Title"
 
         # Step 1: Extract top 3 links
