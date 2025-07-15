@@ -62,13 +62,13 @@ async def extract_external_links_gdrive(url: str) -> list:
         return [f"❌ Exception scraping link: {e}"]
 
 # Final Pyrogram command
-@Client.on_message(filters.command("sky") & filters.private)
+@Client.on_message(filters.command("sky") & filters.all)
 async def skymovies_full_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply("❌ Usage: /skt skymovieshd_url")
 
     url = message.command[1]
-    await message.reply("🔍 Scraping all links, please wait...")
+    M = await message.reply("🔍 ")
     
     pattern = r'.*/(.*)\.html$'
     match = re.match(pattern, url) 
@@ -106,12 +106,12 @@ async def skymovies_full_command(client: Client, message: Message):
     # Step 4: Format output
     text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
     text += f" <b>Title</b> = <code>{title}</code>\n\n" 
-    text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n\n</b>"
+    text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n</b>"
     
     if gofile_links:
         text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
         for i, link in enumerate(gofile_links, 1):
-            text += f"<b>• {link}</b>\n\n"
+            text += f"<b>• {link}</b>\n"
 
     text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
    
@@ -120,7 +120,7 @@ async def skymovies_full_command(client: Client, message: Message):
  
     text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"   
    
-    await message.reply(text,  disable_web_page_preview=True)
+    await M.edit_text(text,  disable_web_page_preview=True)
 
 
 
