@@ -74,6 +74,7 @@ async def skymovies_full_command(client: Client, message: Message):
     match = re.match(pattern, url) 
     if match:
         title = match.group(1)
+        title = title.replace("-", " ")
 
     # Step 1: Extract top 3 links
     data = await scrape_first_three_links(url)
@@ -177,9 +178,9 @@ async def get_latest_movies():
 async def process_and_send_movie(client: Client, movie_url: str):
     try:
         pattern = r'.*/(.*)\.html$'
-        match11 = re.match(pattern, movie_url) 
-        match = re.sub(r'-',' ', match11) 
+        match = re.match(pattern, movie_url) 
         title = match.group(1) if match else "Unknown Title"
+        title = title.replace("-", " ")
 
         # Step 1: Extract top 3 links
         data = await scrape_first_three_links(movie_url)
