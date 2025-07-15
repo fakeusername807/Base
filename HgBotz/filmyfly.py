@@ -1,108 +1,223 @@
+from pyrogram import Client, filters
+from pyrogram.types import Message
 import aiohttp
-import re
+import os, re, aiohttp, json
+from datetime import datetime 
+from pyrogram import Client, filters
+from pyrogram.types import Message
 from bs4 import BeautifulSoup
-from pyrogram import Client, filters 
-async def extract_linkmake_view_url(page_url: str) -> str:
-    """Extract linkmake.in/view URL from filmyfly.party page"""
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(page_url) as response:
-                html = await response.text()
-                match = re.search(
-                    r'<div\s+class\s*=\s*["\']?dlbtn[^>]+href\s*=\s*["\'](https?://linkmake\.in/view/[^\s"\'<>]+)',
-                    html,
-                    re.IGNORECASE
-                )
-                return match.group(1) if match else ""
-    except Exception:
-        return ""
+import asyncio
+from typing import Dict, List
 
-async def scrape_linkmake_downloads(linkmake_url: str):
-    """Scrape download links from linkmake.in page"""
-    result = {"title": "", "downloads": []}
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(linkmake_url) as response:
-                html = await response.text()
-                soup = BeautifulSoup(html, 'html.parser')
-                
-                # Extract page title
-                if title_tag := soup.find('title'):
-                    result['title'] = title_tag.get_text(strip=True)
-                
-                # Find container with download links
-                if container := soup.find('div', class_='container'):
-                    # Extract file title
-                    if file_title := container.find('div', class_='title'):
-                        result['file_title'] = file_title.get_text(strip=True)
-                    
-                    # Extract all download buttons
-                    buttons = container.find_all('a', class_=lambda x: x and x.startswith('button'))
-                    
-                    for button in buttons:
-                        if href := button.get('href', '').strip():
-                            result['downloads'].append({
-                                "text": button.get_text(strip=True),
-                                "url": href,
-                                "type": "cloud" if "cloud" in href or "filesdl" in href else "other"
-                            })
-    except Exception:
-        pass
-    return result
+API_ENDPOINT = "https://poster-two-ivory.vercel.app/api?url="
 
-async def get_filmyfly_cloud_urls(filmyfly_url: str):
-    """Get all cloud download URLs from filmyfly.party page via linkmake.in"""
-    # Step 1: Extract linkmake.in URL
-    linkmake_url = await extract_linkmake_view_url(filmyfly_url)
-    if not linkmake_url:
-        return {"error": "No linkmake.in URL found"}
+# Util: extract quality and size from title string
+def parse_quality_and_size(title_text: str):
+    quality, size = "Unknown", "Unknown"
+    if "480p" in title_text: quality = "HEVC 480p"
+    elif "720p" in title_text and "HEVC" in title_text: quality = "HEVC 720p"
+    elif "720p" in title_text: quality = "HD 720p"
+    elif "1080p" in title_text: quality = "HD 1080p"
     
-    # Step 2: Scrape download links from linkmake.in
-    data = await scrape_linkmake_downloads(linkmake_url)
-    
-    # Filter cloud downloads
-    cloud_downloads = [
-        {"text": d["text"], "url": d["url"]}
-        for d in data.get("downloads", [])
-        if d.get("type") == "cloud"
-    ]
-    
-    return {
-        "title": data.get("title", ""),
-        "file_title": data.get("file_title", ""),
-        "cloud_downloads": cloud_downloads,
-        "source_url": linkmake_url
-    }
+    import re
+    match = re.search(r"\((\d+(\.\d+)?\s?(MB|GB))\)", title_text)
+    if match:
+        size = match.group(1)
+    return quality, size
 
+# Async fetcher
+async def fetch_filmy_json(url: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(API_ENDPOINT + url) as resp:
+            return await resp.json() if resp.status == 200 else {}
 
-
-
-
-@Client.on_message(filters.command("filmyfly"))
-async def handle_filmyfly(client, message):
+# Command handler
+@Client.on_message(filters.command("filmy") & filters.all)
+async def filmy_handler(client, message: Message):
     if len(message.command) < 2:
-        return await message.reply("Please provide a filmyfly.party URL\nUsage: /filmyfly https://filmyfly.party/...")
-    
-    filmyfly_url = message.command[1]
-    msg = await message.reply("Processing... Please wait")
-    
-    result = await get_filmyfly_cloud_urls(filmyfly_url)
-    
-    if "error" in result:
-        return await msg.edit(result["error"])
-    
-    # Format response
-    response = f"**Title:** `{result['title']}`\n"
-    response += f"**File:** `{result.get('file_title', '')}`\n\n"
-    response += "**Cloud Downloads:**\n"
-    
-    for i, download in enumerate(result["cloud_downloads"], 1):
-        response += f"{i}. **{download['text']}**\n`{download['url']}`\n\n"
-    
-    response += f"_[Source Link]({result['source_url']})_"
-    
-    await msg.edit(
-        text=response,
-        disable_web_page_preview=True
-    )
+        return await message.reply("Usage: /filmy filmyfly_url")
 
+    input_url = message.command[1]
+
+    try:
+        data = await fetch_filmy_json(input_url)
+        title = data.get("title", "🎬 Movie Title")
+        cloud_links = data.get("cloud_links", {})
+
+        if not cloud_links:
+            return await message.reply("❌ No links found.")
+
+        for key, file_info in cloud_links.items():
+            file_title = file_info.get("title", "🎞️ File")
+            download_links = file_info.get("download_links", {})
+
+            # Guess quality and size
+            quality, size = parse_quality_and_size(file_title)
+
+            # Format text
+            text = f"""🎬 <b>New Post Just Dropped!</b> ✅
+
+📌 <b>Title:</b> {file_title}
+🔹 <b>Quality:</b> {quality} 
+
+"""
+
+            # Pretty label matching
+            for name, url in download_links.items():
+                name_lower = name.lower()
+                if "gofile" in name_lower:
+                    text += f"🔰 <b>GoFile Link: {url}</b>\n"
+                elif "fast cloud-02" in name_lower:
+                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n"
+                elif "fast cloud" in name_lower:
+                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "direct" in name_lower or "ddl" in name_lower:
+                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "gdf" in name_lower:
+                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "watch" in name_lower or "online" in name_lower:
+                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n"
+                elif "telegram" in name_lower:
+                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n"
+                else:
+                    text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
+
+            text += "<b><blockquote>🌐 Scraped by @hgbotz</blockquote></b>"
+
+            await message.reply(text)
+
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+
+
+# Configuration
+BASE_URL = "https://filmyfly.party/"
+STATE_FILE = "filmyfly_state.json"
+TARGET_CHANNEL = -1002558254512  # Your channel ID
+ADMIN_ID = 6359874284  # Your admin ID
+CHECK_INTERVAL = 600  # 30 minutes in seconds
+
+# Load processed URLs
+def load_processed_urls():
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, "r") as f:
+            return json.load(f)
+    return {"processed_urls": []}
+
+# Save processed URLs
+def save_processed_urls(urls):
+    with open(STATE_FILE, "w") as f:
+        json.dump({"processed_urls": urls}, f)
+
+# Get latest movies from homepage
+async def get_latest_movies():
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(BASE_URL, timeout=20) as resp:
+                if resp.status != 200:
+                    return []
+                html = await resp.text()
+
+        soup = BeautifulSoup(html, "html.parser")
+        fmvideo_divs = soup.find_all("div", class_="A10")
+        
+        movies = []
+        for div in fmvideo_divs[:15]:  # Get latest 15 movies
+            a_tag = div.find("a")
+            if a_tag:
+                
+                url = a_tag.get("href", "").strip()
+                if url and not url.startswith("http"):
+                    url = BASE_URL + url
+                movies.append({"url": url})
+        
+        return movies
+
+    except Exception:
+        return []
+
+# Process and send movie to channel
+async def process_and_send_movie(client: Client, input_url: str):
+    try:
+        data = await fetch_filmy_json(input_url)
+        title = data.get("title", "🎬 Movie Title")
+        cloud_links = data.get("cloud_links", {})
+
+        if not cloud_links:
+            return await message.reply("❌ No links found.")
+
+        for key, file_info in cloud_links.items():
+            file_title = file_info.get("title", "🎞️ File")
+            download_links = file_info.get("download_links", {})
+
+            # Guess quality and size
+            quality, size = parse_quality_and_size(file_title)
+
+            # Format text
+            text = f"""🎬 <b>New Post Just Dropped!</b> ✅
+
+📌 <b>Title:</b> {file_title}
+🔹 <b>Quality:</b> {quality} 
+
+"""
+
+            # Pretty label matching
+            for name, url in download_links.items():
+                name_lower = name.lower()
+                if "gofile" in name_lower:
+                    text += f"🔰 <b>GoFile Link: {url}</b>\n"
+                elif "fast cloud-02" in name_lower:
+                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n"
+                elif "fast cloud" in name_lower:
+                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "direct" in name_lower or "ddl" in name_lower:
+                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "gdf" in name_lower:
+                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n"
+                elif "watch" in name_lower or "online" in name_lower:
+                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n"
+                elif "telegram" in name_lower:
+                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n"
+                else:
+                    text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
+
+            text += "<b><blockquote>🌐 Scraped by @hgbotz</blockquote></b>"
+
+            await client.send_message(
+            chat_id=TARGET_CHANNEL,
+            text=text,
+            disable_web_page_preview=True
+        )
+        print(f"Posted new movie: {title}")
+        
+    except Exception as e:
+        print(f"Error processing movie: {e}")
+
+# Background monitoring task
+async def monitor_new_ffly_movies(client: Client):
+    print("🎥 Movie monitoring started...")
+    state = load_processed_urls()
+    processed_urls = set(state["processed_urls"])
+    
+    while True:
+        try:
+            print("🔍 Checking for new movies...")
+            movies = await get_latest_movies()
+            new_movies = [m for m in movies if m["url"] not in processed_urls]
+            
+            if new_movies:
+                print(f"🎉 Found {len(new_movies)} new movies!")
+                # Process in reverse order to send oldest first
+                for movie in reversed(new_movies):
+                    await process_and_send_movie(client, movie["url"])
+                    processed_urls.add(movie["url"])
+                    # Update state after each movie to prevent loss on crash
+                    save_processed_urls(list(processed_urls))
+                    await asyncio.sleep(10)  # Delay between processing
+            else:
+                print("🔄 No new movies found")
+                
+        except Exception as e:
+            print(f"⚠️ Monitoring error: {e}")
+            
+        await asyncio.sleep(CHECK_INTERVAL)
