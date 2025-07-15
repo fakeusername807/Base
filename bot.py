@@ -4,6 +4,8 @@ from pyrogram import Client
 from config import HgBotz, HgBotz as HGBOT 
 from HgBotz.web_support import web_server
 from HgBotz.skymovies import monitor_new_movies
+from HgBotz.filmyfly import monitor_new_ffly_movies
+
 
 class HgBotz(Client):
     def __init__(self):
@@ -36,6 +38,8 @@ class HgBotz(Client):
         await web.TCPSite(app, bind_address, HGBOT.PORT).start()
         print(f"{me.first_name} Iꜱ Sᴛᴀʀᴛᴇᴅ.....✨️")
         asyncio.create_task(monitor_new_movies(self)) 
+        asyncio.create_task(monitor_new_ffly_movies(self)) 
+        
         for id in HGBOT.ADMIN:
             try:
                 await self.send_message(id, f"**__{me.first_name}  Iꜱ Sᴛᴀʀᴛᴇᴅ.....✨️__**")
