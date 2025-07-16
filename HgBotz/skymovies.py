@@ -47,30 +47,25 @@ async def scrape_first_three_links(page_url: str) -> dict:
     except Exception as e:
         return {"error": f"❌ Exception in main page: {e}"}
 
-# Step 2: Your external link extractor
+# Step 2: External link extractor with Cloudflare bypass
 async def extract_external_links_gdrive(url: str) -> list:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-    }
-
     try:
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url, timeout=20) as response:
-                if response.status != 200:
-                    return [f"❌ Failed to fetch: {response.status}"]
+        # Using cloudscraper for Cloudflare bypass
+        resp = scraper.get(url, headers=HEADERS, timeout=20)
+        if resp.status_code != 200:
+            return [f"❌ Failed to fetch: {resp.status_code}"]
+        
+        soup = BeautifulSoup(resp.text, "html.parser")
+        links = [
+            a["href"].strip()
+            for a in soup.find_all("a", rel="external")
+            if a.has_attr("href")
+        ]
 
-                html = await response.text()
-                soup = BeautifulSoup(html, "html.parser")
-
-                links = [
-                    a["href"].strip()
-                    for a in soup.find_all("a", rel="external")
-                    if a.has_attr("href")
-                ]
-
-                return links if links else ["❌ No external links found."]
+        return links if links else ["❌ No external links found."]
     except Exception as e:
         return [f"❌ Exception scraping link: {e}"]
+
 
 # Final Pyrogram command
 @Client.on_message(filters.command("sky") & filters.all)
