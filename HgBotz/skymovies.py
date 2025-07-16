@@ -138,7 +138,7 @@ BASE_URL = "https://skymovieshd.land/"
 STATE_FILE = "skymovies_state.json"
 TARGET_CHANNEL = -1002615965065  # Your channel ID
 ADMIN_ID = 6359874284  # Your admin ID
-CHECK_INTERVAL = 600  # 30 minutes in seconds
+CHECK_INTERVAL = 420  # 30 minutes in seconds
 
 # Load processed URLs
 def load_processed_urls():
@@ -164,7 +164,7 @@ async def get_latest_movies():
         fmvideo_divs = soup.find_all("div", class_="Fmvideo")
         
         movies = []
-        for div in fmvideo_divs[:15]:
+        for div in fmvideo_divs[:5]:
             a_tag = div.find("a")
             if a_tag and a_tag.has_attr("href"):
                 title = a_tag.text.strip()
