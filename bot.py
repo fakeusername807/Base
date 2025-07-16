@@ -3,7 +3,7 @@ from aiohttp import web
 from pyrogram import Client
 from config import HgBotz, HgBotz as HGBOT 
 from HgBotz.web_support import web_server
-from HgBotz.sky import monitor_new_movies
+from HgBotz.skymovies import monitor_new_movies
 from HgBotz.filmyfly import monitor_new_ffly_movies
 
 
