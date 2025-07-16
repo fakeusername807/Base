@@ -8,3 +8,4 @@ requests
 aiohttp
 beautifulSoup4 
 Pillow
+cloudscraper
