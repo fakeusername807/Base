@@ -153,33 +153,32 @@ def save_processed_urls(urls):
         json.dump({"processed_urls": urls}, f)
 
 
-# Get latest movies from homepage
+# Get latest movies with Cloudflare bypass
 async def get_latest_movies():
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(BASE_URL, timeout=20) as resp:
-                if resp.status != 200:
-                    return []
-                html = await resp.text()
-
-        soup = BeautifulSoup(html, "html.parser")
+        resp = scraper.get(BASE_URL, headers=HEADERS, timeout=20)
+        if resp.status_code != 200:
+            return []
+        
+        soup = BeautifulSoup(resp.text, "html.parser")
         fmvideo_divs = soup.find_all("div", class_="Fmvideo")
         
         movies = []
-        for div in fmvideo_divs[:15]:  # Get latest 15 movies
+        for div in fmvideo_divs[:15]:
             a_tag = div.find("a")
-            if a_tag:
+            if a_tag and a_tag.has_attr("href"):
                 title = a_tag.text.strip()
-                url = a_tag.get("href", "").strip()
-                if url and not url.startswith("http"):
-                    url = BASE_URL + url
+                url = a_tag["href"].strip()
+                if not url.startswith("http"):
+                    url = BASE_URL + url.lstrip('/')
                 movies.append({"title": title, "url": url})
         
         return movies
 
-    except Exception:
+    except Exception as e:
+        print(f"Error getting latest movies: {e}")
         return []
-
+        
 # Process and send movie to channel
 async def process_and_send_movie(client: Client, movie_url: str):
     try:
