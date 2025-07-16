@@ -7,16 +7,27 @@ from bs4 import BeautifulSoup
 import asyncio
 from typing import Dict, List
 
-# Step 1: Scrape first 3 links
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Referer": "https://skymovieshd.land/",
+}
+
+# Initialize cloudscraper
+scraper = cloudscraper.create_scraper()
+
+# Step 1: Scrape first 3 links with Cloudflare bypass
 async def scrape_first_three_links(page_url: str) -> dict:
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(page_url, timeout=20) as resp:
-                if resp.status != 200:
-                    return {"error": f"❌ HTTP Error: {resp.status}"}
-                html = await resp.text()
-
-        soup = BeautifulSoup(html, "html.parser")
+        # Using cloudscraper for Cloudflare bypass
+        resp = scraper.get(page_url, headers=HEADERS, timeout=20)
+        if resp.status_code != 200:
+            return {"error": f"❌ HTTP Error: {resp.status_code}"}
+        
+        soup = BeautifulSoup(resp.text, "html.parser")
         bolly_div = soup.find("div", class_="Bolly")
         if not bolly_div:
             return {"error": "❌ <div class='Bolly'> not found"}
