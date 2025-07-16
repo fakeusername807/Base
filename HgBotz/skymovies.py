@@ -1,4 +1,4 @@
-import os, re, aiohttp, json
+import os, re, aiohttp, json, cloudscraper
 from datetime import datetime 
 from pyrogram import Client, filters
 from pyrogram.types import Message
