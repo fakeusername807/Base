@@ -82,7 +82,7 @@ async def filmy_handler(client, message: Message):
                 else:
                     text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
 
-            text += "<b><blockquote>🌐 Scraped by @hgbotz</blockquote></b>"
+            text += "<b><blockquote>🌐 Scraped from [FilmyFly](https://telegram.me/MrSagarBots)</blockquote></b>"
 
             await message.reply(text)
 
@@ -93,8 +93,8 @@ async def filmy_handler(client, message: Message):
 # Configuration
 BASE_URL = "https://filmyfly.party/"
 STATE_FILE = "filmyfly_state.json"
-TARGET_CHANNEL = -1002558254512  # Your channel ID
-ADMIN_ID = 6359874284  # Your admin ID
+TARGET_CHANNEL = -1002220601154  # Your channel ID
+ADMIN_ID = 7965786027  # Your admin ID
 CHECK_INTERVAL = 600  # 30 minutes in seconds
 
 # Load processed URLs
@@ -181,7 +181,7 @@ async def process_and_send_ff_movie(client: Client, input_url: str):
                 else:
                     text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
 
-            text += "<b><blockquote>🌐 Scraped by @hgbotz</blockquote></b>"
+            text += "<b><blockquote>🌐 Scraped from [FilmyFly](https://telegram.me/MrSagarBots)</blockquote></b>"
 
             await client.send_message(
             chat_id=TARGET_CHANNEL,
