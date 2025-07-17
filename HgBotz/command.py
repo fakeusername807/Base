@@ -1236,7 +1236,7 @@ async def restart_bot(b, m):
 
 
 
-NOTIFICATION_CHANNEL_ID = -1002346166150
+NOTIFICATION_CHANNEL_ID = -1002470928284
 @Client.on_message(filters.command("start") & filters.all)
 async def start_cmd(bot, message):
     user_id = int(message.from_user.id)
