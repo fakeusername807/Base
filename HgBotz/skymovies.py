@@ -71,7 +71,7 @@ async def extract_external_links_gdrive(url: str) -> list:
 @Client.on_message(filters.command("sky") & filters.all)
 async def skymovies_full_command(client: Client, message: Message):
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: /skt skymovieshd_url")
+        return await message.reply("❌ Usage: /sky skymovieshd_url")
 
     url = message.command[1]
     M = await message.reply("🔍 ")
@@ -125,7 +125,7 @@ async def skymovies_full_command(client: Client, message: Message):
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
  
-    text += f"<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"   
+    text += f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"   
    
     await M.edit_text(text,  disable_web_page_preview=True)
 
@@ -136,8 +136,8 @@ async def skymovies_full_command(client: Client, message: Message):
 # Configuration
 BASE_URL = "https://skymovieshd.land/"
 STATE_FILE = "skymovies_state.json"
-TARGET_CHANNEL = -1002615965065  # Your channel ID
-ADMIN_ID = 6359874284  # Your admin ID
+TARGET_CHANNEL = -1002220601154  # Your channel ID
+ADMIN_ID = 7965786027  # Your admin ID
 CHECK_INTERVAL = 420  # 30 minutes in seconds
 
 # Load processed URLs
@@ -206,8 +206,8 @@ async def process_and_send_movie(client: Client, movie_url: str):
         normal_links = [link for link in gdrive_links if link.startswith("http")]
 
         # Step 4: Format message
-        text = "<b>🎬 New Movie Added! ✅</b>\n\n"
-        text += f"<b>Title 💫</b>: <code>{title}</code>\n" 
+        text = "<b>🎬 New Post Just Dropped! ✅</b>\n\n"
+        text += f"<b>📌 Title:</b>: <code>{title}</code>\n" 
         if gofile_links:
             text += "\n<b>🔰GoFile Link🔰 (Directly Leech)</b>\n"
             for i, link in enumerate(gofile_links, 1):
@@ -216,11 +216,11 @@ async def process_and_send_movie(client: Client, movie_url: str):
         text += f"\n<b>🐬Stream Tape Link🐬\n {watch_url}</b> \n\n"
           
         if normal_links:
-            text += "<b>🍿 All Cloud Urls 🍿</b>\n"
+            text += "<b>🍿 All Cloud Links 🍿</b>\n"
             for i, link in enumerate(normal_links, 1):
                 text += f"<b>{i}. {link}</b>\n"        
 
-        text += f"\n<b><blockquote>Rss 😶 By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+        text += f"\n<b><blockquote>Scraped from <a href='https://t.me/MrSagarbots'>SkymoviesHD</a></blockquote></b>"
         # Send to channel
         await client.send_message(
             chat_id=TARGET_CHANNEL,
