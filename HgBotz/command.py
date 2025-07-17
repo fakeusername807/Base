@@ -18,21 +18,22 @@ from io import BytesIO
  
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
 buttons = [[
-        InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ"),
-        InlineKeyboardButton('🦋 about', callback_data='about')
-    ],[
-        InlineKeyboardButton('𝙷𝚎𝚕𝚙 ‼️', callback_data='help')
-    ]]
+                InlineKeyboardButton('📢 Uᴘᴅᴀᴛᴇ', url="https://t.me/MrSagarBots"),
+                InlineKeyboardButton('♡ Cᴏɴᴛᴀᴄᴛ 🧛‍♂️ Aᴅᴍɪɴ ♡', url="https://t.me/MrSagar_RoBot")
+            ],[
+                InlineKeyboardButton('💁‍♀️ Hᴇʟᴘ', callback_data='help'),
+                InlineKeyboardButton('😊 Aʙᴏᴜᴛ', callback_data='about')
+            ]]
 
-group_buttons = [[InlineKeyboardButton('✇ Click To Start Me ✇', url="http://t.me/Reaction_99bot?start=True")
+group_buttons = [[InlineKeyboardButton('Cʟɪᴄᴋ Tᴏ Sᴛᴀʀᴛ ᴍᴇ', url="https://t.me/MrSagarPoster_Bot?start=True")
                ],[
-                  InlineKeyboardButton('✇ Uᴘᴅᴀᴛᴇs ✇', url="https://t.me/HGBOTZ")
+                  InlineKeyboardButton('📢 Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ', url="https://t.me/MrSagarBots")
                 ]] 
 
 
 back_button = [[
-                 InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
-                 InlineKeyboardButton('ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+                 InlineKeyboardButton('♡ Cᴏɴᴛᴀᴄᴛ 🧛‍♂️ Aᴅᴍɪɴ ♡', url='https://t.me/MrSagar_RoBot'),
+                 InlineKeyboardButton('📢 Uᴘᴅᴀᴛᴇ', url='https://t.me/MrSagarBots')
               ],[
                  InlineKeyboardButton('🔙 back', callback_data='back')
               ]]
@@ -40,33 +41,27 @@ back_button = [[
 
 
 help_buttons = [[        
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot'), 
+        InlineKeyboardButton('♡ Cᴏɴᴛᴀᴄᴛ 🧛‍♂️ Aᴅᴍɪɴ ♡', url='https://t.me/MrSagar_RoBot'), 
         InlineKeyboardButton('BACK 🔙', callback_data='back')
         ]]
 
 about_buttons = [[
-        InlineKeyboardButton('🙂 𝐎𝐖𝐍𝐄𝐑', url='https://t.me/Harshit_contact_bot')
+        InlineKeyboardButton('📢 Uᴘᴅᴀᴛᴇ', url='https://t.me/MrSagarBots')
         ],[
-        InlineKeyboardButton('𝙷𝚎𝚕𝚙 ‼️', callback_data='help'), 
-        InlineKeyboardButton('🦋 𝙷𝙾𝙼𝙴', callback_data='back')
-        ],[
-        InlineKeyboardButton('📜 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ', url='https://t.me/HGBOTZ_support'),
-        InlineKeyboardButton('📢 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url='https://telegram.me/hgbotz')
+        InlineKeyboardButton('💁‍♀️ Hᴇʟᴘ', callback_data='help'), 
+        InlineKeyboardButton('🔙 back', callback_data='back')
         ]]
-
 
 update_button = InlineKeyboardMarkup(
     [
-        [InlineKeyboardButton("💥 𝚄𝚙𝚍𝚊𝚝𝚎 𝙲𝚑𝚊𝚗𝚗𝚎𝚕", url="https://t.me/hgbotz")]
+        [InlineKeyboardButton("📢 Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ", url="https://t.me/MrSagarBots")]
     ]
 )
 
-
-
-dump_chat = -1002637710224
+dump_chat = -1002470928284
 # 🧩 Environment Variables
 FORCE_SUB_CHANNEL = os.getenv("FORCE_SUB_CHANNEL", "MrSagarbots")  # e.g. @YourChannelUsername or -100xxxxxxxxxx
-FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Hey {} , Seems Like You Haven't Joined Our Channel(s).\n Please Join Below & Then Try Again .</b>")  # Image to show when not subscribed
+FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Nᴀᴍᴀsᴛʜᴇ {} Jɪ 😍 ,\n🌟Jᴏɪɴ Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ\n🌟Cᴀᴍᴇ Bᴀᴄᴋ Aɴᴅ Cʟɪᴄᴋ Tʀʏ Aɢᴀɪɴ👍🏻</b>")  # Image to show when not subscribed
 
 # ✅ Main Fsub Check Function
 async def handle_fsub(client: Client, user_id: int):
@@ -89,7 +84,7 @@ async def handle_fsub(client: Client, user_id: int):
 # ✅ Inline Buttons for Join + I Joined
 def fsub_markup(invite_link: str):
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔔 Join Updates Channel", url=invite_link)]
+        [InlineKeyboardButton("🔔 Jᴏɪɴ Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ", url=invite_link)]
         ])
 
 # ✅ Force Sub Filter (Reusable in all commands)
@@ -125,7 +120,7 @@ async def auth_cmd(client, message):
     try:
         chat_id = int(message.command[1])
         await authorize_chat(chat_id)
-        await message.reply(f"✅ Chat `{chat_id}` has been authorized.")
+        await message.reply(f"Authorized Successfully ✅️")
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
@@ -136,7 +131,7 @@ async def unauth_cmd(client, message):
     try:
         chat_id = int(message.command[1])
         await unauthorize_chat(chat_id)
-        await message.reply(f"🚫 Chat `{chat_id}` has been unauthorized.")
+        await message.reply(f"Unauthorized Successfully 🚫")
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
@@ -147,114 +142,6 @@ async def list_auth_chats(client, message):
     async for chat in auth_chats:
         text += f"`{chat['_id']}`\n"
     await message.reply(text if text.strip() != "**🔐 Authorized Chats:**" else "🚫 No authorized chats found.")
-
-
-
-#-----------------------SEARCH FUNCTION - - - - - - - - - - - - - - - 
-@Client.on_message(filters.command("search") & filters.private)
-async def pvt_search_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
-    
-@Client.on_message(filters.command("search") & filters.group & force_sub_filter())
-async def search_handler(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
-    
-    if len(message.command) < 2:
-        return await message.reply_text(text="Usage: `/search movie name`")
-    
-    query = "+".join(message.command[1:])
-
-    platforms = [
-        ("Prime", "prime"),
-        ("Airtel", "airtel"),
-        ("ZEE5", "zee5"),
-        ("Sony LIV", "sony"),
-        ("MX Player", "mx"), 
-        ("Sun NXT", "sun"),
-        ("Lionsgate Play", "lionsgate"),
-        ("Altt", "altt"), 
-        ("Hoichoi", "hoichoi"),
-        ("ShemarooMe", "shemaroo"),
-        ("Eros Now", "eros"),
-        ("Hungama", "hungama"),
-        ("ManoramaMax", "manorama"),
-        ("Aha", "aha"),
-        ("Chaupal", "chaupal"),
-        ("Ultra", "ultra"),
-        ("EPICon", "epicon"),
-        ("Docubay", "docubay"),
-        ("Playflix", "playflix"),
-        ("K-Drama Stage", "k-drama"),
-        ("Kanccha Lanka", "kanccha"),
-        ("Namma Flix", "namma"),
-        ("Klikk", "klikk"),
-        ("Raj Digital", "raj"),
-        ("Shorts TV", "shorts"),
-        ("Dollywood Play", "dollywood")       
-      ]
-
-    # Create rows of 3 buttons
-    buttons = []
-    row = []
-    for name, key in platforms:
-        row.append(InlineKeyboardButton(name, callback_data=f"search_{key}_{query}"))
-        if len(row) == 3:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-
-    await message.reply_text(text=f"🔍 Choose a platform Where your query available to search:\n<code>{query.replace('+', ' ')}</code>",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
-
-@Client.on_callback_query(filters.regex(r"^search_(\w+)_(.+)$"))
-async def search_callback(client, query: CallbackQuery):
-    platform, search_term = query.matches[0].group(1), query.matches[0].group(2)
-    AIRTEL_URL = f"https://hgbots-hgbotz-s-projects.vercel.app/poster/ott.php?query={search_term}" 
-    urls = {
-        "prime": f"https://hgbots-hgbotz-s-projects.vercel.app/poster/prime.php?query={search_term}",
-        "hotstar": AIRTEL_URL,
-        "airtel": AIRTEL_URL,
-        "sony": AIRTEL_URL,                                              
-        "zee5": f"https://hgbots-hgbotz-s-projects.vercel.app/poster/zee.php?query={search_term}",
-        "altt": AIRTEL_URL,
-    "sun": AIRTEL_URL,                                              
-    "lionsgate": AIRTEL_URL,
-    "hoichoi": AIRTEL_URL,                                               
-    "shemaroo": AIRTEL_URL,
-    "eros": AIRTEL_URL,                                              
-    "hungama": AIRTEL_URL,
-    "manorama": AIRTEL_URL,                                               
-    "aha": AIRTEL_URL,
-    "chaupal": AIRTEL_URL,                                             
-    "ultra": AIRTEL_URL,
-    "epicon": AIRTEL_URL,                                              
-    "docubay": AIRTEL_URL,
-    "playflix": AIRTEL_URL,                                              
-    "k-drama": AIRTEL_URL,
-    "kanccha": AIRTEL_URL,                                               
-    "namma": AIRTEL_URL,
-    "klikk": AIRTEL_URL,                                       
-    "raj": AIRTEL_URL,
-    "shorts": AIRTEL_URL,                                               
-    "dollywood": AIRTEL_URL,
-    "mx": AIRTEL_URL, 
-    }
-
-    url = urls.get(platform)
-    if not url:
-        return await query.answer("Unknown platform")
-
-    await query.message.edit_text(
-        f"🔗 <b>Search Result for:</b> <code>{search_term.replace('+', ' ')}</code>\n\n<a href='{url}'>Click Here And Copy Your Content Url</a>",
-        disable_web_page_preview=True
-    )
-    await query.answer()
-
-
 
 #-----------------------IMGBB UPLOAD FUNCTION - - - - - - - - - - - - - - - 
 # Get your free API key from https://api.imgbb.com/
@@ -268,7 +155,7 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
             form = aiohttp.FormData()
             form.add_field('image', image_url)
             form.add_field('format', 'jpg')  # Force JPEG output
-            form.add_field('name', 'HGBOTZ')  # Set custom word for URL
+            form.add_field('name', 'MrSagarbots')  # Set custom word for URL
             
             # Upload to ImgBB
             async with session.post(
@@ -289,15 +176,13 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
                         # Get the image ID (second last path segment)
                         image_id = parts[-2]
                         # Construct new URL with custom word
-                        return f"https://i.ibb.co/{image_id}/HGBOTZ.jpg"
+                        return f"https://i.ibb.co/{image_id}/MrSagarbots.jpg"
                     
                 return image_url  # Fallback to original URL on failure
                 
     except Exception as e:
         print(f"ImgBB Upload Error: {e}")
         return image_url
-
-
 
 #-----------------------Jpg Png To stkr FUNCTION - - - - - - - - - - - - - - - 
 async def download_image(url: str) -> BytesIO:
@@ -308,12 +193,12 @@ async def download_image(url: str) -> BytesIO:
             else:
                 raise Exception(f"Failed to download image. Status code: {resp.status}")
 
-@Client.on_message(filters.command("stkar") & filters.group & force_sub_filter())
+@Client.on_message(filters.command("stkr") & filters.group & force_sub_filter())
 async def sticker_cmd(client, message: Message):
     chat_id = message.chat.id
 
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
 
     try:
         reply = message.reply_to_message
@@ -330,7 +215,7 @@ async def sticker_cmd(client, message: Message):
             img = Image.open(img_data).convert("RGBA")
 
         else:
-            return await message.reply("🔗 Please send an image URL or reply to an image.\nExample: `/stkar https://example.com/img.jpg`")
+            return await message.reply("Please provide an image URL to create a sticker.")
 
         # 🔄 Convert to WebP
         output = BytesIO()
@@ -372,16 +257,16 @@ def get_google_poster(query):
 # 🚀 Telegram /bms command
 @Client.on_message(filters.command("bms") & filters.private)
 async def pvt_bms_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("bms") & filters.group & force_sub_filter())
 async def bms_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: `/bms Kuberaa 2025`")
+        return await message.reply("❌ Usage: `/bms Pechi 2024`")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -391,29 +276,29 @@ async def bms_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {query} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**BookMyShow Poster: {img_url}**\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**BookMyShow Poster: {img_url}**\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
-        await message.reply("❌ No image found.")
+        await message.reply("No image found ❌")
 
-@Client.on_message(filters.command("crunchyroll") & filters.private)
+@Client.on_message(filters.command("croll") & filters.private)
 async def pvt_crun_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("crunchyroll") & filters.group & force_sub_filter())
 async def crunchyroll_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: `/crunchyroll kaiju no. 8`")
+        return await message.reply("❌ Usage: `/croll wind breaker`")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -423,12 +308,12 @@ async def crunchyroll_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**Crunchyrool Poster: **{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({img_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
@@ -461,18 +346,16 @@ def extract_ott_poster(url):
 
     return None
 
-
-
 #-----------------------AHA POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("aha") & filters.private)
 async def pvt_aha_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("aha") & filters.group & force_sub_filter())
 async def aha_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     url = None
@@ -483,23 +366,22 @@ async def aha_handler(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**ℹ️ Please provide a aha  URL after the command.**")
+        await message.reply("**Please provide an Aha video URL.\n(https://www.aha.video/)**")
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "aha")
-
-
+ 
 
 #-----------------------SHEMAROOME POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
-@Client.on_message(filters.command("shemaroo") & filters.private)
+@Client.on_message(filters.command("shemaroome") & filters.private)
 async def pvt_shemaroo_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
-@Client.on_message(filters.command("shemaroo") & filters.group & force_sub_filter())
+@Client.on_message(filters.command("shemaroome") & filters.group & force_sub_filter())
 async def shemaroo_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     url = None
@@ -510,7 +392,7 @@ async def shemaroo_handler(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**ℹ️ Please provide a shemaroo URL after the command.**")
+        await message.reply("**Please provide an Shemaroome video URL.\n(https://www.shemaroome.com/)**")
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "shemaroo")
@@ -529,15 +411,14 @@ async def handle_generic_ott(client, message, url, ott_name):
     title = url.split("/")[-1].replace('-', ' ').title()
 
     await msg.edit_text(
-        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False,
         reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
         disable_web_page_preview=False, reply_markup=update_button
     )
-
 
 
 #-----------------------APPLE POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
@@ -567,13 +448,13 @@ def extract_apple_poster(url):
 
 @Client.on_message(filters.command("apple") & filters.private)
 async def pvt_apple_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("apple") & filters.group & force_sub_filter())
 async def apple_command(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     url = None
@@ -584,7 +465,7 @@ async def apple_command(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**ℹ️ Please provide a apple tv URL after the command.**")
+        await message.reply("**Please provide an Apple video URL.\n(https://www.shemaroome.com/)**")
         return
     
     await handle_apple_request(client, message, url)
@@ -594,7 +475,7 @@ async def handle_apple_request(client, message, url):
     """Process apple URL and send poster"""
     # Validate URL format
     if not re.match(r'https?://(tv\.)?apple\.com/[\w\-]+', url):
-        await message.reply("❌ Invalid apple tv Please provide a valid URL.\n\nExample: /apple `https://tv.apple.com/us/movie/love-kills/umc.cmc.6h7aqbqodyqkeyzvzkkdzjv13`")
+        await message.reply("Please provide an Apple Tv URL.\n(https://tv.apple.com)")
         return
     
     try:
@@ -616,18 +497,16 @@ async def handle_apple_request(client, message, url):
             title = "Unknown Title" 
         
         await msg.edit_text(
-            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
         
-
-
 
 #-----------------------YT THUMBNAIL EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Regex to extract video ID from any YouTube URL
@@ -653,17 +532,17 @@ async def get_available_thumbnail(video_id: str) -> str:
 
 @Client.on_message(filters.command(["yt", "youtube"]) & filters.private)
 async def pvt_yr_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command(["yt", "youtube"]) & filters.group & force_sub_filter())
 async def yt_thumbnail(client: Client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     if len(message.command) < 2:
-        return await message.reply_text("🔗 Send a valid YouTube URL!\n\nUsage: `/yt <youtube_url>`")
+        return await message.reply_text("**Please provide an Youtube Video URL.\n(https://youtube.com)**")
 
     url = message.text.split(maxsplit=1)[1]
     match = re.search(YOUTUBE_REGEX, url)
@@ -676,19 +555,17 @@ async def yt_thumbnail(client: Client, message: Message):
     image_url = await upload_to_imgbb(thumbnail_url)
 
     if not thumbnail_url:
-        return await message.reply_text("🚫 No thumbnail found for this video.", quote=True)
+        return await message.reply_text("No thumbnail found for this video 🚫", quote=True)
     msg = await message.reply("🔍")
     await asyncio.sleep(3)
     await msg.edit_text(
-            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
-
-
 
 #-----------------------AIRTEL POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Configure headers to mimic a real browser
@@ -786,13 +663,13 @@ def extract_airtel_poster(url):
 
 @Client.on_message(filters.command("airtel") & filters.private)
 async def pvt_airtel_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("airtel") & filters.group & force_sub_filter())
 async def airtel_command(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     url = None
@@ -803,7 +680,7 @@ async def airtel_command(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**ℹ️ Please provide a airtelXstream URL after the command.**")
+        await message.reply("**Please provide an Airtel Xstream URL.\n(https://www.airtelxstream.in)**")
         return
     
     await handle_airtel_request(client, message, url)
@@ -830,18 +707,16 @@ async def handle_airtel_request(client, message, url):
 
         
         await msg.edit_text(
-            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**{ott_name} Poster: 🎬 {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**{ott_name} Poster: 🎬 {poster_url}**\n\n**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
-
-
 
 
 #-----------------------ZEE POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
@@ -920,13 +795,13 @@ def extract_zee_poster(url):
 
 @Client.on_message(filters.command("zee") & filters.private)
 async def pvt_zee_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("zee") & filters.group & force_sub_filter())
 async def zee_command(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     # Extract URL from command arguments or replied message
     url = None
@@ -972,19 +847,16 @@ async def handle_zee_request(client, message, url):
 
        
         await msg.edit_text(
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b>🚀 Powered By @MrSagarbots</b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
-
-
-
 
 
 #-----------------------AMAZON PRIME FUNCTION - - - - - - - - - - - - - - - 
@@ -1046,8 +918,6 @@ def extract_amazon(link):
         'seasons': seasons
     }
 
-
-
 def format_movie_response(data):
     """Format movie response with posters as links"""
     response = f"**PrimeVideo Poster: {data['landscape']}\n\n🎬 **{data['title']} ({data['year']})**\n\n"
@@ -1063,10 +933,10 @@ def format_movie_response(data):
     response += "\n**🖼️ Portrait Posters:**\n"
     if data.get('portrait'):
         response += f"1. [Click Here]({data['portrait']})"
-        response += "<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+        response += "<b>🚀 Powered By @MrSagarbots</b>"
     else:
         response += "`Not available`"
-        response += "<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+        response += "<b>🚀 Powered By @MrSagarbots</b>"
     
     return response
 
@@ -1089,13 +959,13 @@ def format_series_response(data):
 user_data = {}
 @Client.on_message(filters.command("prime") & filters.private)
 async def pvt_prime_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("prime") & filters.group & force_sub_filter())
 async def prime_command(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     """Handle /prime command with Amazon Prime link"""
     # Extract link from command
     if len(message.command) < 2:
@@ -1168,7 +1038,7 @@ async def handle_season_selection(client, callback_query):
     response += f"› [Click Here]({season_info['landscape']})\n\n" if season_info.get('landscape') else "› Not available\n\n"
     response += f"**🖼️ Portrait Poster:**\n"
     response += f"› [Click Here]({season_info['portrait']})" if season_info.get('portrait') else "› Not available"
-    response += "<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+    response += "<b>🚀 Powered By @MrSagarbots</b>"
     
     # Send response as new message
     await callback_query.message.reply_text(
@@ -1178,8 +1048,6 @@ async def handle_season_selection(client, callback_query):
         reply_markup=update_button
     )
     await callback_query.answer()
-
-
 
 
 @Client.on_message(filters.private & filters.user(HgBotz.ADMIN)  & filters.command(["stats"]))
@@ -1234,8 +1102,6 @@ async def restart_bot(b, m):
     os.execl(sys.executable, sys.executable, *sys.argv)
     
 
-
-
 NOTIFICATION_CHANNEL_ID = -1002470928284
 @Client.on_message(filters.command("start") & filters.all)
 async def start_cmd(bot, message):
@@ -1249,7 +1115,6 @@ async def start_cmd(bot, message):
         disable_web_page_preview = False, 
         invert_media = True, 
         reply_markup=reply_markup)
-
 
 @Client.on_message(filters.command("help") & filters.all)
 async def help_cmd(client, message: Message):
@@ -1280,15 +1145,13 @@ async def about_callback(client, callback_query: CallbackQuery):
     await callback_query.message.edit_text(text=script.ABOUT_TXT, reply_markup=InlineKeyboardMarkup(about_buttons), disable_web_page_preview=False, invert_media=True)
 
 
-
-
         
 #-----------------------TMDB FUNCTION - - - - - - - - - - - - - - - 
 
 #--------- poster.py-------
 @Client.on_message(filters.command(["poster", "p", "pos"]) & filters.private)
 async def pvt_cmd(client, message: Message):
-        await message.reply_text(text="<b>This Cmnd Only Working In Below Group\n\nTo Find Any Movie Poster Join This Group And Use Cmnd</b>\n\nhttps://t.me/+Tm0jULCyPTJjYjM9", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command(["poster", "p", "pos"]) & filters.group & force_sub_filter())
 async def poster_cmd(client, message: Message):
@@ -1362,19 +1225,19 @@ async def poster_cmd(client, message: Message):
         poster_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(posters)])
         reply_parts.append(f"<b>•Portrait Posters:</b>\n{poster_text}")
 
-    reply_parts.append("<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>")
+    reply_parts.append("<b>🚀 Powered By @MrSagarbots</b>")
     update_button = InlineKeyboardMarkup(
     [
-        [InlineKeyboardButton("💥 𝚄𝚙𝚍𝚊𝚝𝚎 𝙲𝚑𝚊𝚗𝚗𝚎𝚕", url="https://t.me/hgbotz")]
+        [InlineKeyboardButton("📢 Uᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟ", url="https://t.me/MrSagarBots")]
     ]
     )
     await msg.edit_text("\n\n".join(reply_parts), disable_web_page_preview=False, reply_markup=update_button)
 #--------- update.py-------
 
 # ====== Settings===================
-CHANNEL_ID = -1002615965065 # <-- Apna Channel ID
-CHANNEL_ID1 = -1002189546391
-YOUR_USER_ID = [6359874284, 897584437]  # <-- Apna Telegram ID
+CHANNEL_ID = -1002470928284 # <-- Apna Channel ID
+CHANNEL_ID1 = -1002470928284
+YOUR_USER_ID = [7965786027, 5355635400]  # <-- Apna Telegram ID
 # =======================
 
 @Client.on_message(filters.command(["addmovie"]) & filters.user(YOUR_USER_ID))
