@@ -215,7 +215,7 @@ async def sticker_cmd(client, message: Message):
             img = Image.open(img_data).convert("RGBA")
 
         else:
-            return await message.reply("Please provide an image URL to create a sticker.")
+            return await message.reply("🔗 Please send an image URL or reply to an image.\nExample: `/stkr https://example.com/img.jpg`")
 
         # 🔄 Convert to WebP
         output = BytesIO()
@@ -257,7 +257,7 @@ def get_google_poster(query):
 # 🚀 Telegram /bms command
 @Client.on_message(filters.command("bms") & filters.private)
 async def pvt_bms_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("bms") & filters.group & force_sub_filter())
 async def bms_handler(client, message):
@@ -266,7 +266,7 @@ async def bms_handler(client, message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("<b>Please provide a BookMyShow URL.\nhttps://in.bookmyshow.com\n\nExample 👇\n\n/bms {link} or /bms Kuberaa 2025</b>")
+        return await message.reply("❌ Usage: `/bms Kuberaa 2025`")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -298,7 +298,7 @@ async def crunchyroll_handler(client, message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("<b>Please provide a Crunchyroll URL.\nhttps://www.crunchyroll.com/\n\nExample 👇\n\n/croll {link} or /croll kaiju no. 8</b>")
+        return await message.reply("❌ Usage: `/crunchyroll kaiju no. 8`")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -349,7 +349,7 @@ def extract_ott_poster(url):
 #-----------------------AHA POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("aha") & filters.private)
 async def pvt_aha_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("aha") & filters.group & force_sub_filter())
 async def aha_handler(client, message):
@@ -366,7 +366,7 @@ async def aha_handler(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("<b>Please provide a Aha video URL.\nhttps://www.aha.video/\n\nExample 👇\n\n/croll {link} or /croll Saree</b>")
+        await message.reply("**ℹ️ Please provide a aha URL after the command.**")
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "aha")
@@ -375,7 +375,7 @@ async def aha_handler(client, message):
 #-----------------------SHEMAROOME POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 @Client.on_message(filters.command("shemaroome") & filters.private)
 async def pvt_shemaroo_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("shemaroome") & filters.group & force_sub_filter())
 async def shemaroo_handler(client, message):
@@ -392,7 +392,7 @@ async def shemaroo_handler(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**Please provide an Shemaroome video URL.\n(https://www.shemaroome.com/)**")
+        await message.reply("**ℹ️ Please provide a aha URL after the command.**")
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "shemaroo")
@@ -411,12 +411,12 @@ async def handle_generic_ott(client, message, url, ott_name):
     title = url.split("/")[-1].replace('-', ' ').title()
 
     await msg.edit_text(
-        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
     )
 
@@ -448,7 +448,7 @@ def extract_apple_poster(url):
 
 @Client.on_message(filters.command("apple") & filters.private)
 async def pvt_apple_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("apple") & filters.group & force_sub_filter())
 async def apple_command(client, message):
@@ -465,7 +465,7 @@ async def apple_command(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**Please provide an Apple video URL.\n(https://www.shemaroome.com/)**")
+        await message.reply("**ℹ️ Please provide a apple tv URL after the command.**")
         return
     
     await handle_apple_request(client, message, url)
@@ -475,7 +475,7 @@ async def handle_apple_request(client, message, url):
     """Process apple URL and send poster"""
     # Validate URL format
     if not re.match(r'https?://(tv\.)?apple\.com/[\w\-]+', url):
-        await message.reply("Please provide an Apple Tv URL.\n(https://tv.apple.com)")
+        await message.reply("❌ Invalid apple tv Please provide a valid URL.\n\nExample: /apple `https://tv.apple.com/us/movie/love-kills/umc.cmc.6h7aqbqodyqkeyzvzkkdzjv13`")
         return
     
     try:
@@ -497,11 +497,11 @@ async def handle_apple_request(client, message, url):
             title = "Unknown Title" 
         
         await msg.edit_text(
-            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
     except Exception as e:
@@ -532,7 +532,7 @@ async def get_available_thumbnail(video_id: str) -> str:
 
 @Client.on_message(filters.command(["yt", "youtube"]) & filters.private)
 async def pvt_yr_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command(["yt", "youtube"]) & filters.group & force_sub_filter())
 async def yt_thumbnail(client: Client, message: Message):
@@ -542,7 +542,7 @@ async def yt_thumbnail(client: Client, message: Message):
     
     # Extract URL from command arguments or replied message
     if len(message.command) < 2:
-        return await message.reply_text("**Please provide an Youtube Video URL.\n(https://youtube.com)**")
+        return await message.reply_text("🔗 Send a valid YouTube URL!\n\nUsage: `/yt <youtube_url>`")
 
     url = message.text.split(maxsplit=1)[1]
     match = re.search(YOUTUBE_REGEX, url)
@@ -559,11 +559,11 @@ async def yt_thumbnail(client: Client, message: Message):
     msg = await message.reply("🔍")
     await asyncio.sleep(3)
     await msg.edit_text(
-            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
 
@@ -663,7 +663,7 @@ def extract_airtel_poster(url):
 
 @Client.on_message(filters.command("airtel") & filters.private)
 async def pvt_airtel_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("airtel") & filters.group & force_sub_filter())
 async def airtel_command(client, message):
@@ -680,7 +680,7 @@ async def airtel_command(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**Please provide an Airtel Xstream URL.\n(https://www.airtelxstream.in)**")
+        await message.reply("**ℹ️ Please provide a airtelXstream URL after the command.**")
         return
     
     await handle_airtel_request(client, message, url)
@@ -707,11 +707,11 @@ async def handle_airtel_request(client, message, url):
 
         
         await msg.edit_text(
-            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**{ott_name} Poster: 🎬 {poster_url}**\n\n**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({poster_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**{ott_name} Poster: 🎬 {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n** 🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
@@ -795,7 +795,7 @@ def extract_zee_poster(url):
 
 @Client.on_message(filters.command("zee") & filters.private)
 async def pvt_zee_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("zee") & filters.group & force_sub_filter())
 async def zee_command(client, message):
@@ -847,11 +847,11 @@ async def handle_zee_request(client, message, url):
 
        
         await msg.edit_text(
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b>🚀 Powered By @MrSagarbots</b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n** 🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
@@ -933,10 +933,10 @@ def format_movie_response(data):
     response += "\n**🖼️ Portrait Posters:**\n"
     if data.get('portrait'):
         response += f"1. [Click Here]({data['portrait']})"
-        response += "<b>🚀 Powered By @MrSagarbots</b>"
+        response += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     else:
         response += "`Not available`"
-        response += "<b>🚀 Powered By @MrSagarbots</b>"
+        response += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     
     return response
 
@@ -959,7 +959,7 @@ def format_series_response(data):
 user_data = {}
 @Client.on_message(filters.command("prime") & filters.private)
 async def pvt_prime_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command("prime") & filters.group & force_sub_filter())
 async def prime_command(client, message):
@@ -1038,7 +1038,7 @@ async def handle_season_selection(client, callback_query):
     response += f"› [Click Here]({season_info['landscape']})\n\n" if season_info.get('landscape') else "› Not available\n\n"
     response += f"**🖼️ Portrait Poster:**\n"
     response += f"› [Click Here]({season_info['portrait']})" if season_info.get('portrait') else "› Not available"
-    response += "<b>🚀 Powered By @MrSagarbots</b>"
+    response += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     
     # Send response as new message
     await callback_query.message.reply_text(
@@ -1151,13 +1151,13 @@ async def about_callback(client, callback_query: CallbackQuery):
 #--------- poster.py-------
 @Client.on_message(filters.command(["poster", "p", "pos"]) & filters.private)
 async def pvt_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
 @Client.on_message(filters.command(["poster", "p", "pos"]) & filters.group & force_sub_filter())
 async def poster_cmd(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @HGBOTZ_support")
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     if len(message.command) < 2:
         return await message.reply(
             "Please provide a movie name.\n<code>/poster <title> <year(optional)></code>\n<b>Example:</b>\n<code>/poster Interstellar 2014</code>\n<code>/poster breaking bad</code>"
@@ -1180,34 +1180,34 @@ async def poster_cmd(client, message: Message):
     msg = await message.reply("🔍")
     await asyncio.sleep(3)
     
-    reply_parts = [f"<blockquote><b>Movie:</b> {query}</blockquote>"]
+    reply_parts = [f"<blockquote>{query}</blockquote>"]
 
     # English Backdrops
     en_backs = data.get("english_backdrops", [])
     if en_backs:
         en_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(en_backs)])
-        reply_parts.append(f"<b>•English Landscape:</b>\n{en_text}")
+        reply_parts.append(f"<b>🇺🇸 English Landscape</b>\n<blockquote expandable>{en_text}</blockquote>")
 
     
     # Hindi Backdrops
     hi_backs = data.get("hindi_backdrops", [])
     if hi_backs:
         hi_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(hi_backs)])
-        reply_parts.append(f"<b>• Hindi Landscape:</b>\n{hi_text}")
+        reply_parts.append(f"<b>🇮🇳 Hindi Landscape</b>\n<blockquote expandable>{hi_text}</blockquote>")
 
 
     if not en_backs and not hi_backs:
         all_backs = data.get("all_backdrops", [])
         if all_backs:
             all_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(all_backs)])
-            reply_parts.append(f"<b>• Lang. Landscape:</b>\n<blockquote expandable>{all_text}</blockquote>")
+            reply_parts.append(f"<b>🌐 Lang. Landscape</b>\n<blockquote expandable>{all_text}</blockquote>")
 
     # Show default only if both English and Hindi backdrops are missing
     if not en_backs and not hi_backs:
         default_backs = data.get("default_backdrops", [])
         if default_backs:
             def_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(default_backs)])
-            reply_parts.append(f"<b>• RAW Landscape:</b>\n{def_text}")
+            reply_parts.append(f"<b>🌐 RAW Landscape</b>\n<blockquote expandable>{def_text}</blockquote>")
 
     all_logos = (
     data.get("logos", {}).get("en", []) +
@@ -1217,13 +1217,13 @@ async def poster_cmd(client, message: Message):
 
     if all_logos:
         logo_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(all_logos)])
-        reply_parts.append(f"<b>•Logos Png:</b>\n<blockquote expandable>{logo_text}</blockquote>")
+        reply_parts.append(f"<b>🎯 Logos (PNG)</b>\n<blockquote expandable>{logo_text}</blockquote>")
     
     # Posters
     posters = data.get("posters", [])
     if posters:
         poster_text = "\n".join([f"{i+1}. <a href='{url}'>Click Here</a>" for i, url in enumerate(posters)])
-        reply_parts.append(f"<b>•Portrait Posters:</b>\n{poster_text}")
+        reply_parts.append(f"<b>🖼️ Portrait Posters</b>\n<blockquote expandable>{poster_text}</blockquote>")
 
     reply_parts.append("<b>🚀 Powered By @MrSagarbots</b>")
     update_button = InlineKeyboardMarkup(
@@ -1262,8 +1262,8 @@ async def addmovie_cmd(client, message: Message):
     media_type = data.get("media_type", "") 
     rating = data.get("rating", "") 
     overview = data.get("overview", "") 
-    caption = f"#New_File_Added ✅ \n\n<b>📽️ 𝙵𝚒𝚕𝚎 𝙽𝚊𝚖𝚎 :- {movie_name} ({release_year})</b>\n\n<b>𝙼𝚎𝚍𝚒𝚊 𝚃𝚢𝚙𝚎 👉:-</b> {media_type} | <b>𝚁𝚊𝚝𝚒𝚗𝚐 💫:-</b> {rating} \n<b><blockquote>Powered by <a href='https://t.me/Movies_Eera'>Movies Eera 🦋</a></blockquote></b>"
-    caption1 = f"#New_File_Added ✅ \n\n<b>📽️ 𝙵𝚒𝚕𝚎 𝙽𝚊𝚖𝚎 :- {movie_name} ({release_year})</b>\n\n<b>𝙼𝚎𝚍𝚒𝚊 𝚃𝚢𝚙𝚎 👉:-</b> {media_type} | <b>𝚁𝚊𝚝𝚒𝚗𝚐 💫:-</b> {rating} \n<b><blockquote>Powered by <a href='https://t.me/alsamovieszone'>ALSA MOVIES 🦋</a></blockquote></b>"
+    caption = f"#New_File_Added ✅ \n\n<b>📽️ 𝙵𝚒𝚕𝚎 𝙽𝚊𝚖𝚎 :- {movie_name} ({release_year})</b>\n\n<b>𝙼𝚎𝚍𝚒𝚊 𝚃𝚢𝚙𝚎 👉:-</b> {media_type} | <b>𝚁𝚊𝚝𝚒𝚗𝚐 💫:-</b> {rating} \n<b><blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+    caption1 = f"#New_File_Added ✅ \n\n<b>📽️ 𝙵𝚒𝚕𝚎 𝙽𝚊𝚖𝚎 :- {movie_name} ({release_year})</b>\n\n<b>𝙼𝚎𝚍𝚒𝚊 𝚃𝚢𝚙𝚎 👉:-</b> {media_type} | <b>𝚁𝚊𝚝𝚒𝚗𝚐 💫:-</b> {rating} \n<b><blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     image_url = None
 
     # Priority: English > Hindi > Default backdrops
@@ -1302,7 +1302,7 @@ async def addmovie_cmd(client, message: Message):
             text=text_to_send1,
             invert_media=True, 
             reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("Search Here 🔥Alsa🔥" , url="https://t.me/alsamovieszone")]]), 
+                    [InlineKeyboardButton("Search Here" , url="https://t.me/MrSagarbots")]]), 
             disable_web_page_preview=False  # Important for preview
         )
         await message.reply("✅ Movie posted successfully with preview on top!")
