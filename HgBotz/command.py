@@ -266,7 +266,7 @@ async def bms_handler(client, message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("Please provide a BookMyShow URL.\nhttps://in.bookmyshow.com\n\nExample 👇\n\n/bms {link} or /bms Kuberaa 2025")
+        return await message.reply("<b>Please provide a BookMyShow URL.\nhttps://in.bookmyshow.com\n\nExample 👇\n\n/bms {link} or /bms Kuberaa 2025</b>")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -298,7 +298,7 @@ async def crunchyroll_handler(client, message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("Please provide a Crunchyroll URL.\nhttps://www.crunchyroll.com/\n\nExample 👇\n\n/croll {link} or /croll Kuberaa 2025")
+        return await message.reply("<b>Please provide a Crunchyroll URL.\nhttps://www.crunchyroll.com/\n\nExample 👇\n\n/croll {link} or /croll kaiju no. 8</b>")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -366,7 +366,7 @@ async def aha_handler(client, message):
         url = message.reply_to_message.text.strip()
     
     if not url:
-        await message.reply("**Please provide an Aha video URL.\n(https://www.aha.video/)**")
+        await message.reply("<b>Please provide a Aha video URL.\nhttps://www.aha.video/\n\nExample 👇\n\n/croll {link} or /croll Saree</b>")
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "aha")
