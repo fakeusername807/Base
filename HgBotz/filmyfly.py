@@ -15,11 +15,16 @@ API_ENDPOINT = "https://poster-two-ivory.vercel.app/api?url="
 def parse_quality_and_size(title_text: str):
     quality, size = "Unknown", "Unknown"
     if "480p" in title_text: quality = "480p-HD"
-    elif "720p" in title_text and "HEVC" in title_text: quality = "720p-HEVC"
+    elif "HEVC 480p" in title_text: quality = "480p-HEVC"
+    elif "HEVC 720p" in title_text: quality = "720p-HEVC"
+    elif "HEVC 1080p" in title_text: quality = "1080p-HEVC"
+    elif "HEVC 2160p" in title_text: quality = "2160p-HEVC"
     elif "720p" in title_text: quality = "720p-HD"
     elif "1080p" in title_text: quality = "1080p-HD"
-    elif "2160p" in title_text and "HEVC" in title_text: quality = "2160p-HEVC"
     elif "2160p" in title_text: quality = "2160p-HD"
+    elif "HEVC 480p 10bit" in title_text: quality = "480p 10bit HEVC"
+    elif "HEVC 720p 10bit" in title_text: quality = "720p 10bit HEVC"
+    elif "HEVC 1080p 10bit" in title_text: quality = "1080p 10bit HEVC"
     
     import re
     match = re.search(r"\((\d+(\.\d+)?\s?(MB|GB))\)", title_text)
