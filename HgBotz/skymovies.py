@@ -107,20 +107,20 @@ async def skymovies_full_command(client: Client, message: Message):
 
     # Step 4: Format output
     text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
-    text += f" <b>Title</b> = <code>{title}</code>\n\n" 
-    text += f"<b><blockquote>🐬Stream Tape Link🐬</blockquote> \n {watch_url} \n</b>"
+    text += f"<b>Title</b> = <code>{title}</code>\n" 
+    text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url} \n</b>"
     
     if gofile_links:
-        text += "\n<b><blockquote>🔰GoFile Link🔰</blockquote></b>\n"
+        text += "\n<b><blockquote>🔰 GoFile Link 🔰</blockquote></b>\n"
         for i, link in enumerate(gofile_links, 1):
             text += f"<b>• {link}</b>\n"
 
-    text += "<b><blockquote>Cloud Urls 💥</blockquote></b>\n"
+    text += "<b><blockquote>Cloud Links 💥</blockquote></b>\n"
    
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
  
-    text += f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"   
+    text += f"\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"   
    
     await M.edit_text(text,  disable_web_page_preview=True)
 
@@ -203,14 +203,14 @@ async def process_and_send_movie(client: Client, movie_url: str):
         text = "<b>🎬 New Post Just Dropped! ✅</b>\n\n"
         text += f"<b>📌 Title </b>: <code>{title}</code>\n" 
         if gofile_links:
-            text += "\n<b>🔰GoFile Link🔰 (Directly Leech)</b>\n"
+            text += "\n<b><blockquote>🔰GoFile Link🔰 (Directly Leech)</blockquote></b>\n"
             for i, link in enumerate(gofile_links, 1):
                 text += f"<b>• {link}</b>\n"
               
-        text += f"\n<b>🐬Stream Tape Link🐬\n {watch_url}</b> \n\n"
+        text += f"\n<b><blockquote>🐬Stream Tape Link🐬\n {watch_url}</blockquote></b> \n\n"
           
         if normal_links:
-            text += "<b>🍿 All Cloud Links 🍿</b>\n"
+            text += "<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
             for i, link in enumerate(normal_links, 1):
                 text += f"<b>{i}. {link}</b>\n"        
 
