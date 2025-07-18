@@ -14,10 +14,12 @@ API_ENDPOINT = "https://poster-two-ivory.vercel.app/api?url="
 # Util: extract quality and size from title string
 def parse_quality_and_size(title_text: str):
     quality, size = "Unknown", "Unknown"
-    if "480p" in title_text: quality = "HEVC 480p"
-    elif "720p" in title_text and "HEVC" in title_text: quality = "HEVC 720p"
-    elif "720p" in title_text: quality = "HD 720p"
-    elif "1080p" in title_text: quality = "HD 1080p"
+    if "480p" in title_text: quality = "480p-HD"
+    elif "720p" in title_text and "HEVC" in title_text: quality = "720p-HEVC"
+    elif "720p" in title_text: quality = "720p-HD"
+    elif "1080p" in title_text: quality = "1080p-HD"
+    elif "2160p" in title_text and "HEVC" in title_text: quality = "2160p-HEVC"
+    elif "2160p" in title_text: quality = "2160p-HD"
     
     import re
     match = re.search(r"\((\d+(\.\d+)?\s?(MB|GB))\)", title_text)
@@ -58,6 +60,7 @@ async def filmy_handler(client, message: Message):
             text = f"""🎬 <b>New Post Just Dropped!</b> ✅
 
 📌 <b>Title:</b> {file_title}
+
 🔹 <b>Quality:</b> {quality} 
 
 """
@@ -66,19 +69,19 @@ async def filmy_handler(client, message: Message):
             for name, url in download_links.items():
                 name_lower = name.lower()
                 if "gofile" in name_lower:
-                    text += f"🔰 <b>GoFile Link: {url}</b>\n"
+                    text += f"🔰 <b>GoFile Link: {url}</b>\n\n"
                 elif "fast cloud-02" in name_lower:
-                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "fast cloud" in name_lower:
-                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "direct" in name_lower or "ddl" in name_lower:
-                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "gdf" in name_lower:
-                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "watch" in name_lower or "online" in name_lower:
-                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "telegram" in name_lower:
-                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n\n"
                 else:
                     text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
 
@@ -93,7 +96,7 @@ async def filmy_handler(client, message: Message):
 # Configuration
 BASE_URL = "https://filmyfly.party/"
 STATE_FILE = "filmyfly_state.json"
-TARGET_CHANNEL = -1002220601154  # Your channel ID
+TARGET_CHANNEL = -1002756844590  # Your channel ID
 ADMIN_ID = 7965786027  # Your admin ID
 CHECK_INTERVAL = 600  # 30 minutes in seconds
 
@@ -157,6 +160,7 @@ async def process_and_send_ff_movie(client: Client, input_url: str):
             text = f"""🎬 <b>New Post Just Dropped!</b> ✅
 
 📌 <b>Title:</b> {file_title}
+
 🔹 <b>Quality:</b> {quality} 
 
 """
@@ -165,19 +169,19 @@ async def process_and_send_ff_movie(client: Client, input_url: str):
             for name, url in download_links.items():
                 name_lower = name.lower()
                 if "gofile" in name_lower:
-                    text += f"🔰 <b>GoFile Link: {url}</b>\n"
+                    text += f"🔰 <b>GoFile Link: {url}</b>\n\n"
                 elif "fast cloud-02" in name_lower:
-                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>Fast Server-02: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "fast cloud" in name_lower:
-                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>Fast Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "direct" in name_lower or "ddl" in name_lower:
-                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📥 <b>DDL Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "gdf" in name_lower:
-                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"☁️ <b>GDFLIX Server: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "watch" in name_lower or "online" in name_lower:
-                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"🎦 <b>Watch Online: <a href='{url}'> Download Link</a></b>\n\n"
                 elif "telegram" in name_lower:
-                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n"
+                    text += f"📦 <b>Telegram File: <a href='{url}'> Download Link</a></b>\n\n"
                 else:
                     text += f"🔗 <b>{name}: <a href='{url}'> Download Link</a></b>\n\n"
 
