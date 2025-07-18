@@ -106,7 +106,6 @@ async def skymovies_full_command(client: Client, message: Message):
 
 
     # Step 4: Format output
-    text = " <b>🎬 New Post Just Dropped! ✅</b>\n\n"
     text += f"<b>Title</b> = <code>{title}</code>\n" 
     text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url} \n</b>"
     
@@ -115,7 +114,7 @@ async def skymovies_full_command(client: Client, message: Message):
         for i, link in enumerate(gofile_links, 1):
             text += f"<b>• {link}</b>\n"
 
-    text += "<b><blockquote>Cloud Links 💥</blockquote></b>\n"
+    text += "\n<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
    
     for i, link in enumerate(normal_links, 1):
         text += f"<b>{i}. {link}</b>\n"
@@ -210,7 +209,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
         text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url}</b>\n"
           
         if normal_links:
-            text += "<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
+            text += "\n<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
             for i, link in enumerate(normal_links, 1):
                 text += f"<b>{i}. {link}</b>\n"        
 
