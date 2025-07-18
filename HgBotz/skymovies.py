@@ -203,11 +203,11 @@ async def process_and_send_movie(client: Client, movie_url: str):
         text = "<b>🎬 New Post Just Dropped! ✅</b>\n\n"
         text += f"<b>📌 Title </b>: <code>{title}</code>\n" 
         if gofile_links:
-            text += "\n<b><blockquote>🔰GoFile Link🔰 (Directly Leech)</blockquote></b>\n"
+            text += "\n<b><blockquote>🔰 GoFile Link 🔰 (Directly Leech)</blockquote></b>\n"
             for i, link in enumerate(gofile_links, 1):
                 text += f"<b>• {link}</b>\n"
               
-        text += f"\n<b><blockquote>🐬Stream Tape Link🐬\n {watch_url}</blockquote></b> \n\n"
+        text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url}</b>\n"
           
         if normal_links:
             text += "<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
