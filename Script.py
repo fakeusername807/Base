@@ -60,7 +60,7 @@ MX Player</blockquote>
 """
 
     
-    HOME_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! {} ❄️
+    HOME_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! ❄️
 This bot fetches posters from different OTTs using API automatically!
 
 ➥ Forward Speed: High 🚀
