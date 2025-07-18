@@ -58,10 +58,10 @@ update_button = InlineKeyboardMarkup(
     ]
 )
 
-dump_chat = -1002470928284
+dump_chat = -1002673922646
 # 🧩 Environment Variables
 FORCE_SUB_CHANNEL = os.getenv("FORCE_SUB_CHANNEL", "MrSagarbots")  # e.g. @YourChannelUsername or -100xxxxxxxxxx
-FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Nᴀᴍᴀsᴛʜᴇ {} Jɪ 😍 ,\n🌟Jᴏɪɴ Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ\n🌟Cᴀᴍᴇ Bᴀᴄᴋ Aɴᴅ Cʟɪᴄᴋ Tʀʏ Aɢᴀɪɴ👍🏻</b>")  # Image to show when not subscribed
+FSUB_TEXT = os.getenv("FSUB_TEXT", "<b>Nᴀᴍᴀsᴛʜᴇ {} Jɪ 😍 ,\n🌟Jᴏɪɴ Uᴘᴅᴀᴛᴇs Cʜᴀɴɴᴇʟ\n🌟Cᴀᴍᴇ Bᴀᴄᴋ Aɴᴅ Dᴏ Aɢᴀɪɴ👍🏻</b>")  # Image to show when not subscribed
 
 # ✅ Main Fsub Check Function
 async def handle_fsub(client: Client, user_id: int):
@@ -104,7 +104,7 @@ def force_sub_filter():
                 reply_markup=fsub_markup(data)
             )
         elif status == "banned":
-            await message.reply("🚫 You are banned from using this bot.")
+            await message.reply("You are banned from using this bot 🚫")
         else:
             await message.reply(f"⚠️ Error: {data}")
         return False
@@ -113,7 +113,7 @@ def force_sub_filter():
 
 
 
-@Client.on_message(filters.command("auth") & filters.user(HgBotz.ADMIN))
+@Client.on_message(filters.command(["auth", "authorize"]) & filters.user(HgBotz.ADMIN))
 async def auth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to authorize.\nUsage: `/auth -1001234567890`")
@@ -124,7 +124,7 @@ async def auth_cmd(client, message):
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
-@Client.on_message(filters.command("unauth") & filters.user(HgBotz.ADMIN))
+@Client.on_message(filters.command(["unauth", "unauthorize"]) & filters.user(HgBotz.ADMIN))
 async def unauth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to unauthorize.\nUsage: `/unauth -1001234567890`")
@@ -266,7 +266,7 @@ async def bms_handler(client, message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: `/bms Pechi 2024`")
+        return await message.reply("Please provide a BookMyShow URL.\nhttps://in.bookmyshow.com\n\nExample 👇\n\n/bms {link} or /bms Kuberaa 2025")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -276,12 +276,12 @@ async def bms_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {query} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**BookMyShow Poster: {img_url}**\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**BookMyShow Poster: {img_url}**\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
@@ -289,16 +289,16 @@ async def bms_handler(client, message):
 
 @Client.on_message(filters.command("croll") & filters.private)
 async def pvt_crun_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin (https://t.me/MrSagar_RoBot) to get the link.</b>", disable_web_page_preview = False) 
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
-@Client.on_message(filters.command("crunchyroll") & filters.group & force_sub_filter())
+@Client.on_message(filters.command("croll") & filters.group & force_sub_filter())
 async def crunchyroll_handler(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: `/croll wind breaker`")
+        return await message.reply("Please provide a Crunchyroll URL.\nhttps://www.crunchyroll.com/\n\nExample 👇\n\n/croll {link} or /croll Kuberaa 2025")
 
     query = " ".join(message.command[1:])
     msg = await message.reply("🔍")
@@ -308,12 +308,12 @@ async def crunchyroll_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**Crunchyrool Poster: {image_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({image_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**Crunchyrool Poster: **{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:**\n<b><blockquote>[Link]({img_url})</b><blockquote>\n\n<b>🚀 Powered By @MrSagarbots</b>",
+        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n** 🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
