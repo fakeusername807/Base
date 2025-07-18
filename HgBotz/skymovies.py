@@ -1,4 +1,4 @@
-import os, re, aiohttp, json, cloudscraper
+import os, re, aiohttp, json
 from datetime import datetime 
 from pyrogram import Client, filters
 from pyrogram.types import Message
@@ -7,27 +7,16 @@ from bs4 import BeautifulSoup
 import asyncio
 from typing import Dict, List
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-    "Referer": "https://skymovieshd.land/",
-}
-
-# Initialize cloudscraper
-scraper = cloudscraper.create_scraper()
-
-# Step 1: Scrape first 3 links with Cloudflare bypass
+# Step 1: Scrape first 3 links
 async def scrape_first_three_links(page_url: str) -> dict:
     try:
-        # Using cloudscraper for Cloudflare bypass
-        resp = scraper.get(page_url, headers=HEADERS, timeout=20)
-        if resp.status_code != 200:
-            return {"error": f"❌ HTTP Error: {resp.status_code}"}
-        
-        soup = BeautifulSoup(resp.text, "html.parser")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(page_url, timeout=20) as resp:
+                if resp.status != 200:
+                    return {"error": f"❌ HTTP Error: {resp.status}"}
+                html = await resp.text()
+
+        soup = BeautifulSoup(html, "html.parser")
         bolly_div = soup.find("div", class_="Bolly")
         if not bolly_div:
             return {"error": "❌ <div class='Bolly'> not found"}
@@ -47,20 +36,26 @@ async def scrape_first_three_links(page_url: str) -> dict:
     except Exception as e:
         return {"error": f"❌ Exception in main page: {e}"}
 
-# Step 2: External link extractor with Cloudflare bypass
+# Step 2: Your external link extractor
 async def extract_external_links_gdrive(url: str) -> list:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
+
     try:
-        # Using cloudscraper for Cloudflare bypass
-        resp = scraper.get(url, headers=HEADERS, timeout=20)
-        if resp.status_code != 200:
-            return [f"❌ Failed to fetch: {resp.status_code}"]
-        
-        soup = BeautifulSoup(resp.text, "html.parser")
-        links = [
-            a["href"].strip()
-            for a in soup.find_all("a", rel="external")
-            if a.has_attr("href")
-        ]
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url, timeout=20) as response:
+                if response.status != 200:
+                    return [f"❌ Failed to fetch: {response.status}"]
+
+                html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+
+                links = [
+                    a["href"].strip()
+                    for a in soup.find_all("a", rel="external")
+                    if a.has_attr("href")
+                ]
 
         return links if links else ["❌ No external links found."]
     except Exception as e:
@@ -131,14 +126,12 @@ async def skymovies_full_command(client: Client, message: Message):
 
 
 
-
-
 # Configuration
 BASE_URL = "https://skymovieshd.land/"
 STATE_FILE = "skymovies_state.json"
-TARGET_CHANNEL = -1002220601154  # Your channel ID
+TARGET_CHANNEL = -1002825305780  # Your channel ID
 ADMIN_ID = 7965786027  # Your admin ID
-CHECK_INTERVAL = 420  # 30 minutes in seconds
+CHECK_INTERVAL = 600  # 30 minutes in seconds
 
 # Load processed URLs
 def load_processed_urls():
@@ -153,30 +146,31 @@ def save_processed_urls(urls):
         json.dump({"processed_urls": urls}, f)
 
 
-# Get latest movies with Cloudflare bypass
+# Get latest movies from homepage
 async def get_latest_movies():
     try:
-        resp = scraper.get(BASE_URL, headers=HEADERS, timeout=20)
-        if resp.status_code != 200:
-            return []
-        
-        soup = BeautifulSoup(resp.text, "html.parser")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(BASE_URL, timeout=20) as resp:
+                if resp.status != 200:
+                    return []
+                html = await resp.text()
+
+        soup = BeautifulSoup(html, "html.parser")
         fmvideo_divs = soup.find_all("div", class_="Fmvideo")
         
         movies = []
-        for div in fmvideo_divs[:5]:
+        for div in fmvideo_divs[:15]:  # Get latest 15 movies
             a_tag = div.find("a")
-            if a_tag and a_tag.has_attr("href"):
+            if a_tag:
                 title = a_tag.text.strip()
-                url = a_tag["href"].strip()
-                if not url.startswith("http"):
-                    url = BASE_URL + url.lstrip('/')
+                url = a_tag.get("href", "").strip()
+                if url and not url.startswith("http"):
+                    url = BASE_URL + url
                 movies.append({"title": title, "url": url})
         
         return movies
 
-    except Exception as e:
-        print(f"Error getting latest movies: {e}")
+    except Exception:
         return []
         
 # Process and send movie to channel
@@ -207,7 +201,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
 
         # Step 4: Format message
         text = "<b>🎬 New Post Just Dropped! ✅</b>\n\n"
-        text += f"<b>📌 Title:</b>: <code>{title}</code>\n" 
+        text += f"<b>📌 Title </b>: <code>{title}</code>\n" 
         if gofile_links:
             text += "\n<b>🔰GoFile Link🔰 (Directly Leech)</b>\n"
             for i, link in enumerate(gofile_links, 1):
@@ -267,4 +261,3 @@ async def monitor_new_movies(client: Client):
 async def start_monitoring_cmd(client: Client, message: Message):
     asyncio.create_task(monitor_new_movies(client))
     await message.reply("✅ Movie monitoring started!")
-
