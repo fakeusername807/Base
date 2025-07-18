@@ -22,9 +22,6 @@ def parse_quality_and_size(title_text: str):
     elif "720p" in title_text: quality = "720p-HD"
     elif "1080p" in title_text: quality = "1080p-HD"
     elif "2160p" in title_text: quality = "2160p-HD"
-    elif "HEVC 480p 10bit" in title_text: quality = "480p 10bit HEVC"
-    elif "HEVC 720p 10bit" in title_text: quality = "720p 10bit HEVC"
-    elif "HEVC 1080p 10bit" in title_text: quality = "1080p 10bit HEVC"
     
     import re
     match = re.search(r"\((\d+(\.\d+)?\s?(MB|GB))\)", title_text)
@@ -62,9 +59,7 @@ async def filmy_handler(client, message: Message):
             quality, size = parse_quality_and_size(file_title)
 
             # Format text
-            text = f"""🎬 <b>New Post Just Dropped!</b> ✅
-
-📌 <b>Title:</b> {file_title}
+            text = f"""📌 <b>Title:</b> {file_title}
 
 🔹 <b>Quality:</b> {quality} 
 
