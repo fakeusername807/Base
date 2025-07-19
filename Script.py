@@ -1,11 +1,11 @@
 class script(object):
-    START_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! {} ❄️
+    START_TXT = """<b><a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! {} ❄️
 This bot fetches posters from different OTTs using API automatically!
 
 ➥ Forward Speed: High 🚀
 ➥ Developed By: @MrSagar_RoBot 🌸
 ➥ Details /help
-"""
+</b>"""
 
     HELP_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Poster Extractor 
 <b>/prime prime_video_url
@@ -60,10 +60,10 @@ MX Player</blockquote>
 """
 
     
-    HOME_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! ❄️
+    HOME_TXT = """<b><a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Hello!! ❄️
 This bot fetches posters from different OTTs using API automatically!
 
 ➥ Forward Speed: High 🚀
 ➥ Developed By: @MrSagar_RoBot 🌸
 ➥ Details /help
-"""
+</b>"""
