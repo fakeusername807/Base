@@ -113,7 +113,7 @@ def force_sub_filter():
 
 
 
-@Client.on_message(filters.command(["auth", "authorize"]) & filters.user(HgBotz.ADMIN))
+@Client.on_message(filters.command(["auth", "authorize", "a"]) & filters.user(HgBotz.ADMIN))
 async def auth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to authorize.\nUsage: `/auth -1001234567890`")
@@ -124,7 +124,7 @@ async def auth_cmd(client, message):
     except Exception as e:
         await message.reply(f"❌ Error: {e}")
 
-@Client.on_message(filters.command(["unauth", "unauthorize"]) & filters.user(HgBotz.ADMIN))
+@Client.on_message(filters.command(["unauth", "unauthorize", "ua"]) & filters.user(HgBotz.ADMIN))
 async def unauth_cmd(client, message):
     if len(message.command) < 2:
         return await message.reply("⚠️ Provide chat_id to unauthorize.\nUsage: `/unauth -1001234567890`")
