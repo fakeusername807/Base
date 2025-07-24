@@ -114,6 +114,7 @@ async def skymovies_full_command(client: Client, message: Message):
 
 
     # Step 4: Format output
+    text = "<b>🎬 Scrapped From SkymoviesHD ✅</b>\n\n"
     text += f"<b>Title</b> = <code>{title}</code>\n" 
     text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url} \n</b>"
     
