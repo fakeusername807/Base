@@ -94,7 +94,7 @@ async def filmy_handler(client, message: Message):
 
 
 # Configuration
-BASE_URL = "https://filmyfly.party/"
+BASE_URL = "https://filmyfly.trade/"
 STATE_FILE = "filmyfly_state.json"
 TARGET_CHANNEL = -1002756844590  # Your channel ID
 ADMIN_ID = 7965786027  # Your admin ID
