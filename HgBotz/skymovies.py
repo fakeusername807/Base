@@ -15,7 +15,7 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.5",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
-    "Referer": "https://skymovieshd.land/",
+    "Referer": "https://skymovieshd.credit/",
 }
 
 # Initialize cloudscraper
@@ -134,7 +134,7 @@ async def skymovies_full_command(client: Client, message: Message):
 
 
 # Configuration
-BASE_URL = "https://skymovieshd.land/"
+BASE_URL = "https://skymovieshd.credit/"
 STATE_FILE = "skymovies_state.json"
 TARGET_CHANNEL = -1002825305780  # Your channel ID
 ADMIN_ID = 7965786027  # Your admin ID
