@@ -957,11 +957,11 @@ def format_series_response(data):
 
 # Store user data temporarily
 user_data = {}
-@Client.on_message(filters.command("prime") & filters.private)
+@Client.on_message(filters.command(["prime", "pv"]) & filters.private)
 async def pvt_prime_cmd(client, message: Message):
         await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
-@Client.on_message(filters.command("prime") & filters.group & force_sub_filter())
+@Client.on_message(filters.command(["prime", "pv"]) & filters.group & force_sub_filter())
 async def prime_command(client, message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
