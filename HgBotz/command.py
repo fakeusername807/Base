@@ -920,7 +920,7 @@ def extract_amazon(link):
 
 def format_movie_response(data):
     """Format movie response with posters as links"""
-    response = f"**PrimeVideo Poster: {data['landscape']}\n\n🎬 <b>{data['title']} ({data['year']})</b>\n\n"
+    response = f"<b>PrimeVideo Poster</b>: <b>{data['landscape']}</b>\n\n<b>{data['title']} ({data['year']})</b>\n\n"
     
     # Landscape posters section
     response += "<b>🌄 Landscape Posters:</b>\n"
