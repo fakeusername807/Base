@@ -932,7 +932,7 @@ def format_movie_response(data):
     # Portrait posters section
     response += "\n<b>🖼️ Portrait Posters:</b>\n"
     if data.get('portrait'):
-        response += f"1. [Click Here]({data['portrait']})\n"
+        response += f"1. [Click Here]({data['portrait']})\n\n"
         response += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     else:
         response += "`Not available`"
@@ -969,7 +969,7 @@ async def prime_command(client, message):
     """Handle /prime command with Amazon Prime link"""
     # Extract link from command
     if len(message.command) < 2:
-        await message.reply_text("** Please provide an Amazon Prime Video link after the command**.\nExample: `/pv https://www.primevideo.com/detail/...`")
+        await message.reply_text("** Please provide an Amazon Prime Video link after the command**.\nExample: `/pv or /prime https://www.primevideo.com/detail/...`")
         return
     
     link = message.text.split(" ", 1)[1].strip()
@@ -1037,7 +1037,7 @@ async def handle_season_selection(client, callback_query):
     response += f"**🌄 Landscape Poster:**\n"
     response += f"› [Click Here]({season_info['landscape']})\n\n" if season_info.get('landscape') else "› Not available\n\n"
     response += f"**🖼️ Portrait Poster:**\n"
-    response += f"› [Click Here]({season_info['portrait']})" if season_info.get('portrait') else "› Not available\n"
+    response += f"› [Click Here]({season_info['portrait']})" if season_info.get('portrait') else "› Not available\n\n"
     response += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     
     # Send response as new message
