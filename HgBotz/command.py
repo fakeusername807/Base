@@ -1315,9 +1315,6 @@ async def addmovie_cmd(client, message: Message):
 async def pvt_cmd(client, message: Message):
         await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
 
-from pyrogram import Client, filters
-from pyrogram.types import Message
-
 @Client.on_message(filters.command("extract_thumb") & filters.group & force_sub_filter())
 async def extract_telegram_thumb(client: Client, message: Message):
     reply = message.reply_to_message
