@@ -276,7 +276,7 @@ async def bms_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {query} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**BookMyShow Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{query} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
@@ -308,12 +308,12 @@ async def crunchyroll_handler(client, message):
     
     if img_url:
         await msg.edit_text(
-        text=f"**Crunchyrool Poster: **{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: **{image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
@@ -411,12 +411,12 @@ async def handle_generic_ott(client, message, url, ott_name):
     title = url.split("/")[-1].replace('-', ' ').title()
 
     await msg.edit_text(
-        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {image_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False,
         reply_markup=update_button
     )
     await client.send_message(chat_id =dump_chat, 
-        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
     )
 
@@ -707,11 +707,11 @@ async def handle_airtel_request(client, message, url):
 
         
         await msg.edit_text(
-            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**{ott_name} Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**{title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**{ott_name} Poster: 🎬 {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**🎬  {title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**{ott_name} Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**{title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
@@ -847,11 +847,11 @@ async def handle_zee_request(client, message, url):
 
        
         await msg.edit_text(
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         
