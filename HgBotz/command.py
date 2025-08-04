@@ -1392,3 +1392,59 @@ async def rename_episode(client: Client, message: Message):
             f"📅 **Air Date:** {ep_air_date or 'N/A'}\n\n"
             f"**<blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote>**"
         )
+#--------- OTT Availability Checker -----------------
+
+TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"
+
+@Client.on_message(filters.command("where") & filters.private)
+async def pvt_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+
+@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
+async def where_stream(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("❗ Usage: `/where <movie/show name>`")
+
+    query = message.text.split(None, 1)[1]
+
+    async with httpx.AsyncClient() as session:
+        # Search on TMDB
+        search_url = "https://api.themoviedb.org/3/search/multi"
+        params = {
+            "api_key": TMDB_API_KEY,
+            "query": query
+        }
+        r = await session.get(search_url, params=params)
+        results = r.json().get("results", [])
+
+        if not results:
+            return await message.reply("❌ No results found.")
+
+        result = results[0]
+        tmdb_id = result["id"]
+        title = result.get("title") or result.get("name")
+        year = (result.get("release_date") or result.get("first_air_date") or "")[:4]
+        media_type = result["media_type"]
+
+        # Fetch watch providers
+        provider_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}/watch/providers"
+        r2 = await session.get(provider_url, params={"api_key": TMDB_API_KEY})
+        providers = r2.json().get("results", {}).get("IN", {})  # Use 'IN' for India
+
+        flatrate = providers.get("flatrate", [])
+        rent = providers.get("rent", [])
+        buy = providers.get("buy", [])
+
+        if not (flatrate or rent or buy):
+            return await message.reply(f"ℹ️ **{title} ({year})** not available on any OTT in India.")
+
+        text = f"🎬 **{title} ({year})**\n\n"
+
+        if flatrate:
+            text += "<b>📺 Streaming on:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in flatrate) + "\n\n"
+        if rent:
+            text += "<b>💸 Available to Rent:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in rent) + "\n\n"
+        if buy:
+            text += "<b>🛒 Available to Buy:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in buy)
+
+        await message.reply(text.strip())
