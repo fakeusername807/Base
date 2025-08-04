@@ -1,7 +1,7 @@
 import requests
 from pyrogram import Client, filters, errors, types, enums 
 from config import HgBotz
-import os, asyncio, re, time, sys, random, html, httpx, json
+import os, asyncio, re, time, sys, random, html, httpx
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
@@ -10,7 +10,6 @@ from Script import script
 import aiohttp
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
-import json
 from urllib.parse import unquote, parse_qs, urlparse
 from PIL import Image
 from io import BytesIO
@@ -1394,81 +1393,53 @@ async def rename_episode(client: Client, message: Message):
 
 #----------------------- OTT Availability Checker -----------------------
 
-PROVIDERS = {
-    "nfx": "Netflix",
-    "prv": "Amazon Prime Video",
-    "dsny": "Disney+ Hotstar",
-    "zee5": "ZEE5",
-    "altb": "ALTBalaji",
-    "hoot": "Hoichoi",
-    "sonyl": "Sony LIV",
-    "mxp": "MX Player",
-    "jio": "JioCinema",
-    "yt": "YouTube",
-    "gpp": "Google Play Movies",
-    "it": "Apple iTunes",
-    "hulu": "Hulu",
-    "hbm": "HBO Max",
-    "plx": "Plex",
-    "trl": "Tubi TV",
-    "rak": "Rakuten TV",
-    "aha": "Aha Video",
-    "paramountp": "Paramount+",
-    "vv": "Vi Movies & TV",
-    "eros": "Eros Now",
-    "mbi": "MUBI",
-    "spu": "Spuul",
-    "epic": "Epic ON",
-    "hmx": "Hungama Play"
-}
+TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"
 
 @Client.on_message(filters.command("where") & filters.private)
-async def where_to_watch(client, message: Message):
+async def where_stream(client, message: Message):
     if len(message.command) < 2:
-        return await message.reply("❗Usage: `/where <movie/show name>`", quote=True)
+        return await message.reply("❗ Usage: `/where <movie/show name>`")
 
     query = message.text.split(None, 1)[1]
-    headers = {
-        "User-Agent": "JustWatch client (Telegram Bot)",
-        "Content-Type": "application/json"
-    }
 
-    search_url = f"https://apis.justwatch.com/content/titles/en_IN/popular"
+    async with httpx.AsyncClient() as session:
+        # Search on TMDB
+        search_url = "https://api.themoviedb.org/3/search/multi"
+        params = {
+            "api_key": TMDB_API_KEY,
+            "query": query
+        }
+        r = await session.get(search_url, params=params)
+        results = r.json().get("results", [])
 
-    try:
-        async with httpx.AsyncClient(timeout=10) as session:
-            res = await session.post(search_url, headers=headers, json={
-                "query": query,
-                "page_size": 1,
-                "page": 1,
-                "content_types": ["movie", "show"]
-            })
+        if not results:
+            return await message.reply("❌ No results found.")
 
-            if res.status_code != 200:
-                return await message.reply(f"❌ API Error: {res.status_code}\n{res.text[:500]}")
+        result = results[0]
+        tmdb_id = result["id"]
+        title = result.get("title") or result.get("name")
+        year = (result.get("release_date") or result.get("first_air_date") or "")[:4]
+        media_type = result["media_type"]
 
-            data = res.json()
-            items = data.get("items", [])
-            if not items:
-                return await message.reply("❌ No results found.")
+        # Fetch watch providers
+        provider_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}/watch/providers"
+        r2 = await session.get(provider_url, params={"api_key": TMDB_API_KEY})
+        providers = r2.json().get("results", {}).get("IN", {})  # Use 'IN' for India
 
-            item = items[0]
-            title = item.get("title", "Unknown Title")
-            year = item.get("original_release_year", "")
-            offers = item.get("offers", [])
+        flatrate = providers.get("flatrate", [])
+        rent = providers.get("rent", [])
+        buy = providers.get("buy", [])
 
-            if not offers:
-                return await message.reply(f"ℹ️ {title} ({year}) is not available on any known streaming platforms.")
+        if not (flatrate or rent or buy):
+            return await message.reply(f"ℹ️ **{title} ({year})** not available on any OTT in India.")
 
-            # Filter and format provider names
-            platforms = set()
-            for offer in offers:
-                pid = offer.get("provider_id")
-                if pid:
-                    platforms.add(PROVIDERS.get(pid, f"Unknown ({pid})"))
+        text = f"🎬 **{title} ({year})**\n\n"
 
-            ott_text = "\n".join(f"• {p}" for p in sorted(platforms))
-            await message.reply(f"🎬 **{title} ({year})**\n\n📺 Available on:\n{ott_text}")
+        if flatrate:
+            text += "📺 Streaming on:\n" + "\n".join(f"• {x['provider_name']}" for x in flatrate) + "\n\n"
+        if rent:
+            text += "💸 Available to Rent:\n" + "\n".join(f"• {x['provider_name']}" for x in rent) + "\n\n"
+        if buy:
+            text += "🛒 Available to Buy:\n" + "\n".join(f"• {x['provider_name']}" for x in buy)
 
-    except Exception as e:
-        await message.reply(f"❌ Error: {e}")
+        await message.reply(text.strip())
