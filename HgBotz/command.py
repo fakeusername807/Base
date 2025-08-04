@@ -1396,10 +1396,20 @@ async def rename_episode(client: Client, message: Message):
 TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"
 
 @Client.on_message(filters.command("where") & filters.private)
-async def where_stream(client, message: Message):
-    if len(message.command) < 2:
-        return await message.reply("❗ Usage: `/where <movie/show name>`")
+async def pvt_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
 
+@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
+async def where_usage_only(client, message: Message):
+    text = message.text or ""
+    parts = text.strip().split(maxsplit=1)
+
+    if len(parts) < 2:
+        return await message.reply("❗ Usage: `/where <movie/show name>`", quote=True)
+    
+    # If a query is provided, just acknowledge for now (optional)
+    return await message.reply("✅ Working on your request... (logic not implemented yet)", quote=True)
+ 
     query = message.text.split(None, 1)[1]
 
     async with httpx.AsyncClient() as session:
