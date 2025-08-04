@@ -1,7 +1,8 @@
+
 import requests
 from pyrogram import Client, filters, errors, types, enums 
 from config import HgBotz
-import os, asyncio, re, time, sys, random, html
+import os, asyncio, re, time, sys, random, html, httpx
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
@@ -1335,3 +1336,59 @@ async def extract_telegram_thumb(client: Client, message: Message):
     # Download and send thumbnail
     thumb_path = await client.download_media(reply.video.thumbs[0])
     await message.reply_photo(photo=thumb_path, caption="✅ <b>Extracted Telegram Video Thumbnail</b>\n\n<b><blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>")
+
+#----------------------- Web Series Episode Auto Renamer -----------------------
+
+@Client.on_message(filters.command("rename") & filters.private)
+async def pvt_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+
+@Client.on_message(filters.command("rename") & filters.group & force_sub_filter())
+async def rename_episode(client: Client, message: Message):
+    reply = message.reply_to_message
+
+    TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"  # Replace with your real key
+
+    if len(message.command) < 2:
+        return await message.reply("Send like: `/rename The Boys S01E01`")
+
+    query = message.text.split(None, 1)[1]
+
+    match = re.search(r'(.*?)[\s\-]*(S(\d{1,2})E(\d{1,2}))', query, re.IGNORECASE)
+    if not match:
+        return await message.reply("❌ Could not parse season/episode. Try like:\n`/rename Stranger Things S02E03`")
+
+    show_name = match.group(1).strip()
+    season_num = int(match.group(3))
+    episode_num = int(match.group(4))
+
+    # Step 1: Search TMDB for show
+    async with httpx.AsyncClient() as client_http:
+        search_url = f"https://api.themoviedb.org/3/search/tv?api_key={TMDB_API_KEY}&query={show_name}"
+        res = await client_http.get(search_url)
+        data = res.json()
+
+        if not data.get("results"):
+            return await message.reply("❌ No TV show found on TMDB.")
+
+        show = data["results"][0]
+        show_id = show["id"]
+        title = show["name"]
+
+        # Step 2: Get episode info
+        episode_url = f"https://api.themoviedb.org/3/tv/{show_id}/season/{season_num}/episode/{episode_num}?api_key={TMDB_API_KEY}"
+        ep_res = await client_http.get(episode_url)
+        ep_data = ep_res.json()
+
+        ep_title = ep_data.get("name")
+        ep_air_date = ep_data.get("air_date")
+
+        if not ep_title:
+            return await message.reply("❌ Could not find that episode.")
+
+        await message.reply(
+            f"🎬 **{title}** - Season {season_num} Episode {episode_num}\n"
+            f"📝 **Title:** {ep_title}\n"
+            f"📅 **Air Date:** {ep_air_date or 'N/A'}\n\n"
+            f"**<blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote>**"
+        )
