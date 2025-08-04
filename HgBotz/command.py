@@ -1394,10 +1394,6 @@ async def rename_episode(client: Client, message: Message):
 
 #----------------------- OTT Availability Checker -----------------------
 
-@Client.on_message(filters.command("where") & filters.private)
-async def pvt_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
-
 PROVIDERS = {
     "nfx": "Netflix",
     "prv": "Amazon Prime Video",
@@ -1413,72 +1409,66 @@ PROVIDERS = {
     "it": "Apple iTunes",
     "hulu": "Hulu",
     "hbm": "HBO Max",
-    "cru": "Crunchyroll",
-    "vdu": "Vudu",
-    "ply": "Peacock TV",
-    "plyf": "Peacock Free",
-    "plyp": "Peacock Premium",
-    "rok": "The Roku Channel",
+    "plx": "Plex",
     "trl": "Tubi TV",
     "rak": "Rakuten TV",
-    "plx": "Plex",
-    "stv": "Starz",
-    "amz": "Amazon Video",
-    "amzsvod": "Amazon Prime Video (SVoD)",
-    "mbi": "MUBI",
-    "paramountp": "Paramount+",
-    "sund": "Sun NXT",
-    "manorama": "Manorama Max",
     "aha": "Aha Video",
-    "epic": "Epic ON",
+    "paramountp": "Paramount+",
+    "vv": "Vi Movies & TV",
     "eros": "Eros Now",
-    "hmx": "Hungama Play",
+    "mbi": "MUBI",
     "spu": "Spuul",
-    "vv": "Vi Movies & TV"
+    "epic": "Epic ON",
+    "hmx": "Hungama Play"
 }
 
-@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
+@Client.on_message(filters.command("where") & filters.private)
 async def where_to_watch(client, message: Message):
     if len(message.command) < 2:
-        return await message.reply("🎬 Send a movie/show name.\n\n**Usage:** `/where Interstellar`")
+        return await message.reply("❗Usage: `/where <movie/show name>`", quote=True)
 
     query = message.text.split(None, 1)[1]
-    url = "https://apis.justwatch.com/content/titles/en_IN/popular"
-
-    payload = {
-        "query": query,
-        "page_size": 1,
-        "page": 1,
-        "content_types": ["movie", "show"]
+    headers = {
+        "User-Agent": "JustWatch client (Telegram Bot)",
+        "Content-Type": "application/json"
     }
+
+    search_url = f"https://apis.justwatch.com/content/titles/en_IN/popular"
 
     try:
         async with httpx.AsyncClient(timeout=10) as session:
-            response = await session.post(url, json=payload)
-            try:
-                data = response.json()
-            except json.JSONDecodeError as e:
-                return await message.reply(f"❌ JSON decode error:\n{e}\n\nRaw:\n{response.text[:500]}")
+            res = await session.post(search_url, headers=headers, json={
+                "query": query,
+                "page_size": 1,
+                "page": 1,
+                "content_types": ["movie", "show"]
+            })
 
-        if not data.get("items"):
-            return await message.reply("❌ No results found for that title.")
+            if res.status_code != 200:
+                return await message.reply(f"❌ API Error: {res.status_code}\n{res.text[:500]}")
 
-        item = data["items"][0]
-        title = item.get("title", "Unknown Title")
-        year = item.get("original_release_year", "Unknown Year")
-        offers = item.get("offers", [])
+            data = res.json()
+            items = data.get("items", [])
+            if not items:
+                return await message.reply("❌ No results found.")
 
-        if not offers:
-            return await message.reply(f"❌ No streaming platforms found for **{title}**.")
+            item = items[0]
+            title = item.get("title", "Unknown Title")
+            year = item.get("original_release_year", "")
+            offers = item.get("offers", [])
 
-        # Deduplicate platform list
-        platform_ids = set(o.get("provider_id") for o in offers)
-        platforms = [PROVIDERS.get(pid, f"Unknown ({pid})") for pid in platform_ids]
+            if not offers:
+                return await message.reply(f"ℹ️ {title} ({year}) is not available on any known streaming platforms.")
 
-        ott_list = "\n".join(f"• {p}" for p in platforms)
-        reply_text = f"🎬 **{title} ({year})**\n\n📺 Available on:\n{ott_list}"
+            # Filter and format provider names
+            platforms = set()
+            for offer in offers:
+                pid = offer.get("provider_id")
+                if pid:
+                    platforms.add(PROVIDERS.get(pid, f"Unknown ({pid})"))
 
-        await message.reply(reply_text)
+            ott_text = "\n".join(f"• {p}" for p in sorted(platforms))
+            await message.reply(f"🎬 **{title} ({year})**\n\n📺 Available on:\n{ott_text}")
 
     except Exception as e:
-        await message.reply(f"❌ Unexpected error:\n`{str(e)}`")
+        await message.reply(f"❌ Error: {e}")
