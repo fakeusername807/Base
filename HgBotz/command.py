@@ -1,7 +1,7 @@
 import requests
 from pyrogram import Client, filters, errors, types, enums 
 from config import HgBotz
-import os, asyncio, re, time, sys, random, html, httpx
+import os, asyncio, re, time, sys, random, html, httpx, json
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
@@ -1398,14 +1398,7 @@ async def rename_episode(client: Client, message: Message):
 async def pvt_cmd(client, message: Message):
         await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
 
-@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
-async def where_to_watch(client, message: Message):
-    if len(message.command) < 2:
-        return await message.reply("🎬 Send movie/show name.\n\nUsage:\n`/where Interstellar`")
-
-    query = message.text.split(None, 1)[1]
-    SEARCH_URL = "https://apis.justwatch.com/content/titles/en_IN/popular"
-    PROVIDERS = {
+PROVIDERS = {
     "nfx": "Netflix",
     "prv": "Amazon Prime Video",
     "dsny": "Disney+ Hotstar",
@@ -1420,10 +1413,7 @@ async def where_to_watch(client, message: Message):
     "it": "Apple iTunes",
     "hulu": "Hulu",
     "hbm": "HBO Max",
-    "acr": "Acorn TV",
-    "cbc": "CBC Gem",
     "cru": "Crunchyroll",
-    "crv": "Curiosity Stream",
     "vdu": "Vudu",
     "ply": "Peacock TV",
     "plyf": "Peacock Free",
@@ -1436,16 +1426,6 @@ async def where_to_watch(client, message: Message):
     "amz": "Amazon Video",
     "amzsvod": "Amazon Prime Video (SVoD)",
     "mbi": "MUBI",
-    "no": "Nonton (Indonesia)",
-    "hooq": "HOOQ",
-    "iflix": "iflix",
-    "viu": "Viu",
-    "catch": "Catchplay",
-    "tln": "Telkomsel MAXstream",
-    "bse": "Bioscope",
-    "bios": "Bioskop Online",
-    "docp": "DocPlay",
-    "now": "Now TV",
     "paramountp": "Paramount+",
     "sund": "Sun NXT",
     "manorama": "Manorama Max",
@@ -1454,42 +1434,51 @@ async def where_to_watch(client, message: Message):
     "eros": "Eros Now",
     "hmx": "Hungama Play",
     "spu": "Spuul",
-    "erosn": "Eros International",
     "vv": "Vi Movies & TV"
 }
 
-    async with httpx.AsyncClient() as client_http:
-        try:
-            response = await client_http.post(SEARCH_URL, json={
-                "query": query,
-                "page_size": 1,
-                "page": 1,
-                "content_types": ["movie", "show"]
-            })
+@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
+async def where_to_watch(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("🎬 Send a movie/show name.\n\n**Usage:** `/where Interstellar`")
 
-            data = response.json()
-            if not data["items"]:
-                return await message.reply("❌ No results found.")
+    query = message.text.split(None, 1)[1]
+    url = "https://apis.justwatch.com/content/titles/en_IN/popular"
 
-            item = data["items"][0]
-            title = item["title"]
-            year = item.get("original_release_year", "")
-            offers = item.get("offers", [])
+    payload = {
+        "query": query,
+        "page_size": 1,
+        "page": 1,
+        "content_types": ["movie", "show"]
+    }
 
-            if not offers:
-                return await message.reply(f"❌ No streaming platform found for {title}.")
+    try:
+        async with httpx.AsyncClient(timeout=10) as session:
+            response = await session.post(url, json=payload)
+            try:
+                data = response.json()
+            except json.JSONDecodeError as e:
+                return await message.reply(f"❌ JSON decode error:\n{e}\n\nRaw:\n{response.text[:500]}")
 
-            platforms = set()
-            for offer in offers:
-                provider_id = offer["provider_id"]
-                platform_code = offer.get("urls", {}).get("standard_web", "")
-                provider = item.get("scoring", {}).get("provider_type", "")
-                short = offer["provider_id"]
-                platforms.add(PROVIDERS.get(short, short))
+        if not data.get("items"):
+            return await message.reply("❌ No results found for that title.")
 
-            plat_text = "\n".join(f"- {p}" for p in platforms)
+        item = data["items"][0]
+        title = item.get("title", "Unknown Title")
+        year = item.get("original_release_year", "Unknown Year")
+        offers = item.get("offers", [])
 
-            await message.reply(f"🎬 **{title} ({year})**\n\n📺 Available on:\n{plat_text}")
+        if not offers:
+            return await message.reply(f"❌ No streaming platforms found for **{title}**.")
 
-        except Exception as e:
-            await message.reply(f"❌ Error: {e}")
+        # Deduplicate platform list
+        platform_ids = set(o.get("provider_id") for o in offers)
+        platforms = [PROVIDERS.get(pid, f"Unknown ({pid})") for pid in platform_ids]
+
+        ott_list = "\n".join(f"• {p}" for p in platforms)
+        reply_text = f"🎬 **{title} ({year})**\n\n📺 Available on:\n{ott_list}"
+
+        await message.reply(reply_text)
+
+    except Exception as e:
+        await message.reply(f"❌ Unexpected error:\n`{str(e)}`")
