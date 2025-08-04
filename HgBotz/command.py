@@ -1,4 +1,3 @@
-
 import requests
 from pyrogram import Client, filters, errors, types, enums 
 from config import HgBotz
@@ -1392,3 +1391,105 @@ async def rename_episode(client: Client, message: Message):
             f"📅 **Air Date:** {ep_air_date or 'N/A'}\n\n"
             f"**<blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote>**"
         )
+
+#----------------------- OTT Availability Checker -----------------------
+
+@Client.on_message(filters.command("where") & filters.private)
+async def pvt_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+
+@Client.on_message(filters.command("where") & filters.group & force_sub_filter())
+async def where_to_watch(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("🎬 Send movie/show name.\n\nUsage:\n`/where Interstellar`")
+
+    query = message.text.split(None, 1)[1]
+    SEARCH_URL = "https://apis.justwatch.com/content/titles/en_IN/popular"
+    PROVIDERS = {
+    "nfx": "Netflix",
+    "prv": "Amazon Prime Video",
+    "dsny": "Disney+ Hotstar",
+    "zee5": "ZEE5",
+    "altb": "ALTBalaji",
+    "hoot": "Hoichoi",
+    "sonyl": "Sony LIV",
+    "mxp": "MX Player",
+    "jio": "JioCinema",
+    "yt": "YouTube",
+    "gpp": "Google Play Movies",
+    "it": "Apple iTunes",
+    "hulu": "Hulu",
+    "hbm": "HBO Max",
+    "acr": "Acorn TV",
+    "cbc": "CBC Gem",
+    "cru": "Crunchyroll",
+    "crv": "Curiosity Stream",
+    "vdu": "Vudu",
+    "ply": "Peacock TV",
+    "plyf": "Peacock Free",
+    "plyp": "Peacock Premium",
+    "rok": "The Roku Channel",
+    "trl": "Tubi TV",
+    "rak": "Rakuten TV",
+    "plx": "Plex",
+    "stv": "Starz",
+    "amz": "Amazon Video",
+    "amzsvod": "Amazon Prime Video (SVoD)",
+    "mbi": "MUBI",
+    "no": "Nonton (Indonesia)",
+    "hooq": "HOOQ",
+    "iflix": "iflix",
+    "viu": "Viu",
+    "catch": "Catchplay",
+    "tln": "Telkomsel MAXstream",
+    "bse": "Bioscope",
+    "bios": "Bioskop Online",
+    "docp": "DocPlay",
+    "now": "Now TV",
+    "paramountp": "Paramount+",
+    "sund": "Sun NXT",
+    "manorama": "Manorama Max",
+    "aha": "Aha Video",
+    "epic": "Epic ON",
+    "eros": "Eros Now",
+    "hmx": "Hungama Play",
+    "spu": "Spuul",
+    "erosn": "Eros International",
+    "vv": "Vi Movies & TV"
+}
+
+    async with httpx.AsyncClient() as client_http:
+        try:
+            response = await client_http.post(SEARCH_URL, json={
+                "query": query,
+                "page_size": 1,
+                "page": 1,
+                "content_types": ["movie", "show"]
+            })
+
+            data = response.json()
+            if not data["items"]:
+                return await message.reply("❌ No results found.")
+
+            item = data["items"][0]
+            title = item["title"]
+            year = item.get("original_release_year", "")
+            offers = item.get("offers", [])
+
+            if not offers:
+                return await message.reply(f"❌ No streaming platform found for {title}.")
+
+            platforms = set()
+            for offer in offers:
+                provider_id = offer["provider_id"]
+                platform_code = offer.get("urls", {}).get("standard_web", "")
+                provider = item.get("scoring", {}).get("provider_type", "")
+                short = offer["provider_id"]
+                platforms.add(PROVIDERS.get(short, short))
+
+            plat_text = "\n".join(f"- {p}" for p in platforms)
+
+            await message.reply(f"🎬 **{title} ({year})**\n\n📺 Available on:\n{plat_text}")
+
+        except Exception as e:
+            await message.reply(f"❌ Error: {e}")
