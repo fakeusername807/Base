@@ -281,7 +281,7 @@ async def bms_handler(client, message):
         reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-        text=f"**BookMyShow Poster: {img_url}**\n\n**🎬 {query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+        text=f"**BookMyShow Poster: {img_url}**\n\n**{query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
     else:
@@ -497,11 +497,11 @@ async def handle_apple_request(client, message, url):
             title = "Unknown Title" 
         
         await msg.edit_text(
-            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**🎬 {title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**AppleTv Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**{title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id=dump_chat, 
-            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**🎬 {title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
     except Exception as e:
@@ -831,7 +831,8 @@ async def handle_zee_request(client, message, url):
         
         # Get poster URL
         poster_url = extract_zee_poster(url)
-        
+        image_url = await upload_to_imgbb(poster_url)
+     
         if not poster_url:
             await msg.edit_text("⚠️ Failed to extract poster. The page structure might have changed or content is region-locked.")
             return
@@ -847,7 +848,7 @@ async def handle_zee_request(client, message, url):
 
        
         await msg.edit_text(
-            text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            text=f"**Zee Poster: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
         await client.send_message(chat_id =dump_chat, 
@@ -1334,4 +1335,3 @@ async def extract_telegram_thumb(client: Client, message: Message):
     # Download and send thumbnail
     thumb_path = await client.download_media(reply.video.thumbs[0])
     await message.reply_photo(photo=thumb_path, caption="✅ <b>Extracted Telegram Video Thumbnail</b>\n\n<b><blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>")
-
