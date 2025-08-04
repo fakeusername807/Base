@@ -45,6 +45,8 @@ MX Player</blockquote>
 /crunchyroll anime_name (70% Accuracy) 
 /stkar jpg/png_url To Make Sticker 
 /search content name To Copy Ott Content Url
+/extract_thumb - EXTRACT THUMBNAIL FROM TELEGRAM VIDEO
+/rename - WEBSERIES EPISODES AUTO RENAME
 
 <blockquote>Powered By @MrSagarBots</blockquote></b>""" 
     
