@@ -46,6 +46,11 @@ MX Player</blockquote>
 /stkar jpg/png_url To Make Sticker 
 /search content name To Copy Ott Content Url
 /extract_thumb - EXTRACT THUMBNAIL FROM TELEGRAM VIDEO
+<blockquote>Caption Change Features</blockquote>
+/change_caption - Change Given Video Caption
+/set_template - Set Custom Template
+/del_template - Delete Custom Template
+/my_template - See Your Custom Template
 /rename - WEBSERIES EPISODES AUTO RENAME
 
 <blockquote>Powered By @MrSagarBots</blockquote></b>""" 
