@@ -82,7 +82,7 @@ def extract_file_info(video_msg):
 
     # Language detection
     langs = []
-    for lang in ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Bangla", "Punjabi", "Gujarati", "Marathi"]:
+    for lang in ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Bangla", "Punjabi", "Gujarati", "Marathi", "Spanish", "Korean", "Chinese"]:
         if re.search(lang, file_name, re.IGNORECASE) or re.search(lang, caption, re.IGNORECASE):
             langs.append(lang)
     audio_langs = ", ".join(langs) if langs else "Unknown"
