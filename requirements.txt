@@ -10,3 +10,4 @@ beautifulSoup4
 Pillow
 cloudscraper
 httpx
+humanize
