@@ -28,7 +28,7 @@ async def extract_oxxfile_links(url: str) -> dict:
     return {"title": title, "links": links}
 
 
-@Client.on_message(filters.command("cinevood"))
+@Client.on_message(filters.command("cinevood") & filters.all)
 async def cinvood_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply("❌ Usage: /cinevood url")
