@@ -28,24 +28,23 @@ async def extract_oxxfile_links(url: str) -> dict:
     return {"title": title, "links": links}
 
 
-
-@Client.on_message(filters.command("cinevood") & filters.private)
+@Client.on_message(filters.command("cinevood"))
 async def cinvood_command(client: Client, message: Message):
     if len(message.command) < 2:
-        return await message.reply("❌ Usage: /cinvood url")
+        return await message.reply("❌ Usage: /cinevood url")
 
     url = message.command[1]
-    reply = await message.reply("🔍 Extracting links...")
+    reply = await message.reply("Scrapping OxxFile Links...")
 
     try:
         data = await extract_oxxfile_links(url)
 
         if not data["links"]:
-            return await reply.edit("⚠️ No OxxFile links found.")
+            return await reply.edit("⚠️ No OxxFile Links Found.")
 
         result = f"📄 <b>{data['title']}</b>\n\n"
         for i, item in enumerate(data["links"], 1):
-            result += f"{i}. <b>{item['title']}</b>\n🔗 <code>{item['url']}</code>\n\n"
+            result += f"{i}. <b>{item['title']}</b>\n🔗 <b>{item['url']}</b>\n\n"
 
         await reply.edit(result)
 
