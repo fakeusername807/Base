@@ -1515,7 +1515,7 @@ def extract_file_info(video_msg):
     year = year_match.group(1) if year_match else "Unknown"
 
     langs = []
-    for lang in ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Bangla", "Punjabi", "Gujarati", "Marathi", "Spanish", "Korean", "Chinese"]:
+    for lang in ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Bangla", "Punjabi", "Gujarati", "Marathi", "Spanish", "Korean", "Chinese", "Japanese"]:
         if re.search(lang, file_name, re.IGNORECASE) or re.search(lang, caption, re.IGNORECASE):
             langs.append(lang)
     audio_langs = ", ".join(langs) if langs else "Unknown"
