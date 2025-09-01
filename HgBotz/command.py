@@ -232,7 +232,7 @@ async def sticker_cmd(client, message: Message):
         await message.reply(f"❌ Failed to create sticker:\n`{e}`")
 #-----------------------BMS EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 
-API_KEY = "fb85462f11c8c1e571b32fb8c739f71263a9bc8f"
+API_KEY = "df895dc044b279378af646e08aa596b68d82dcc8"
 SEARCH_ENDPOINT = "https://google.serper.dev/images"
 
 def get_google_poster(query):
