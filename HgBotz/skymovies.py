@@ -159,7 +159,7 @@ async def get_latest_movies():
         fmvideo_divs = soup.find_all("div", class_="Fmvideo")
         
         movies = []
-        for div in fmvideo_divs[:15]:  # Get latest 15 movies
+        for div in fmvideo_divs[:20]:  # Get latest 20 movies
             a_tag = div.find("a")
             if a_tag:
                 title = a_tag.text.strip()
