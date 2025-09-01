@@ -1152,11 +1152,11 @@ async def about_callback(client, callback_query: CallbackQuery):
 #-----------------------TMDB FUNCTION - - - - - - - - - - - - - - - 
 
 #--------- poster.py-------
-@Client.on_message(filters.command(["poster", "p", "pos"]) & filters.private)
+@Client.on_message(filters.command(["poster", "pos"]) & filters.private)
 async def pvt_cmd(client, message: Message):
         await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False) 
     
-@Client.on_message(filters.command(["poster", "p", "pos"]) & filters.group & force_sub_filter())
+@Client.on_message(filters.command(["poster", "pos"]) & filters.group & force_sub_filter())
 async def poster_cmd(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
@@ -1235,6 +1235,262 @@ async def poster_cmd(client, message: Message):
     ]
     )
     await msg.edit_text("\n\n".join(reply_parts), disable_web_page_preview=False, reply_markup=update_button)
+
+# ================== TMDB Config ==================
+
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "fe6745c215b5ed09da847340eae06b9e")
+TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original"
+
+# In-memory session store
+poster_cache = {}
+
+LANGS = ["en", "hi", "bn"]  # supported languages
+
+
+def filter_with_fallback(items, cond, langs=LANGS):
+    """Filter by langs, fallback to null iso_639_1 if nothing found"""
+    filtered = [i for i in items if cond(i) and i.get("iso_639_1") in langs]
+    if not filtered:
+        filtered = [i for i in items if cond(i) and not i.get("iso_639_1")]
+    return filtered
+
+
+# ---------------- Search ----------------
+@Client.on_message(filters.command(["posters", "p"]) & filters.private)
+async def pvt_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+
+
+@Client.on_message(filters.command(["posters", "p"]) & filters.group & force_sub_filter())
+async def posters_cmd(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+    
+    query = " ".join(message.command[1:])
+    if not query:
+        return await message.reply_text("⚡ Usage: `/p movie name`", quote=True)
+
+    url = f"{TMDB_BASE_URL}/search/multi"
+    params = {"api_key": TMDB_API_KEY, "query": query}
+    r = requests.get(url, params=params).json()
+
+    results = r.get("results", [])
+    if not results:
+        return await message.reply_text("❌ No results found.", quote=True)
+
+    results = results[:10]  # max 10 results
+    buttons = []
+    for res in results:
+        title = res.get("title") or res.get("name")
+        year = (res.get("release_date") or res.get("first_air_date") or "????")[:4]
+        media_type = res.get("media_type", "movie")
+        tmdb_id = res.get("id")
+        buttons.append([
+            InlineKeyboardButton(f"{title} ({year})", callback_data=f"select_{media_type}_{tmdb_id}")
+        ])
+
+    buttons.append([InlineKeyboardButton("❌ Close", callback_data="close")])
+
+    await message.reply_text(
+        "**🔎 Search Results:**",
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True
+    )
+
+
+# ---------------- Select result ----------------
+@Client.on_callback_query(filters.regex(r"select_(movie|tv)_(\d+)"))
+async def select_result(client, cq: CallbackQuery):
+    media_type, tmdb_id = cq.data.split("_")[1:]
+    tmdb_id = int(tmdb_id)
+
+    url = f"{TMDB_BASE_URL}/{media_type}/{tmdb_id}/images"
+    params = {"api_key": TMDB_API_KEY, "include_image_language": "en,hi,bn,null"}
+    images = requests.get(url, params=params).json()
+
+    title = "Unknown"
+    year = "N/A"
+    try:
+        details = requests.get(f"{TMDB_BASE_URL}/{media_type}/{tmdb_id}", params={"api_key": TMDB_API_KEY}).json()
+        title = details.get("title") or details.get("name") or "Unknown"
+        year = (details.get("release_date") or details.get("first_air_date") or "N/A")[:4]
+    except:
+        pass
+
+    poster_cache[cq.from_user.id] = {
+        "id": tmdb_id,
+        "type": media_type,
+        "title": title,
+        "year": year,
+        "images": images
+    }
+
+    portrait_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
+    landscape_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("width", 0) > p.get("height", 0)) + \
+                      filter_with_fallback(images.get("backdrops", []), lambda b: b.get("width", 0) >= b.get("height", 0))
+    logo_items = filter_with_fallback(images.get("logos", []), lambda l: True)
+
+    keyboard = [
+        [InlineKeyboardButton(f"🖼 Portrait ({len(portrait_items)})", callback_data="show:portrait:0")],
+        [InlineKeyboardButton(f"🌅 Landscape ({len(landscape_items)})", callback_data="show:landscape:0")],
+        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")]  
+    ]
+
+    await cq.message.edit_text(
+        f"<b>{title} ({year})</b>\nSelect Poster Type:",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
+# ---------------- Show category ----------------
+@Client.on_callback_query(filters.regex(r"^show:(portrait|landscape|logo):\d+$"))
+async def show_category(client, cq: CallbackQuery):
+    _, category, idx = cq.data.split(":")
+    idx = int(idx)
+
+    data = poster_cache.get(cq.from_user.id)
+    if not data:
+        return await cq.answer("⚠️ Try /posters again", show_alert=True)
+
+    images = data["images"]
+
+    if category == "portrait":
+        items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
+    elif category == "landscape":
+        items = filter_with_fallback(images.get("posters", []), lambda p: p.get("width", 0) > p.get("height", 0)) + \
+                filter_with_fallback(images.get("backdrops", []), lambda b: b.get("width", 0) >= b.get("height", 0))
+    else:
+        items = filter_with_fallback(images.get("logos", []), lambda l: True)
+
+    if not items:
+        return await cq.edit_message_text("❌ No images found.")
+
+    idx = max(0, min(idx, len(items) - 1))
+    img = items[idx]
+
+    url = f"{TMDB_IMAGE_BASE}{img['file_path']}"
+    lang = img.get("iso_639_1") or "N/A"
+    w, h = img.get("width", "?"), img.get("height", "?")
+    tmdb_link = f"https://www.themoviedb.org/{data['type']}/{data['id']}"
+
+    caption = (
+        f"<b>{data['title']} ({data['year']})</b>\n\n"
+        f"<b>• Category: {category.capitalize()}</b>\n\n"
+        f"<b>• Language: {lang}</b>\n\n"
+        f"<b>• Size: {w}x{h}</b>\n\n"
+        f"🔗 <a href='{tmdb_link}'>TMDB Link</a>\n\n"
+        f"<b>🚀 Powered By @MrSagarbots</b>"
+    )
+
+    buttons = [
+        [
+            InlineKeyboardButton("⬅️ Prev", callback_data=f"nav:{category}:{idx-1}"),
+            InlineKeyboardButton(f"{idx+1}/{len(items)}", callback_data="noop"),
+            InlineKeyboardButton("Next ➡️", callback_data=f"nav:{category}:{idx+1}"),
+        ],
+    ]
+
+    await cq.message.delete()
+    await cq.message.reply_photo(
+        photo=url, caption=caption, reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+
+# ---------------- Navigation ----------------
+@Client.on_callback_query(filters.regex(r"^nav:(portrait|landscape|logo):(-?\d+)$"))
+async def navigate(client, cq: CallbackQuery):
+    _, category, pos = cq.data.split(":")
+    idx = int(pos)
+
+    data = poster_cache.get(cq.from_user.id)
+    if not data:
+        return await cq.answer("⚠️ Session expired. Use /posters again", show_alert=True)
+
+    images = data["images"]
+
+    if category == "portrait":
+        items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
+    elif category == "landscape":
+        items = filter_with_fallback(images.get("posters", []), lambda p: p.get("width", 0) > p.get("height", 0)) + \
+                filter_with_fallback(images.get("backdrops", []), lambda b: b.get("width", 0) >= b.get("height", 0))
+    else:
+        items = filter_with_fallback(images.get("logos", []), lambda l: True)
+
+    if not items:
+        return await cq.edit_message_text("❌ No images found.")
+
+    idx = max(0, min(idx, len(items) - 1))
+    img = items[idx]
+
+    url = f"{TMDB_IMAGE_BASE}{img['file_path']}"
+    lang = img.get("iso_639_1") or "N/A"
+    w, h = img.get("width", "?"), img.get("height", "?")
+    tmdb_link = f"https://www.themoviedb.org/{data['type']}/{data['id']}"
+
+    caption = (
+        f"<b>{data['title']} ({data['year']})</b>\n\n"
+        f"<b>• Category: {category.capitalize()}</b>\n\n"
+        f"<b>• Language: {lang}</b>\n\n"
+        f"<b>• Size: {w}x{h}</b>\n\n"
+        f"🔗 <a href='{tmdb_link}'>TMDB Link</a>\n\n"
+        f"<b>🚀 Powered By @MrSagarbots</b>"
+    )
+
+    buttons = [
+        [
+            InlineKeyboardButton("⬅️ Prev", callback_data=f"nav:{category}:{idx-1}"),
+            InlineKeyboardButton(f"{idx+1}/{len(items)}", callback_data="noop"),
+            InlineKeyboardButton("Next ➡️", callback_data=f"nav:{category}:{idx+1}"),
+        ],
+    ]
+
+    await cq.message.delete()
+    await cq.message.reply_photo(
+        photo=url, caption=caption, reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+
+# ---------------- Back to Types ----------------
+@Client.on_callback_query(filters.regex("^back_to_types$"))
+async def back_to_types(client, cq: CallbackQuery):
+    data = poster_cache.get(cq.from_user.id)
+    if not data:
+        return await cq.answer("⚠️ Session expired. Use /posters again", show_alert=True)
+
+    images = data["images"]
+    portrait_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
+    landscape_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("width", 0) > p.get("height", 0)) + \
+                      filter_with_fallback(images.get("backdrops", []), lambda b: b.get("width", 0) >= b.get("height", 0))
+    logo_items = filter_with_fallback(images.get("logos", []), lambda l: True)
+
+    keyboard = [
+        [InlineKeyboardButton(f"🖼 Portrait ({len(portrait_items)})", callback_data="show:portrait:0")],
+        [InlineKeyboardButton(f"🌅 Landscape ({len(landscape_items)})", callback_data="show:landscape:0")],
+        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")],
+    ]
+
+    await cq.message.delete()
+    await cq.message.reply_text(
+        f"<b>{data['title']} ({data['year']})</b>\nSelect Poster Type:",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
+# ---------------- Close ----------------
+@Client.on_callback_query(filters.regex("^close$"))
+async def close_btn(client, cq: CallbackQuery):
+    try:
+        await cq.message.delete()
+    except Exception:
+        pass
+
+
+@Client.on_callback_query(filters.regex("noop"))
+async def noop_btn(client, cq: CallbackQuery):
+    await cq.answer()
+
 #--------- update.py-------
 
 # ====== Settings===================
