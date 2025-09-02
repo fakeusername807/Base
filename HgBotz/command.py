@@ -4,7 +4,7 @@ from config import HgBotz
 import os, asyncio, re, time, sys, random, html, httpx
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto
 from pyrogram.enums import ChatMemberStatus
 from Script import script
 import aiohttp
@@ -16,6 +16,7 @@ from urllib.parse import unquote, parse_qs, urlparse
 from PIL import Image
 from io import BytesIO
 from pymongo import MongoClient
+
 
  
 #-----------------------INLINE BUTTONS - - - - - - - - - - - - - - - 
@@ -1242,6 +1243,7 @@ TMDB_API_KEY = os.getenv("TMDB_API_KEY", "fe6745c215b5ed09da847340eae06b9e")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original"
 
+
 # In-memory session store
 poster_cache = {}
 
@@ -1267,16 +1269,34 @@ async def posters_cmd(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-    
+     
     query = " ".join(message.command[1:])
     if not query:
         return await message.reply_text("⚡ Usage: `/p movie name`", quote=True)
 
-    url = f"{TMDB_BASE_URL}/search/multi"
-    params = {"api_key": TMDB_API_KEY, "query": query}
-    r = requests.get(url, params=params).json()
+    # Detect year like "(2024)" or "2024"
+    year = None
+    match = re.search(r"\(?(\d{4})\)?$", query.strip())
+    if match:
+        year = match.group(1)
+        query = query[:match.start()].strip()
 
+    url = f"{TMDB_BASE_URL}/search/multi"
+
+    # First try with year filter
+    params = {"api_key": TMDB_API_KEY, "query": query}
+    if year:
+        params["year"] = year  # movies
+        params["first_air_date_year"] = year  # TV shows
+    r = requests.get(url, params=params).json()
     results = r.get("results", [])
+
+    # Fallback without year if nothing found
+    if not results and year:
+        params = {"api_key": TMDB_API_KEY, "query": query}
+        r = requests.get(url, params=params).json()
+        results = r.get("results", [])
+
     if not results:
         return await message.reply_text("❌ No results found.", quote=True)
 
@@ -1284,11 +1304,11 @@ async def posters_cmd(client, message: Message):
     buttons = []
     for res in results:
         title = res.get("title") or res.get("name")
-        year = (res.get("release_date") or res.get("first_air_date") or "????")[:4]
+        year_res = (res.get("release_date") or res.get("first_air_date") or "????")[:4]
         media_type = res.get("media_type", "movie")
         tmdb_id = res.get("id")
         buttons.append([
-            InlineKeyboardButton(f"{title} ({year})", callback_data=f"select_{media_type}_{tmdb_id}")
+            InlineKeyboardButton(f"{title} ({year_res})", callback_data=f"select_{media_type}_{tmdb_id}")
         ])
 
     buttons.append([InlineKeyboardButton("❌ Close", callback_data="close")])
@@ -1335,7 +1355,7 @@ async def select_result(client, cq: CallbackQuery):
     keyboard = [
         [InlineKeyboardButton(f"🖼 Portrait ({len(portrait_items)})", callback_data="show:portrait:0")],
         [InlineKeyboardButton(f"🌅 Landscape ({len(landscape_items)})", callback_data="show:landscape:0")],
-        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")]  
+        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")]      
     ]
 
     await cq.message.edit_text(
@@ -1352,7 +1372,7 @@ async def show_category(client, cq: CallbackQuery):
 
     data = poster_cache.get(cq.from_user.id)
     if not data:
-        return await cq.answer("⚠️ Try /posters again", show_alert=True)
+        return await cq.answer("⚠️ Try /p again", show_alert=True)
 
     images = data["images"]
 
@@ -1392,9 +1412,9 @@ async def show_category(client, cq: CallbackQuery):
         ],
     ]
 
-    await cq.message.delete()
-    await cq.message.reply_photo(
-        photo=url, caption=caption, reply_markup=InlineKeyboardMarkup(buttons)
+    await cq.message.edit_media(
+        media=InputMediaPhoto(media=url, caption=caption),
+        reply_markup=InlineKeyboardMarkup(buttons)
     )
 
 
@@ -1406,7 +1426,7 @@ async def navigate(client, cq: CallbackQuery):
 
     data = poster_cache.get(cq.from_user.id)
     if not data:
-        return await cq.answer("⚠️ Session expired. Use /posters again", show_alert=True)
+        return await cq.answer("⚠️ Session expired. Use /p again", show_alert=True)
 
     images = data["images"]
 
@@ -1446,9 +1466,9 @@ async def navigate(client, cq: CallbackQuery):
         ],
     ]
 
-    await cq.message.delete()
-    await cq.message.reply_photo(
-        photo=url, caption=caption, reply_markup=InlineKeyboardMarkup(buttons)
+    await cq.message.edit_media(
+        media=InputMediaPhoto(media=url, caption=caption),
+        reply_markup=InlineKeyboardMarkup(buttons)
     )
 
 
@@ -1471,8 +1491,7 @@ async def back_to_types(client, cq: CallbackQuery):
         [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")],
     ]
 
-    await cq.message.delete()
-    await cq.message.reply_text(
+    await cq.message.edit_text(
         f"<b>{data['title']} ({data['year']})</b>\nSelect Poster Type:",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
