@@ -862,6 +862,81 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
+# -----------------------NETFLIX POSTER FUNCTION -----------------------
+
+@Client.on_message(filters.command("nf") & filters.private)
+async def pvt_nf_cmd(client, message: Message):
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
+
+@Client.on_message(filters.command("nf") & filters.group & force_sub_filter())
+async def netflix_handler(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
+    if not message.from_user:
+        return await message.reply("⚠️ Cannot detect sender (maybe sent from a channel).", quote=True)
+
+    if len(message.command) < 2:
+        return await message.reply("** Please provide an Netflix link after the command**.\nExample: `/nf or https://www.netflix.com/in/title/........`", quote=True)
+
+    url = message.command[1].strip()
+    match = re.search(r'/title/(\d+)', url)
+    if not match:
+        return await message.reply("❌ Invalid Netflix URL!", quote=True)
+
+    movie_id = match.group(1)
+    api_url = f"https://netflix-en.gregory24thom-ps-on23-96.workers.dev/?movieid={movie_id}"
+
+    msg = await message.reply("🔍")
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client_http:
+            resp = await client_http.get(api_url)
+            resp.raise_for_status()
+            data = resp.json()
+    except Exception as e:
+        return await msg.edit_text(f"❌ Failed to fetch data: {e}")
+
+    if data.get("status") != "success":
+        return await msg.edit_text("❌ Movie/Series not found!")
+
+    video = data.get("metadata", {}).get("video", {})
+    title = video.get("title", "N/A")
+    type_ = video.get("type", "movie")
+    poster_url = video.get("artwork", [{}])[0].get("url", "")
+
+    if type_ == "show" and video.get("seasons"):
+        first_season = video["seasons"][0]
+        season_name = (
+            first_season.get("longName")
+            or first_season.get("shortName")
+            or f"Season {first_season.get('seq', 1)}"
+        )
+        season_year = first_season.get("year") or ""
+        caption = f"<b>{title} - {season_name} ({season_year})</b>\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+    else:
+        year = video.get("year", "N/A")
+        caption = f"<b>{title} ({year})</b>\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+
+    if poster_url:
+        await msg.edit_text(
+            f"**Netflix Poster:** {poster_url}\n\n{caption}",
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
+        await client.send_message(
+            chat_id=dump_chat,
+            text=f"**Netflix Poster: {poster_url}**\n\n{caption}",
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
+    else:
+        await msg.edit_text(caption, disable_web_page_preview=False)
+
 
 #-----------------------AMAZON PRIME FUNCTION - - - - - - - - - - - - - - - 
 # Initialize a persistent HTTP session
