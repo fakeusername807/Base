@@ -8,7 +8,8 @@ This bot fetches posters from different OTTs using API automatically!
 </b>"""
 
     HELP_TXT = """<a href='https://graph.org/file/85ef5f3b9afb223775ab0.jpg'> </a>Poster Extractor 
-<b>/prime prime_video_url
+<b>/pv prime_video_url
+/nf netflix_video_url
 /zee zee5_video_url
 /apple apple_tv_video_url
 /airtel airtelxstream_url
@@ -38,20 +39,19 @@ Dollywood Play
 MX Player</blockquote>
 /yt YouTube_url
 /aha aha_url
-/shemaroo ShemarooMe_url
+/shemaroomee ShemarooMe_url
 <blockquote>For Theater Print or Leatest Realese</blockquote>
 /bms leatest_release
-/poster Movie/Series_name
-/crunchyroll anime_name (70% Accuracy) 
-/stkar jpg/png_url To Make Sticker 
-/search content name To Copy Ott Content Url
-/extract_thumb - EXTRACT THUMBNAIL FROM TELEGRAM VIDEO
+/p Movie/Series_name
+/croll anime_name (70% Accuracy) 
+/stkr jpg/png_url To Make Sticker 
+/extract_thumb - Extract Thumbnail From Telegram Video
 <blockquote>Caption Change Features</blockquote>
 /change_caption - Change Given Video Caption
 /set_template - Set Custom Template
 /del_template - Delete Custom Template
 /my_template - See Your Custom Template
-/rename - WEBSERIES EPISODES AUTO RENAME
+/rename - Webseries Episodes Auto Rename
 
 <blockquote>Powered By @MrSagarBots</blockquote></b>""" 
     
@@ -63,7 +63,7 @@ MX Player</blockquote>
 📝 ʟᴀɴɢᴜᴀɢᴇ : <a href='https://www.python.org/download/releases/3.0/'>ᴘʏᴛʜᴏɴ 3</a> 
 ♻️ ᴅᴀᴛᴀ ʙᴀsᴇ : <a href='https://www.mongodb.com/'>ᴍᴏɴɢᴏ ᴅʙ</a> 
 📡 ʙᴏᴛ sᴇʀᴠᴇʀ : <a href='https://heroku.com'>ʜᴇʀᴏᴋᴜ</a> 
-🥶 ʙᴜɪʟᴅ sᴛᴀᴛᴜs : ᴠ1.1 [sᴛᴀʙʟᴇ]></b>
+🥶 ʙᴜɪʟᴅ sᴛᴀᴛᴜs : ᴠ1.2 [sᴛᴀʙʟᴇ]></b>
 """
 
     
