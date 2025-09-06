@@ -881,7 +881,7 @@ async def netflix_handler(client, message: Message):
         return await message.reply("⚠️ Cannot detect sender (maybe sent from a channel).", quote=True)
 
     if len(message.command) < 2:
-        return await message.reply("** Please provide an Netflix link after the command**.\nExample: `/nf or https://www.netflix.com/in/title/........`", quote=True)
+        return await message.reply("** Please provide an Netflix link after the command**.\nExample: `/nf https://www.netflix.com/in/title/........`", quote=True)
 
     url = message.command[1].strip()
     match = re.search(r'/title/(\d+)', url)
@@ -924,7 +924,7 @@ async def netflix_handler(client, message: Message):
 
     if poster_url:
         await msg.edit_text(
-            f"**Netflix Poster:** {poster_url}\n\n{caption}",
+            f"**Netflix Poster: {poster_url}**\n\n{caption}",
             disable_web_page_preview=False,
             reply_markup=update_button
         )
