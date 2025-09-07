@@ -46,6 +46,7 @@ MX Player</blockquote>
 /croll anime_name (70% Accuracy) 
 /stkr jpg/png_url To Make Sticker 
 /extract_thumb - Extract Thumbnail From Telegram Video
+/usage - Check Your Today Useage
 <blockquote>Caption Change Features</blockquote>
 /change_caption - Change Given Video Caption
 /set_template - Set Custom Template
