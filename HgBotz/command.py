@@ -1,21 +1,42 @@
-import requests
 from pyrogram import Client, filters, errors, types, enums 
 from config import HgBotz
-import os, asyncio, re, time, sys, random, html, httpx
+import os, asyncio, re, time, sys, random, html, httpx, json, aiohttp, requests, pytz
 from .database import total_user, getid, delete, insert, get_all_users, authorize_chat, unauthorize_chat, is_chat_authorized, get_all_authorized_chats
 from pyrogram.errors import *
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto
 from pyrogram.enums import ChatMemberStatus
 from Script import script
-import aiohttp
-import requests
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
-import json
 from urllib.parse import unquote, parse_qs, urlparse
 from PIL import Image
 from io import BytesIO
 from pymongo import MongoClient
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+# Usage counters
+usage_stats = defaultdict(lambda: defaultdict(int))
+
+# Track last reset date
+last_reset_date = None
+
+# All OTT names we track
+ALL_SOURCES = [
+    "Netflix", "Prime Video", "TMDB", "YouTube",
+    "Zee5", "Aha", "BookMyShow", "Crunchyroll",
+    "Airtel", "Shemaroo", "Apple TV+", "Telegram Video Thumbnail"
+]
+
+# Reset function (IST)
+def reset_if_needed():
+    global last_reset_date, usage_stats
+    ist = pytz.timezone("Asia/Kolkata")
+    now = datetime.now(ist).date()
+    if last_reset_date != now:
+        usage_stats = defaultdict(lambda: defaultdict(int))
+        last_reset_date = now
+
 
 
  
@@ -114,6 +135,32 @@ def force_sub_filter():
 
     return filters.create(func)
 
+# /usage Command
+
+# Track usage per user and per source
+usage_stats = defaultdict(lambda: defaultdict(int))
+
+@Client.on_message(filters.command("usage") & filters.private)
+async def pvt_usage_cmd(client, message: Message):
+        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+
+@Client.on_message(filters.command("usage") & filters.group & force_sub_filter())
+async def usage_cmd(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+     
+    reset_if_needed()
+
+    user_id = message.from_user.id
+    user_stats = usage_stats[user_id]
+
+    response = "<b>📊 Your Daily Usage (Reset Time 12:00 AM IST)</b>\n\n"
+    for source in ALL_SOURCES:
+        count = user_stats.get(source, 0)
+        response += f"🔹 {source} posters scraped -> <b>{count}</b>\n"
+
+    await message.reply_text(response, disable_web_page_preview=True)
 
 
 @Client.on_message(filters.command(["auth", "authorize", "a"]) & filters.user(HgBotz.ADMIN))
@@ -287,6 +334,9 @@ async def bms_handler(client, message):
         text=f"**BookMyShow Poster: {img_url}**\n\n**{query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
+        # ✅ increment usage for BookMyShow
+        if message.from_user:
+            usage_stats[message.from_user.id]["BookMyShow"] += 1
     else:
         await message.reply("No image found ❌")
 
@@ -319,6 +369,9 @@ async def crunchyroll_handler(client, message):
         text=f"**Crunchyrool Poster: {img_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{query} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
         )
+        # ✅ increment usage for Crunchyroll
+        if message.from_user:
+            usage_stats[message.from_user.id]["Crunchyroll"] += 1
     else:
         await message.reply("❌ No image found.")
 
@@ -373,6 +426,8 @@ async def aha_handler(client, message):
         return
     # extract URL logic ...
     await handle_generic_ott(client, message, url, "aha")
+    if message.from_user:
+        usage_stats[message.from_user.id]["Aha"] += 1
  
 
 #-----------------------SHEMAROOME POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
@@ -422,6 +477,9 @@ async def handle_generic_ott(client, message, url, ott_name):
         text=f"**{ott_name.upper()} Poster: {poster_url}**\n\n**🌄 Landscape Poster:** [Click Here]({image_url})\n\n**{title} **\n\n**<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
         disable_web_page_preview=False, reply_markup=update_button
     )
+    # ✅ increment usage for Shemaroo
+    if message.from_user:
+        usage_stats[message.from_user.id]["Shemaroo"] += 1
 
 
 #-----------------------APPLE POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
@@ -507,6 +565,9 @@ async def handle_apple_request(client, message, url):
             text=f"**AppleTv Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
+        # ✅ increment usage for Apple TV+
+        if message.from_user:
+            usage_stats[message.from_user.id]["Apple TV+"] += 1
     except Exception as e:
         await message.reply(f"⚠️ Error: {e}")
         
@@ -569,6 +630,10 @@ async def yt_thumbnail(client: Client, message: Message):
             text=f"**YtThumbnail: {image_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
     )
+    # ✅ increment usage for YouTube
+    if message.from_user:
+        usage_stats[message.from_user.id]["YouTube"] += 1
+
 
 #-----------------------AIRTEL POSTER EXTRACT FUNCTION - - - - - - - - - - - - - - - 
 # Configure headers to mimic a real browser
@@ -717,6 +782,9 @@ async def handle_airtel_request(client, message, url):
             text=f"**{ott_name} Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({image_url})\n\n**{title} ({year})**\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
+        # ✅ increment usage for Airtel
+        if message.from_user:
+            usage_stats[message.from_user.id]["Airtel"] += 1
         
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
@@ -858,6 +926,9 @@ async def handle_zee_request(client, message, url):
             text=f"**Zee Poster: {poster_url}**\n\n**🌄 Landscape Posters:**\n1. [Click Here]({poster_url})\n\n**{title} **\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
             disable_web_page_preview=False, reply_markup=update_button
         )
+        # ✅ increment usage for Zee5
+        if message.from_user:
+            usage_stats[message.from_user.id]["Zee5"] += 1
         
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
@@ -934,6 +1005,11 @@ async def netflix_handler(client, message: Message):
             disable_web_page_preview=False,
             reply_markup=update_button
         )
+     
+        # ✅ increment usage for Netflix
+        if message.from_user:
+            usage_stats[message.from_user.id]["Netflix"] += 1
+
     else:
         await msg.edit_text(caption, disable_web_page_preview=False)
 
@@ -1068,6 +1144,9 @@ async def prime_command(client, message):
             # Format and send movie response
             response = format_movie_response(result)
             await status_msg.edit_text(response, disable_web_page_preview=False, reply_markup=update_button)
+            # ✅ increment usage for Prime Video
+            if message.from_user:
+                usage_stats[message.from_user.id]["Prime Video"] += 1
             
         
         elif result['type'] == 'series':
@@ -1127,6 +1206,9 @@ async def handle_season_selection(client, callback_query):
         reply_markup=update_button
     )
     await callback_query.answer()
+    # ✅ increment usage for Prime Video (season posters)
+    if callback_query.from_user:
+        usage_stats[callback_query.from_user.id]["Prime Video"] += 1
 
 
 @Client.on_message(filters.private & filters.user(HgBotz.ADMIN)  & filters.command(["stats"]))
@@ -1491,6 +1573,9 @@ async def show_category(client, cq: CallbackQuery):
         media=InputMediaPhoto(media=url, caption=caption),
         reply_markup=InlineKeyboardMarkup(buttons)
     )
+    # ✅ increment usage for TMDB
+    if cq.from_user:
+        usage_stats[cq.from_user.id]["TMDB"] += 1
 
 
 # ---------------- Navigation ----------------
@@ -1545,6 +1630,9 @@ async def navigate(client, cq: CallbackQuery):
         media=InputMediaPhoto(media=url, caption=caption),
         reply_markup=InlineKeyboardMarkup(buttons)
     )
+    # ✅ increment usage for TMDB
+    if cq.from_user:
+        usage_stats[cq.from_user.id]["TMDB"] += 1
 
 
 # ---------------- Back to Types ----------------
@@ -1687,6 +1775,10 @@ async def extract_telegram_thumb(client: Client, message: Message):
     # Download and send thumbnail
     thumb_path = await client.download_media(reply.video.thumbs[0])
     await message.reply_photo(photo=thumb_path, caption="✅ <b>Extracted Telegram Video Thumbnail</b>\n\n<b><blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>")
+    # ✅ increment usage for Telegram Video Thumbnail
+    if message.from_user:
+        usage_stats[message.from_user.id]["Telegram Video Thumbnail"] += 1
+
 
 #----------------------- Web Series Episode Auto Renamer -----------------------
 
