@@ -15,6 +15,9 @@ from pymongo import MongoClient
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+last_refresh_time = {}
+
+
 # Usage counters
 usage_stats = defaultdict(lambda: defaultdict(int))
 
@@ -137,6 +140,52 @@ def force_sub_filter():
 
 # /usage Command
 
+# ✅ Handle Refresh Button
+@Client.on_callback_query(filters.regex("^refresh_usage:(\\d+)$"))
+async def refresh_usage(client, cq):
+    reset_if_needed()
+
+    target_id = int(cq.data.split(":")[1])
+    if cq.from_user.id != target_id:
+        return await cq.answer("⚠️ This is not your stats!", show_alert=True)
+
+    now = datetime.now()
+    last_time = last_refresh_time.get(cq.from_user.id)
+
+    # Check 5-second cooldown
+    if last_time and (now - last_time).total_seconds() < 5:
+        return await cq.answer("⏳ Please wait before refreshing again.", show_alert=True)
+
+    # Update last refresh time
+    last_refresh_time[cq.from_user.id] = now
+
+    user_stats = usage_stats[cq.from_user.id]
+
+    response = "<b>📊 Your Daily Usage (Reset Time 12:00 AM IST)</b>\n\n"
+    for source in ALL_SOURCES:
+        count = user_stats.get(source, 0)
+        response += f"🔹 {source} posters scraped -> <b>{count}</b>\n"
+
+    buttons = [
+        [
+            InlineKeyboardButton("🔄 Refresh", callback_data=f"refresh_usage:{cq.from_user.id}"),
+            InlineKeyboardButton("❌ Close", callback_data="close_usage")
+        ]
+    ]
+
+    await cq.message.edit_text(
+        response,
+        disable_web_page_preview=True,
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
+    await cq.answer("✅ Stats refreshed!")
+    
+# ✅ Handle Close Button
+@Client.on_callback_query(filters.regex("^close_usage$"))
+async def close_usage(client, cq):
+    await cq.message.delete()
+    await cq.answer()
+
 # Track usage per user and per source
 usage_stats = defaultdict(lambda: defaultdict(int))
 
@@ -149,7 +198,6 @@ async def usage_cmd(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-     
     reset_if_needed()
 
     user_id = message.from_user.id
@@ -160,7 +208,19 @@ async def usage_cmd(client, message: Message):
         count = user_stats.get(source, 0)
         response += f"🔹 {source} posters scraped -> <b>{count}</b>\n"
 
-    await message.reply_text(response, disable_web_page_preview=True)
+    # Inline buttons: Refresh + Close
+    buttons = [
+        [
+            InlineKeyboardButton("🔄 Refresh", callback_data=f"refresh_usage:{user_id}"),
+            InlineKeyboardButton("❌ Close", callback_data="close_usage")
+        ]
+    ]
+
+    await message.reply_text(
+        response,
+        disable_web_page_preview=True,
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
 
 
 @Client.on_message(filters.command(["auth", "authorize", "a"]) & filters.user(HgBotz.ADMIN))
@@ -1418,7 +1478,10 @@ def filter_with_fallback(items, cond, langs=LANGS):
 # ---------------- Search ----------------
 @Client.on_message(filters.command(["posters", "p"]) & filters.private)
 async def pvt_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
 
 
 @Client.on_message(filters.command(["posters", "p"]) & filters.group & force_sub_filter())
@@ -1443,8 +1506,8 @@ async def posters_cmd(client, message: Message):
     # First try with year filter
     params = {"api_key": TMDB_API_KEY, "query": query}
     if year:
-        params["year"] = year  # movies
-        params["first_air_date_year"] = year  # TV shows
+        params["year"] = year
+        params["first_air_date_year"] = year
     r = requests.get(url, params=params).json()
     results = r.get("results", [])
 
@@ -1465,7 +1528,10 @@ async def posters_cmd(client, message: Message):
         media_type = res.get("media_type", "movie")
         tmdb_id = res.get("id")
         buttons.append([
-            InlineKeyboardButton(f"{title} ({year_res})", callback_data=f"select_{media_type}_{tmdb_id}")
+            InlineKeyboardButton(
+                f"{title} ({year_res})",
+                callback_data=f"select_{media_type}_{tmdb_id}_{message.from_user.id}"
+            )
         ])
 
     buttons.append([InlineKeyboardButton("❌ Close", callback_data="close")])
@@ -1478,10 +1544,12 @@ async def posters_cmd(client, message: Message):
 
 
 # ---------------- Select result ----------------
-@Client.on_callback_query(filters.regex(r"select_(movie|tv)_(\d+)"))
+@Client.on_callback_query(filters.regex(r"^select_(movie|tv)_(\d+)_(\d+)$"))
 async def select_result(client, cq: CallbackQuery):
-    media_type, tmdb_id = cq.data.split("_")[1:]
+    media_type, tmdb_id, user_id = cq.data.split("_")[1:]
     tmdb_id = int(tmdb_id)
+    if int(user_id) != cq.from_user.id:
+        return await cq.answer("⚠️ This is not your query!", show_alert=True)
 
     url = f"{TMDB_BASE_URL}/{media_type}/{tmdb_id}/images"
     params = {"api_key": TMDB_API_KEY, "include_image_language": "en,hi,bn,null"}
@@ -1501,7 +1569,8 @@ async def select_result(client, cq: CallbackQuery):
         "type": media_type,
         "title": title,
         "year": year,
-        "images": images
+        "images": images,
+        "user_id": cq.from_user.id
     }
 
     portrait_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
@@ -1512,7 +1581,7 @@ async def select_result(client, cq: CallbackQuery):
     keyboard = [
         [InlineKeyboardButton(f"🖼 Portrait ({len(portrait_items)})", callback_data="show:portrait:0")],
         [InlineKeyboardButton(f"🌅 Landscape ({len(landscape_items)})", callback_data="show:landscape:0")],
-        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")]      
+        [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")]
     ]
 
     await cq.message.edit_text(
@@ -1531,6 +1600,10 @@ async def show_category(client, cq: CallbackQuery):
     if not data:
         return await cq.answer("⚠️ Try /p again", show_alert=True)
 
+    # 🔒 Restrict to owner
+    if cq.from_user.id != data["user_id"]:
+        return await cq.answer("⚠️ This is not your query!", show_alert=True)
+
     images = data["images"]
 
     if category == "portrait":
@@ -1552,14 +1625,26 @@ async def show_category(client, cq: CallbackQuery):
     w, h = img.get("width", "?"), img.get("height", "?")
     tmdb_link = f"https://www.themoviedb.org/{data['type']}/{data['id']}"
 
-    caption = (
-        f"<b>{data['title']} ({data['year']})</b>\n\n"
-        f"<b>• Category: {category.capitalize()}</b>\n\n"
-        f"<b>• Language: {lang}</b>\n\n"
-        f"<b>• Size: {w}x{h}</b>\n\n"
-        f"🔗 <a href='{tmdb_link}'>TMDB Link</a>\n\n"
-        f"<b>🚀 Powered By @MrSagarbots</b>"
-    )
+    if category == "logo":
+        caption = (
+            f"<b>{data['title']} ({data['year']})</b>\n\n"
+            f"<b>• Category: Logo</b>\n\n"
+            f"<b>• Language: {lang}</b>\n\n"
+            f"<b>• Size: {w}x{h}</b>\n\n"
+            f"<b>• Logo: <a href='{url}'>Link (PNG)</a></b>\n\n"
+            f"<b>🔗 <a href='{tmdb_link}'>TMDB Link</a></b>\n\n"
+            f"<b>🚀 Powered By @MrSagarbots</b>"
+        )
+    else:
+        caption = (
+            f"<b>{data['title']} ({data['year']})</b>\n\n"
+            f"<b>• Category: {category.capitalize()}</b>\n\n"
+            f"<b>• Language: {lang}</b>\n\n"
+            f"<b>• Size: {w}x{h}</b>\n\n"
+            f"<b>• Image: <a href='{url}'>Link (JPG)</a></b>\n\n"
+            f"<b>🔗 <a href='{tmdb_link}'>TMDB Link</a></b>\n\n"
+            f"<b>🚀 Powered By @MrSagarbots</b>"
+        )
 
     buttons = [
         [
@@ -1573,6 +1658,7 @@ async def show_category(client, cq: CallbackQuery):
         media=InputMediaPhoto(media=url, caption=caption),
         reply_markup=InlineKeyboardMarkup(buttons)
     )
+    
     # ✅ increment usage for TMDB
     if cq.from_user:
         usage_stats[cq.from_user.id]["TMDB"] += 1
@@ -1588,6 +1674,10 @@ async def navigate(client, cq: CallbackQuery):
     if not data:
         return await cq.answer("⚠️ Session expired. Use /p again", show_alert=True)
 
+    # 🔒 Restrict to owner
+    if cq.from_user.id != data["user_id"]:
+        return await cq.answer("⚠️ This is not your query!", show_alert=True)
+
     images = data["images"]
 
     if category == "portrait":
@@ -1609,14 +1699,26 @@ async def navigate(client, cq: CallbackQuery):
     w, h = img.get("width", "?"), img.get("height", "?")
     tmdb_link = f"https://www.themoviedb.org/{data['type']}/{data['id']}"
 
-    caption = (
-        f"<b>{data['title']} ({data['year']})</b>\n\n"
-        f"<b>• Category: {category.capitalize()}</b>\n\n"
-        f"<b>• Language: {lang}</b>\n\n"
-        f"<b>• Size: {w}x{h}</b>\n\n"
-        f"🔗 <a href='{tmdb_link}'>TMDB Link</a>\n\n"
-        f"<b>🚀 Powered By @MrSagarbots</b>"
-    )
+    if category == "logo":
+        caption = (
+            f"<b>{data['title']} ({data['year']})</b>\n\n"
+            f"<b>• Category: Logo</b>\n\n"
+            f"<b>• Language: {lang}</b>\n\n"
+            f"<b>• Size: {w}x{h}</b>\n\n"
+            f"<b>• Logo: <a href='{url}'>Link (PNG)</a></b>\n\n"
+            f"<b>🔗 <a href='{tmdb_link}'>TMDB Link</a></b>\n\n"
+            f"<b>🚀 Powered By @MrSagarbots</b>"
+        )
+    else:
+        caption = (
+            f"<b>{data['title']} ({data['year']})</b>\n\n"
+            f"<b>• Category: {category.capitalize()}</b>\n\n"
+            f"<b>• Language: {lang}</b>\n\n"
+            f"<b>• Size: {w}x{h}</b>\n\n"
+            f"<b>• Image: <a href='{url}'>Link (JPG)</a></b>\n\n"
+            f"<b>🔗 <a href='{tmdb_link}'>TMDB Link</a></b>\n\n"
+            f"<b>🚀 Powered By @MrSagarbots</b>"
+        )
 
     buttons = [
         [
@@ -1630,6 +1732,7 @@ async def navigate(client, cq: CallbackQuery):
         media=InputMediaPhoto(media=url, caption=caption),
         reply_markup=InlineKeyboardMarkup(buttons)
     )
+    
     # ✅ increment usage for TMDB
     if cq.from_user:
         usage_stats[cq.from_user.id]["TMDB"] += 1
@@ -1641,6 +1744,10 @@ async def back_to_types(client, cq: CallbackQuery):
     data = poster_cache.get(cq.from_user.id)
     if not data:
         return await cq.answer("⚠️ Session expired. Use /posters again", show_alert=True)
+
+    # 🔒 Restrict to owner
+    if cq.from_user.id != data["user_id"]:
+        return await cq.answer("⚠️ This is not your query!", show_alert=True)
 
     images = data["images"]
     portrait_items = filter_with_fallback(images.get("posters", []), lambda p: p.get("height", 0) > p.get("width", 0))
@@ -1654,6 +1761,7 @@ async def back_to_types(client, cq: CallbackQuery):
         [InlineKeyboardButton(f"🔖 Logos ({len(logo_items)})", callback_data="show:logo:0")],
     ]
 
+    await cq.message.edit_caption(caption=None)
     await cq.message.edit_text(
         f"<b>{data['title']} ({data['year']})</b>\nSelect Poster Type:",
         reply_markup=InlineKeyboardMarkup(keyboard)
