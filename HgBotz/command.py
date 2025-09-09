@@ -1190,9 +1190,12 @@ async def prime_command(client, message):
     link = message.text.split(" ", 1)[1].strip()
     
     # Validate Prime Video link
-    if not re.match(r'https?://(?:www\.)?primevideo\.com', link, re.IGNORECASE):
-        await message.reply_text("❌ Invalid Amazon Prime Video link. Please provide a valid link starting with `https://www.primevideo.com`")
-        return
+    if not re.match(r'https?://(?:www|app)?\.?primevideo\.com', link, re.IGNORECASE):
+    await message.reply_text(
+        "❌ Invalid Amazon Prime Video link. Please provide a valid link starting with "
+        "`https://www.primevideo.com` or `https://app.primevideo.com`"
+    )
+    return
     
     status_msg = await message.reply("🔍 ")
     
