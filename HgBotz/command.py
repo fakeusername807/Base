@@ -1195,7 +1195,6 @@ async def prime_command(client, message):
             "❌ Invalid Amazon Prime Video link. Please provide a valid link starting with\n"
             "`https://www.primevideo.com` or `https://app.primevideo.com`"
         )
-    return
     
     status_msg = await message.reply("🔍 ")
     
