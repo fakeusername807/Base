@@ -1039,42 +1039,55 @@ async def netflix_handler(client, message: Message):
     type_ = video.get("type", "movie")
     poster_url = video.get("artwork", [{}])[0].get("url", "")
 
-    # --- Format caption ---
     if type_ == "show" and video.get("seasons"):
-        first_season = video["seasons"][0]
-        season_name = (
-            first_season.get("longName")
-            or first_season.get("shortName")
-            or f"Season {first_season.get('seq', 1)}"
+        # --- Series: Show season buttons ---
+        year = video.get("year", "N/A")
+        caption = f"<b>{title} ({year})</b>\n\n📺 Select a season to get posters:"
+
+        buttons = []
+        for s in video["seasons"]:
+            season_name = (
+                s.get("longName")
+                or s.get("shortName")
+                or f"Season {s.get('seq', 1)}"
+            )
+            season_seq = s.get("seq", 1)
+            buttons.append(
+                [InlineKeyboardButton(season_name, callback_data=f"nfseason:{movie_id}:{season_seq}")]
+            )
+
+        await msg.edit_text(
+            caption,
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup(buttons)
         )
-        season_year = first_season.get("year") or ""
-        caption = f"<b>{title} - {season_name} ({season_year})</b>"
+
     else:
+        # --- Movie ---
         year = video.get("year", "N/A")
         caption = f"<b>{title} ({year})</b>"
 
-    # --- Build final text ---
-    if poster_url:
-        final_text = f"<b>Netflix Poster:</b> {poster_url}\n\n{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
-    else:
-        final_text = f"{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+        if poster_url:
+            final_text = f"<b>Netflix Poster:</b> {poster_url}\n\n{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+        else:
+            final_text = f"{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
 
-    await msg.edit_text(
-        final_text,
-        disable_web_page_preview=False,
-        reply_markup=update_button
-    )
+        await msg.edit_text(
+            final_text,
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
 
-    await client.send_message(
-        chat_id=dump_chat,
-        text=final_text,
-        disable_web_page_preview=False,
-        reply_markup=update_button
-    )
+        await client.send_message(
+            chat_id=dump_chat,
+            text=final_text,
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
 
-    # ✅ increment usage for Netflix
-    if message.from_user:
-        usage_stats[message.from_user.id]["Netflix"] += 1
+        # ✅ increment usage for Netflix
+        if message.from_user:
+            usage_stats[message.from_user.id]["Netflix"] += 1
 
 
 # -----------------------NETFLIX SEASON HANDLER -----------------------
@@ -1115,7 +1128,6 @@ async def handle_nf_season(client, callback_query):
         season_year = season_info.get("year") or ""
         poster_url = season_info.get("artwork", [{}])[0].get("url", "")
 
-        # --- Format caption ---
         caption = f"<b>{title} - {season_name} ({season_year})</b>"
 
         if poster_url:
