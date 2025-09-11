@@ -254,69 +254,69 @@ async def list_auth_chats(client, message):
     await message.reply(text if text.strip() != "**🔐 Authorized Chats:**" else "🚫 No authorized chats found.")
 
 # ----------------------- TELEGRAPH UPLOAD FUNCTION -----------------------
-from telegraph import Telegraph
+from telegraph import Telegraph, upload_file
+import os
 
-# Create Telegraph account
 telegraph = Telegraph()
 telegraph.create_account(short_name="MrSagarbots")
 
+def build_html_content(caption: str, image_url: str):
+    """Build Telegraph-compatible HTML content with HTML support"""
+    lines = caption.split("\n")
 
-@Client.on_message(filters.command("tgraph") & filters.group & force_sub_filter())
-async def tgraph_handler(client, message: Message):
-    """
-    Usage:
-    /tgraph Title of Post
-    Then reply with content (poster link, description, download links).
-    """
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+    # First line = Title
+    title = lines[0]
+    body_lines = []
 
-    # Check for title
-    if len(message.command) < 2:
-        return await message.reply("❌ Please provide a title.\nExample:\n/tgraph Go Go Squid 2")
+    for line in lines[1:]:
+        body_lines.append({"tag": "p", "children": [line]})
 
-    title = message.text.split(" ", 1)[1].strip()
+    # Put image at the top
+    content = [{"tag": "img", "attrs": {"src": image_url}}] + body_lines
+    return title, content
 
-    # Must reply to a message with poster + text
-    if not message.reply_to_message or not (message.reply_to_message.text or message.reply_to_message.caption):
-        return await message.reply("❌ Reply to a message with poster link, description & download links.")
 
-    body_text = message.reply_to_message.text or message.reply_to_message.caption
+@Client.on_message(filters.command("tgraph") & filters.reply & filters.group)
+async def tgraph_command(client, message: Message):
+    """Upload replied photo + caption to Telegraph"""
+    if not message.reply_to_message.photo:
+        return await message.reply("❌ Please reply to a photo with caption.")
 
-    status = await message.reply("⏳ Creating Telegraph page...")
+    if not message.reply_to_message.caption:
+        return await message.reply("❌ Caption required with title & links.")
 
-    # Build telegraph content
-    lines = body_text.split("\n")
-    content = []
-    for line in lines:
-        if line.strip().startswith("http"):
-            # If it's an image link → embed at top
-            if any(ext in line for ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]):
-                content.append({"tag": "img", "attrs": {"src": line.strip()}})
-            else:
-                content.append({"tag": "p", "children": [line.strip()]})
-        else:
-            content.append({"tag": "p", "children": [line.strip()]})
+    status = await message.reply("⏳ Uploading to Telegraph...")
 
     try:
+        # Download photo
+        photo = await message.reply_to_message.download("temp.jpg")
+
+        # Upload to Telegraph
+        response = upload_file(photo)
+        image_url = f"https://telegra.ph{response[0]}"
+
+        # Build HTML content
+        title, content = build_html_content(message.reply_to_message.caption, image_url)
+
+        # Create Telegraph page
         page = telegraph.create_page(
             title=title,
             author_name="MrSagarbots",
             content=content
         )
-        url = f"https://telegra.ph/{page['path']}"
-        await status.edit_text(f"✅ Posted:\n{url}", disable_web_page_preview=False)
 
-        # Also send to dump_chat for logging
-        await client.send_message(
-            chat_id=dump_chat,
-            text=f"✅ Telegraph Page Created\n\n<b>Title:</b> {title}\n{url}",
-            disable_web_page_preview=False
-        )
+        tg_url = f"https://telegra.ph/{page['path']}"
+
+        await status.edit_text(f"✅ Posted: {tg_url}", disable_web_page_preview=False)
+
+        os.remove(photo)
 
     except Exception as e:
-        await status.edit_text(f"❌ Telegraph failed:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        await status.edit_text(f"❌ Telegraph Upload Failed:\n`{str(e)}`")
+        try:
+            os.remove("temp.jpg")
+        except:
+            pass
 
 #-----------------------IMGBB UPLOAD FUNCTION - - - - - - - - - - - - - - - 
 # Get your free API key from https://api.imgbb.com/
