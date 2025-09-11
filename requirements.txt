@@ -11,4 +11,6 @@ Pillow
 cloudscraper
 httpx
 playwright 
+telegraph
+
 
