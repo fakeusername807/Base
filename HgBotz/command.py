@@ -290,14 +290,21 @@ async def tgraph_handler(client, message: Message):
     lines = body_text.split("\n")
     content = []
     for line in lines:
-        if line.strip().startswith("http"):
-            # If it's an image link → embed at top
+        line = line.strip()
+        if not line:
+            continue
+
+        # Bold if not link
+        if line.startswith("http"):
+            # If it's an image link → embed
             if any(ext in line for ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]):
-                content.append({"tag": "img", "attrs": {"src": line.strip()}})
+                content.append({"tag": "img", "attrs": {"src": line}})
             else:
-                content.append({"tag": "p", "children": [line.strip()]})
+                # Make clickable link
+                content.append({"tag": "p", "children": [{"tag": "a", "attrs": {"href": line}, "children": [line]}]})
         else:
-            content.append({"tag": "p", "children": [line.strip()]})
+            # Normal text → bold
+            content.append({"tag": "p", "children": [{"tag": "b", "children": [line]}]})
 
     try:
         page = telegraph.create_page(
