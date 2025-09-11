@@ -1,5 +1,6 @@
 import re
 from pyrogram import Client, filters
+from pyrogram.types import Message
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 
