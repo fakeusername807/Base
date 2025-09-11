@@ -222,7 +222,6 @@ async def usage_cmd(client, message: Message):
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-
 @Client.on_message(filters.command(["auth", "authorize", "a"]) & filters.user(HgBotz.ADMIN))
 async def auth_cmd(client, message):
     if len(message.command) < 2:
@@ -1946,13 +1945,33 @@ async def rename_episode(client: Client, message: Message):
             f"**<blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote>**"
         )
 #--------- OTT Availability Checker -----------------
-
 TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"
 
+# Private command response
 @Client.on_message(filters.command("where") & filters.private)
 async def pvt_cmd(client, message: Message):
-        await message.reply_text(text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>", disable_web_page_preview = False)
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
 
+# Helper function to create direct OTT search/watch links
+def get_ott_link(provider_name, title):
+    title_encoded = title.replace(" ", "+")
+    if "Prime" in provider_name:
+        return f"https://www.primevideo.com/search/ref=atv_sr_sug_1?phrase={title_encoded}&ie=UTF8"
+    elif "Netflix" in provider_name:
+        return f"https://www.netflix.com/search?q={title_encoded}"
+    elif "Disney" in provider_name or "Hotstar" in provider_name:
+        return f"https://www.disneyplus.com/search?q={title_encoded}"
+    elif "Sony" in provider_name:
+        return f"https://www.sonyliv.com/search?q={title_encoded}"
+    elif "Zee5" in provider_name:
+        return f"https://www.zee5.com/global/search/{title_encoded}"
+    else:
+        return ""  # unknown provider
+
+# Group command
 @Client.on_message(filters.command("where") & filters.group & force_sub_filter())
 async def where_stream(client, message: Message):
     if len(message.command) < 2:
@@ -1961,12 +1980,9 @@ async def where_stream(client, message: Message):
     query = message.text.split(None, 1)[1]
 
     async with httpx.AsyncClient() as session:
-        # Search on TMDB
+        # Search TMDB
         search_url = "https://api.themoviedb.org/3/search/multi"
-        params = {
-            "api_key": TMDB_API_KEY,
-            "query": query
-        }
+        params = {"api_key": TMDB_API_KEY, "query": query}
         r = await session.get(search_url, params=params)
         results = r.json().get("results", [])
 
@@ -1982,7 +1998,7 @@ async def where_stream(client, message: Message):
         # Fetch watch providers
         provider_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}/watch/providers"
         r2 = await session.get(provider_url, params={"api_key": TMDB_API_KEY})
-        providers = r2.json().get("results", {}).get("IN", {})  # Use 'IN' for India
+        providers = r2.json().get("results", {}).get("IN", {})  # India
 
         flatrate = providers.get("flatrate", [])
         rent = providers.get("rent", [])
@@ -1991,16 +2007,25 @@ async def where_stream(client, message: Message):
         if not (flatrate or rent or buy):
             return await message.reply(f"ℹ️ **{title} ({year})** not available on any OTT in India.")
 
+        # Format providers with direct links
+        def format_providers(list_):
+            lines = []
+            for x in list_:
+                name = x.get("provider_name")
+                link = get_ott_link(name, title)
+                if link:
+                    lines.append(f"• {name} - [Watch Now]({link})")
+            return "\n".join(lines)
+
         text = f"🎬 **{title} ({year})**\n\n"
-
         if flatrate:
-            text += "<b>📺 Streaming on:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in flatrate) + "\n\n"
+            text += "<b>📺 Streaming on:</b>\n" + format_providers(flatrate) + "\n\n"
         if rent:
-            text += "<b>💸 Available to Rent:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in rent) + "\n\n"
+            text += "<b>💸 Available to Rent:</b>\n" + format_providers(rent) + "\n\n"
         if buy:
-            text += "<b>🛒 Available to Buy:</b>\n" + "\n".join(f"• {x['provider_name']}" for x in buy)
+            text += "<b>🛒 Available to Buy:</b>\n" + format_providers(buy)
 
-        await message.reply(text.strip())
+        await message.reply(text.strip(), disable_web_page_preview=False)
 
 # ================== CAPTION CHANGER SECTION ==================
 # MongoDB setup for storing caption templates
