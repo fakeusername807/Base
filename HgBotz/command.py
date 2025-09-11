@@ -1001,7 +1001,6 @@ async def pvt_nf_cmd(client, message: Message):
         disable_web_page_preview=False
     )
 
-
 @Client.on_message(filters.command("nf") & filters.group & force_sub_filter())
 async def netflix_handler(client, message: Message):
     chat_id = message.chat.id
@@ -1038,114 +1037,107 @@ async def netflix_handler(client, message: Message):
     video = data.get("metadata", {}).get("video", {})
     title = video.get("title", "N/A")
     type_ = video.get("type", "movie")
-    year = video.get("year", "N/A")
+    poster_url = video.get("artwork", [{}])[0].get("url", "")
 
-    # Movie Posters
-    if type_ == "movie":
-        artworks = video.get("artwork", [])
-
-        landscape_url = next(
-            (a.get("url") for a in artworks if a.get("width", 0) > a.get("height", 0)), ""
+    # --- Format caption ---
+    if type_ == "show" and video.get("seasons"):
+        first_season = video["seasons"][0]
+        season_name = (
+            first_season.get("longName")
+            or first_season.get("shortName")
+            or f"Season {first_season.get('seq', 1)}"
         )
-        portrait_url = next(
-            (a.get("url") for a in artworks if a.get("height", 0) > a.get("width", 0)), ""
-        )
-
-        caption = f"<b>{title} ({year})</b>\n\n"
-
-        if landscape_url:
-            caption += f"🌄 <b>Landscape Poster:</b>\n[Click Here]({landscape_url})\n\n"
-        else:
-            caption += "🌄 <b>Landscape Poster:</b> Not available\n\n"
-
-        if portrait_url:
-            caption += f"🖼️ <b>Portrait Poster:</b>\n[Click Here]({portrait_url})\n\n"
-        else:
-            caption += "🖼️ <b>Portrait Poster:</b> Not available\n\n"
-
-        caption += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
-
-        await msg.edit_text(caption, disable_web_page_preview=False, reply_markup=update_button)
-        await client.send_message(chat_id=dump_chat, text=caption, disable_web_page_preview=False, reply_markup=update_button)
-
-        # ✅ increment usage
-        if message.from_user:
-            usage_stats[message.from_user.id]["Netflix"] += 1
-
-    # Series Posters with season selection
-    elif type_ == "show" and video.get("seasons"):
-        seasons = {}
-        for season in video.get("seasons", []):
-            artworks = season.get("artwork", [])
-
-            landscape_url = next(
-                (a.get("url") for a in artworks if a.get("width", 0) > a.get("height", 0)), ""
-            )
-            portrait_url = next(
-                (a.get("url") for a in artworks if a.get("height", 0) > a.get("width", 0)), ""
-            )
-
-            season_name = (
-                season.get("longName")
-                or season.get("shortName")
-                or f"Season {season.get('seq', 1)}"
-            )
-
-            seasons[season_name] = {
-                "landscape": landscape_url,
-                "portrait": portrait_url,
-                "year": season.get("year", "N/A"),
-            }
-
-        poster_cache[message.from_user.id] = {
-            "title": title,
-            "year": year,
-            "seasons": seasons
-        }
-
-        buttons = []
-        for sname in seasons.keys():
-            buttons.append([InlineKeyboardButton(sname, callback_data=f"nfseason:{sname}")])
-
-        await msg.edit_text(
-            f"<b>{title} ({year})</b>\n\n📺 <b>Select a season to view posters:</b>",
-            reply_markup=InlineKeyboardMarkup(buttons),
-        )
-
-
-@Client.on_callback_query(filters.regex(r"^nfseason:"))
-async def handle_nf_season(client, cq: CallbackQuery):
-    season_name = cq.data.split(":", 1)[1]
-
-    user_id = cq.from_user.id
-    if user_id not in poster_cache or "seasons" not in poster_cache[user_id]:
-        return await cq.answer("Session expired. Use /nf again.", show_alert=True)
-
-    season = poster_cache[user_id]["seasons"].get(season_name)
-    if not season:
-        return await cq.answer("Season not found.", show_alert=True)
-
-    caption = f"📺 <b>{poster_cache[user_id]['title']}</b>\n"
-    caption += f"**Season:** {season_name} ({season['year']})\n\n"
-
-    if season["landscape"]:
-        caption += f"🌄 <b>Landscape Poster:</b>\n[Click Here]({season['landscape']})\n\n"
+        season_year = first_season.get("year") or ""
+        caption = f"<b>{title} - {season_name} ({season_year})</b>"
     else:
-        caption += "🌄 <b>Landscape Poster:</b> Not available\n\n"
+        year = video.get("year", "N/A")
+        caption = f"<b>{title} ({year})</b>"
 
-    if season["portrait"]:
-        caption += f"🖼️ <b>Portrait Poster:</b>\n[Click Here]({season['portrait']})\n\n"
+    # --- Build final text ---
+    if poster_url:
+        final_text = f"<b>Netflix Poster:</b> {poster_url}\n\n{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
     else:
-        caption += "🖼️ <b>Portrait Poster:</b> Not available\n\n"
+        final_text = f"{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
 
-    caption += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+    await msg.edit_text(
+        final_text,
+        disable_web_page_preview=False,
+        reply_markup=update_button
+    )
 
-    await cq.message.edit_text(caption, disable_web_page_preview=False, reply_markup=update_button)
-    await cq.answer()
+    await client.send_message(
+        chat_id=dump_chat,
+        text=final_text,
+        disable_web_page_preview=False,
+        reply_markup=update_button
+    )
 
     # ✅ increment usage for Netflix
-    if cq.from_user:
-        usage_stats[cq.from_user.id]["Netflix"] += 1
+    if message.from_user:
+        usage_stats[message.from_user.id]["Netflix"] += 1
+
+
+# -----------------------NETFLIX SEASON HANDLER -----------------------
+
+@Client.on_callback_query(filters.regex(r'^nfseason:'))
+async def handle_nf_season(client, callback_query):
+    """Handle Netflix season selection"""
+    try:
+        parts = callback_query.data.split(":", 2)
+        if len(parts) < 3:
+            return await callback_query.answer("Invalid season data", show_alert=True)
+
+        movie_id, season_seq = parts[1], parts[2]
+
+        api_url = f"https://netflix-en.gregory24thom-ps-on23-96.workers.dev/?movieid={movie_id}"
+
+        async with httpx.AsyncClient(timeout=10) as client_http:
+            resp = await client_http.get(api_url)
+            resp.raise_for_status()
+            data = resp.json()
+
+        if data.get("status") != "success":
+            return await callback_query.message.edit_text("❌ Failed to load season data!")
+
+        video = data.get("metadata", {}).get("video", {})
+        title = video.get("title", "N/A")
+
+        season_info = None
+        for s in video.get("seasons", []):
+            if str(s.get("seq")) == season_seq:
+                season_info = s
+                break
+
+        if not season_info:
+            return await callback_query.answer("Season not found", show_alert=True)
+
+        season_name = season_info.get("longName") or season_info.get("shortName") or f"Season {season_info.get('seq')}"
+        season_year = season_info.get("year") or ""
+        poster_url = season_info.get("artwork", [{}])[0].get("url", "")
+
+        # --- Format caption ---
+        caption = f"<b>{title} - {season_name} ({season_year})</b>"
+
+        if poster_url:
+            final_text = f"<b>Netflix Poster:</b> {poster_url}\n\n{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+        else:
+            final_text = f"{caption}\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+
+        await callback_query.message.edit_text(
+            final_text,
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
+
+        # ✅ increment usage
+        if callback_query.from_user:
+            usage_stats[callback_query.from_user.id]["Netflix"] += 1
+
+        await callback_query.answer()
+
+    except Exception as e:
+        await callback_query.message.edit_text(f"❌ Error: {e}")
+        await callback_query.answer()
 
 
 #-----------------------AMAZON PRIME FUNCTION - - - - - - - - - - - - - - - 
