@@ -3,8 +3,18 @@ from pyrogram import Client, filters
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 
-@Client.on_message(filters.command("ultraplay"))
+@Client.on_message(filters.command("ultraplay") & filters.private)
+async def pvt_nf_cmd(client, message: Message):
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
+
+@Client.on_message(filters.command("ultraplay") & filters.group & force_sub_filter())
 async def ultraplay_simple(client, message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     if len(message.command) < 2:
         return await message.reply("❌ Usage: /ultraplay <Ultraplay URL>", quote=True)
 
