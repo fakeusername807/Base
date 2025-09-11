@@ -1115,6 +1115,7 @@ async def handle_nf_season(client, callback_query):
         video = data.get("metadata", {}).get("video", {})
         title = video.get("title", "N/A")
 
+        # find season
         season_info = None
         for s in video.get("seasons", []):
             if str(s.get("seq")) == season_seq:
@@ -1126,7 +1127,13 @@ async def handle_nf_season(client, callback_query):
 
         season_name = season_info.get("longName") or season_info.get("shortName") or f"Season {season_info.get('seq')}"
         season_year = season_info.get("year") or ""
-        poster_url = season_info.get("artwork", [{}])[0].get("url", "")
+
+        # ✅ try season artwork, else fallback to main video artwork
+        poster_url = ""
+        if season_info.get("artwork"):
+            poster_url = season_info["artwork"][0].get("url", "")
+        elif video.get("artwork"):
+            poster_url = video["artwork"][0].get("url", "")
 
         caption = f"<b>{title} - {season_name} ({season_year})</b>"
 
@@ -1150,7 +1157,6 @@ async def handle_nf_season(client, callback_query):
     except Exception as e:
         await callback_query.message.edit_text(f"❌ Error: {e}")
         await callback_query.answer()
-
 
 #-----------------------AMAZON PRIME FUNCTION - - - - - - - - - - - - - - - 
 # Initialize a persistent HTTP session
