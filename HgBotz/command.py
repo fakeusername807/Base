@@ -260,31 +260,38 @@ import os
 telegraph = Telegraph()
 telegraph.create_account(short_name="MrSagarbots")
 
-def build_html_content(caption: str, image_url: str):
-    """Build Telegraph-compatible HTML content with HTML support"""
-    lines = caption.split("\n")
 
-    # First line = Title
-    title = lines[0]
-    body_lines = []
+def build_html_content(caption: str, image_url: str) -> str:
+    """Build Telegraph-compatible HTML string with clickable links"""
+    html_content = f'<img src="{image_url}"/>'
 
-    for line in lines[1:]:
-        body_lines.append({"tag": "p", "children": [line]})
+    for line in caption.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
 
-    # Put image at the top
-    content = [{"tag": "img", "attrs": {"src": image_url}}] + body_lines
-    return title, content
+        if line.startswith("http") or "t.me" in line:
+            # clickable link
+            html_content += f'<p><a href="{line}">{line}</a></p>'
+        else:
+            html_content += f"<p>{line}</p>"
+
+    return html_content
 
 
-@Client.on_message(filters.command("tgraph") & filters.reply & filters.group)
+@Client.on_message(filters.command("tgraph") & filters.reply)
 async def tgraph_command(client, message: Message):
-    """Upload replied photo + caption to Telegraph"""
+    """Upload replied photo + caption to Telegraph with custom title"""
     if not message.reply_to_message.photo:
-        return await message.reply("❌ Please reply to a photo with caption.")
+        return await message.reply("❌ Please reply to a photo.")
 
     if not message.reply_to_message.caption:
-        return await message.reply("❌ Caption required with title & links.")
+        return await message.reply("❌ Please reply to a photo with caption (links, text, etc).")
 
+    if len(message.command) < 2:
+        return await message.reply("❌ Usage: `/tgraph <Title>`", quote=True)
+
+    title = message.text.split(" ", 1)[1].strip()
     status = await message.reply("⏳ Uploading to Telegraph...")
 
     try:
@@ -295,18 +302,18 @@ async def tgraph_command(client, message: Message):
         response = upload_file(photo)
         image_url = f"https://telegra.ph{response[0]}"
 
-        # Build HTML content
-        title, content = build_html_content(message.reply_to_message.caption, image_url)
+        # Build HTML content with clickable links
+        caption = message.reply_to_message.caption
+        html_content = build_html_content(caption, image_url)
 
-        # Create Telegraph page
+        # Create Telegraph page with HTML
         page = telegraph.create_page(
             title=title,
             author_name="MrSagarbots",
-            content=content
+            html_content=html_content
         )
 
         tg_url = f"https://telegra.ph/{page['path']}"
-
         await status.edit_text(f"✅ Posted: {tg_url}", disable_web_page_preview=False)
 
         os.remove(photo)
