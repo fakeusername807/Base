@@ -294,6 +294,46 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
         print(f"ImgBB Upload Error: {e}")
         return image_url
 
+#Command
+# ----------------------- /imgbb COMMAND -----------------------
+@Client.on_message(filters.command("imgbb") & filters.group & force_sub_filter())
+async def imgbb_upload_handler(client, message: Message):
+    # Must reply to a photo
+    if not message.reply_to_message or not message.reply_to_message.photo:
+        return await message.reply("⚠️ Please reply to a photo with /imgbb")
+
+    status = await message.reply("⏳ Uploading to ImgBB...")
+
+    # Download highest quality photo
+    photo = message.reply_to_message.photo
+    photo_path = await client.download_media(photo)
+
+    try:
+        with open(photo_path, "rb") as f:
+            image_data = f.read()
+
+        async with aiohttp.ClientSession() as session:
+            form = aiohttp.FormData()
+            form.add_field("image", image_data, filename="upload.jpg", content_type="image/jpeg")
+
+            async with session.post(
+                "https://api.imgbb.com/1/upload",
+                params={"key": IMG_BB_API_KEY},
+                data=form
+            ) as resp:
+                data = await resp.json()
+                if resp.status == 200 and data.get("success"):
+                    link = data["data"]["url"]
+                    return await status.edit_text(
+                        f"✅ Uploaded Successfully!\n\n🔗 {link}\n\n"
+                        f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+                        disable_web_page_preview=False
+                    )
+
+        await status.edit_text("❌ Upload failed. Please try again.")
+    except Exception as e:
+        await status.edit_text(f"❌ Error uploading: <code>{str(e)}</code>")
+
 #-----------------------Jpg Png To stkr FUNCTION - - - - - - - - - - - - - - - 
 async def download_image(url: str) -> BytesIO:
     async with aiohttp.ClientSession() as session:
