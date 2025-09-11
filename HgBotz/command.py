@@ -295,12 +295,12 @@ async def upload_to_imgbb(image_url: str, custom_word: str = "image") -> str:
         return image_url
 
 #Command
-# ----------------------- /imgbb COMMAND -----------------------
-@Client.on_message(filters.command("imgbb") & filters.group & force_sub_filter())
+# ----------------------- COMMAND -----------------------
+@Client.on_message(filters.command("plink") & filters.group & force_sub_filter())
 async def imgbb_upload_handler(client, message: Message):
     # Must reply to a photo
     if not message.reply_to_message or not message.reply_to_message.photo:
-        return await message.reply("⚠️ Please reply to a photo with /imgbb")
+        return await message.reply("⚠️ Please reply to a photo with /plink")
 
     status = await message.reply("⏳ Uploading to ImgBB...")
 
@@ -314,7 +314,7 @@ async def imgbb_upload_handler(client, message: Message):
 
         async with aiohttp.ClientSession() as session:
             form = aiohttp.FormData()
-            form.add_field("image", image_data, filename="upload.jpg", content_type="image/jpeg")
+            form.add_field("image", image_data, filename="MrSagarBots.jpg", content_type="image/jpeg")
 
             async with session.post(
                 "https://api.imgbb.com/1/upload",
@@ -325,7 +325,7 @@ async def imgbb_upload_handler(client, message: Message):
                 if resp.status == 200 and data.get("success"):
                     link = data["data"]["url"]
                     return await status.edit_text(
-                        f"✅ Uploaded Successfully!\n\n🔗 {link}\n\n"
+                        f"<b>✅ Uploaded Successfully!</b>\n\n🔗 <b>{link}</b>\n\n"
                         f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
                         disable_web_page_preview=False
                     )
