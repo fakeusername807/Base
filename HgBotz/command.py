@@ -252,6 +252,78 @@ async def list_auth_chats(client, message):
         text += f"`{chat['_id']}`\n"
     await message.reply(text if text.strip() != "**🔐 Authorized Chats:**" else "🚫 No authorized chats found.")
 
+# ----------------------- TELEGRAPH UPLOAD FUNCTION -----------------------
+from telegraph import Telegraph
+
+# Create Telegraph account
+telegraph = Telegraph()
+telegraph.create_account(short_name="MrSagarbots")
+
+
+@Client.on_message(filters.command("tgraph") & filters.group & force_sub_filter())
+async def tgraph_handler(client, message: Message):
+    """
+    Usage:
+    /tgraph Title of Post
+    Then reply with content (poster link, description, download links).
+    """
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
+    # Check for title
+    if len(message.command) < 2:
+        return await message.reply("❌ Please provide a title.\nExample:\n/tgraph Go Go Squid 2")
+
+    title = message.text.split(" ", 1)[1].strip()
+
+    # Must reply to a message with poster + text
+    if not message.reply_to_message or not (message.reply_to_message.text or message.reply_to_message.caption):
+        return await message.reply("❌ Reply to a message with poster link, description & download links.")
+
+    body_text = message.reply_to_message.text or message.reply_to_message.caption
+
+    status = await message.reply("⏳ Creating Telegraph page...")
+
+    # Build telegraph content
+    lines = body_text.split("\n")
+    content = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        # Bold if not link
+        if line.startswith("http"):
+            # If it's an image link → embed
+            if any(ext in line for ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]):
+                content.append({"tag": "img", "attrs": {"src": line}})
+            else:
+                # Make clickable link
+                content.append({"tag": "p", "children": [{"tag": "a", "attrs": {"href": line}, "children": [line]}]})
+        else:
+            # Normal text → bold
+            content.append({"tag": "p", "children": [{"tag": "b", "children": [line]}]})
+
+    try:
+        page = telegraph.create_page(
+            title=title,
+            author_name="MrSagarbots",
+            content=content
+        )
+        url = f"https://telegra.ph/{page['path']}"
+        await status.edit_text(f"✅ Posted:\n{url}", disable_web_page_preview=False)
+
+        # Also send to dump_chat for logging
+        await client.send_message(
+            chat_id=dump_chat,
+            text=f"✅ Telegraph Page Created\n\n<b>Title:</b> {title}\n{url}",
+            disable_web_page_preview=False
+        )
+
+    except Exception as e:
+        await status.edit_text(f"❌ Telegraph failed:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        
 #-----------------------IMGBB UPLOAD FUNCTION - - - - - - - - - - - - - - - 
 # Get your free API key from https://api.imgbb.com/
 IMG_BB_API_KEY = "3f9544c78f25c9ad94ab949cd2673b00"  # Replace with your actual key
