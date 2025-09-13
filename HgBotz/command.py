@@ -1105,6 +1105,107 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
+# -----------------------SONYLIV POSTER FUNCTION -----------------------
+import json, re, requests
+from pyrogram import Client, filters
+from PIL import Image
+from io import BytesIO
+
+@Client.on_message(filters.command("sliv") & filters.private)
+async def pvt_sliv_cmd(client, message: Message):
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
+# -----------------------SONYLIV POSTER FUNCTION -----------------------
+@Client.on_message(filters.command("sliv") & filters.group & force_sub_filter())
+async def sonyliv_handler(client, message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
+    if len(message.command) < 2:
+        return await message.reply("❗ Usage:\n/sliv <SonyLIV Show URL>", quote=True)
+
+    url = message.command[1].strip()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept-Language": "en-US,en;q=0.9"
+    }
+
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        return await message.reply(f"❌ Failed to fetch page:\n{e}", quote=True)
+
+    # 🔍 Extract JSON-LD script
+    jsonld_match = re.search(
+        r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL | re.IGNORECASE
+    )
+
+    if jsonld_match:
+        try:
+            data = json.loads(jsonld_match.group(1))
+            full_name = data.get("name", "Unknown")
+
+            # Clean the title
+            title = re.sub(r'Watch\s+', '', full_name, flags=re.IGNORECASE)
+            title = re.sub(r'\s*-\s*Sony LIV', '', title, flags=re.IGNORECASE)
+            title = re.sub(r'\s*Online$', '', title, flags=re.IGNORECASE)
+            title = title.strip()
+
+            # Keep only main name before first language/genre keyword
+            title = re.split(r'\s+(Malayalam|Hindi|Tamil|Telugu|Kannada|Action|Thriller|Movie|Full HD)\b',
+                             title, flags=re.IGNORECASE)[0].strip()
+
+            upload_date = data.get("uploadDate", "")
+            year = upload_date[:4] if upload_date else "Unknown"
+        except Exception:
+            title, year = "Unknown", "Unknown"
+    else:
+        title, year = "Unknown", "Unknown"
+
+    # 🔍 Poster extraction
+    all_images = re.findall(
+        r'https?://[^\s"\']+videoasset_images/[^\s"\']+\.(?:jpg|jpeg|png|webp)',
+        html, re.IGNORECASE
+    )
+
+    portrait, landscape = None, None
+    for img in all_images:
+        lower = img.lower()
+        if not portrait and "portrait" in lower:
+            portrait = img
+        elif not landscape and "landscape" in lower:
+            if "images.slivcdn.com" in img:
+                img = img.replace("images.slivcdn.com", "origin-staticv2.sonyliv.com")
+            landscape = img
+        if portrait and landscape:
+            break
+
+    def get_dimensions(img_url):
+        try:
+            r = requests.get(img_url, timeout=10)
+            im = Image.open(BytesIO(r.content))
+            return f"{im.width}×{im.height}"
+        except:
+            return "Unknown size"
+
+    # 🔹 Build reply
+    result = []
+    if landscape:
+        size = get_dimensions(landscape)
+        result.append(f"🌄 Landscape Poster: {landscape}\n📐 Size: {size}\n")
+    if portrait:
+        size = get_dimensions(portrait)
+        result.append(f"🖼 Portrait Poster: {portrait}\n📐 Size: {size}\n")
+    result.append(f"🎬 {title} ({year})")
+
+    await message.reply("\n".join(result), quote=True)
+
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
 
 @Client.on_message(filters.command("nf") & filters.private)
