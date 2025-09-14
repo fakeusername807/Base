@@ -12,5 +12,7 @@ cloudscraper
 httpx
 playwright 
 telegraph
+pymediainfo
+
 
 
