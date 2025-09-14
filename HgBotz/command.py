@@ -1189,9 +1189,9 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 # ===== CONFIG =====
-API_ID = 
-API_HASH = "  "
-BOT_TOKEN = "  "
+API_ID = 7928207862
+API_HASH = "e7d1141cca9fbe1ab45804163b5080c8"
+BOT_TOKEN = "7928207862:AAFUk521pf1mHSGUxNf7WOxSm9NSJAR6w98"
 
 
 # ===== BOT INSTANCE =====
