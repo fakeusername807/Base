@@ -475,6 +475,82 @@ def get_google_poster(query):
     except Exception as e:
         print("Image fetch error:", e)
         return None
+# MEDIAINFO
+from pymediainfo import MediaInfo
+
+@Client.on_message(filters.command("mediainfo") & filters.group & force_sub_filter())
+async def mediainfo_handler(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
+    if not message.reply_to_message or not (message.reply_to_message.video or message.reply_to_message.document):
+        return await message.reply("⚠️ Please reply to a <b>video or media file</b> with `/mediainfo`")
+
+    status = await message.reply("⏳ Extracting MediaInfo...")
+
+    # Download file temporarily
+    media = message.reply_to_message.video or message.reply_to_message.document
+    file_path = await client.download_media(media)
+
+    try:
+        media_info = MediaInfo.parse(file_path)
+
+        # Build Telegraph content
+        content = []
+        for track in media_info.tracks:
+            if track.track_type == "General":
+                content.append({"tag": "h3", "children": ["📂 General Info"]})
+                content.append({"tag": "p", "children": [f"🎬 Title: {track.title or 'N/A'}"]})
+                content.append({"tag": "p", "children": [f"📦 Format: {track.format or 'N/A'}"]})
+                content.append({"tag": "p", "children": [f"⏱️ Duration: {round((track.duration or 0)/1000,2)}s"]})
+                content.append({"tag": "p", "children": [f"📂 File Size: {round((track.file_size or 0)/(1024*1024),2)} MB"]})
+
+            elif track.track_type == "Video":
+                content.append({"tag": "h3", "children": ["🎥 Video Track"]})
+                content.append({"tag": "p", "children": [f"Codec: {track.format or 'N/A'}"]})
+                content.append({"tag": "p", "children": [f"Resolution: {track.width}x{track.height}"]})
+                content.append({"tag": "p", "children": [f"Frame Rate: {track.frame_rate} fps"]})
+                content.append({"tag": "p", "children": [f"Bitrate: {track.bit_rate or 'N/A'}"]})
+
+            elif track.track_type == "Audio":
+                content.append({"tag": "h3", "children": ["🎵 Audio Track"]})
+                content.append({"tag": "p", "children": [f"Codec: {track.format or 'N/A'}"]})
+                content.append({"tag": "p", "children": [f"Channels: {track.channel_s or 'N/A'}"]})
+                content.append({"tag": "p", "children": [f"Sample Rate: {track.sampling_rate or 'N/A'} Hz"]})
+                content.append({"tag": "p", "children": [f"Bitrate: {track.bit_rate or 'N/A'}"]})
+
+        # Create Telegraph page
+        page = telegraph.create_page(
+            title=f"MediaInfo - {media.file_name or 'Telegram Video'}",
+            author_name="MrSagarbots",
+            content=content
+        )
+
+        url = f"https://telegra.ph/{page['path']}"
+        await status.edit_text(f"✅ <b>MediaInfo Extracted:</b>\n\n🔗 {url}", disable_web_page_preview=False)
+
+        # Also log to dump_chat
+        await client.send_message(
+            chat_id=dump_chat,
+            text=f"✅ MediaInfo Generated\n\n<b>File:</b> {media.file_name or 'Unknown'}\n🔗 {url}",
+            disable_web_page_preview=False
+        )
+
+    except Exception as e:
+        await status.edit_text(f"❌ MediaInfo failed:\n<code>{e}</code>")
+    finally:
+        try:
+            os.remove(file_path)
+        except:
+            pass
+
+
+@Client.on_message(filters.command("mediainfo") & filters.private)
+async def mediainfo_private(client, message: Message):
+    await message.reply_text(
+        "<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot</b>"
+    )
 
 # 🚀 Telegram /bms command
 @Client.on_message(filters.command("bms") & filters.private)
