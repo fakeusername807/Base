@@ -1105,11 +1105,40 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV POSTER FUNCTION -----------------------
+# ----------------------- SONYLIV POSTER FUNCTION (Web Scraping) -----------------------
 import re
+import json
 import httpx
+from bs4 import BeautifulSoup
 from pyrogram import filters, enums
 from pyrogram.types import Message
+
+SONYLIV_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Referer": "https://www.sonyliv.com/",
+}
+
+async def fetch_sonyliv_page(url: str) -> dict:
+    """Fetch SonyLIV page and extract metadata JSON"""
+    async with httpx.AsyncClient(timeout=30, headers=SONYLIV_HEADERS) as client_http:
+        resp = await client_http.get(url)
+        resp.raise_for_status()
+        html = resp.text
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    # SonyLIV embeds JSON in <script> window.__INITIAL_STATE__ = {...}
+    script_tag = soup.find("script", string=re.compile("__INITIAL_STATE__"))
+    if not script_tag:
+        raise ValueError("Could not find metadata script on SonyLIV page.")
+
+    # Extract JSON
+    json_text = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
+    if not json_text:
+        raise ValueError("Could not extract JSON from SonyLIV script.")
+
+    return json.loads(json_text.group(1))
 
 @Client.on_message(filters.command("sl") & filters.private)
 async def pvt_sl_cmd(client, message: Message):
@@ -1122,53 +1151,26 @@ async def pvt_sl_cmd(client, message: Message):
 async def sonyliv_handler(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply(
-            "❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot"
-        )
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
 
     if len(message.command) < 2:
         return await message.reply("⚡ Usage: `/sl <sonyliv link>`", quote=True)
 
     url = message.command[1].strip()
 
-    # Extract numeric ID from link
-    match = re.search(r'-(\d+)$', url)
-    if not match:
-        return await message.reply("❌ Invalid SonyLIV link!", quote=True)
-
-    content_id = match.group(1)
-
-    # First try without prefix
-    api_urls = [
-        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_id}",
-        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/MOVIE~{content_id}",
-        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/SHOW~{content_id}"
-    ]
-
     status = await message.reply("🔍 Fetching SonyLIV data...")
 
-    data = None
     try:
-        async with httpx.AsyncClient(timeout=30) as client_http:
-            for api_url in api_urls:
-                try:
-                    resp = await client_http.get(api_url)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        break
-                except Exception:
-                    continue
+        data = await fetch_sonyliv_page(url)
     except Exception as e:
-        return await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n{e}")
-
-    if not data:
-        return await status.edit_text("❌ Could not fetch SonyLIV details (all attempts failed).")
+        return await status.edit_text(f"❌ Failed to fetch SonyLIV page:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
     try:
-        details = data.get("details", {})
-        title = details.get("title", "N/A")
-        year = details.get("year", "N/A")
-        image_url = details.get("image", "")
+        # Navigate JSON (SonyLIV structure may vary, so we fallback safely)
+        details = data.get("detail", {}).get("data", {}) or data.get("detail", {})
+        title = details.get("title") or "N/A"
+        year = details.get("year") or "N/A"
+        image_url = details.get("image") or details.get("poster") or ""
 
         caption = (
             f"<b>{title} ({year})</b>\n\n"
@@ -1194,7 +1196,7 @@ async def sonyliv_handler(client, message: Message):
             await status.edit_text(caption, disable_web_page_preview=False)
 
     except Exception as e:
-        await status.edit_text(f"❌ Error parsing SonyLIV response:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        await status.edit_text(f"❌ Error parsing SonyLIV data:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
