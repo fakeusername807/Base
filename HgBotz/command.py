@@ -1105,22 +1105,19 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV POSTER FUNCTION (Web Scraping) -----------------------
-import re
-import json
-import httpx
+# ----------------------- SONYLIV FUNCTION -----------------------
+import re, json, httpx
 from bs4 import BeautifulSoup
-from pyrogram import filters, enums
-from pyrogram.types import Message
+from pyrogram import Client, filters, enums
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 SONYLIV_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Referer": "https://www.sonyliv.com/",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36",
+    "Referer": "https://www.sonyliv.com/"
 }
 
 async def fetch_sonyliv_page(url: str) -> dict:
-    """Fetch SonyLIV page and extract metadata JSON"""
+    """Fetch SonyLIV page and extract metadata JSON or fallback to meta tags"""
     async with httpx.AsyncClient(timeout=30, headers=SONYLIV_HEADERS) as client_http:
         resp = await client_http.get(url)
         resp.raise_for_status()
@@ -1128,75 +1125,78 @@ async def fetch_sonyliv_page(url: str) -> dict:
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # SonyLIV embeds JSON in <script> window.__INITIAL_STATE__ = {...}
+    # --- Try to extract JSON from script ---
     script_tag = soup.find("script", string=re.compile("__INITIAL_STATE__"))
-    if not script_tag:
-        raise ValueError("Could not find metadata script on SonyLIV page.")
+    if script_tag:
+        json_text = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
+        if json_text:
+            try:
+                return json.loads(json_text.group(1))
+            except Exception:
+                pass  # fallback below
 
-    # Extract JSON
-    json_text = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
-    if not json_text:
-        raise ValueError("Could not extract JSON from SonyLIV script.")
+    # --- Fallback: use OpenGraph meta tags ---
+    title = soup.find("meta", property="og:title")
+    image = soup.find("meta", property="og:image")
 
-    return json.loads(json_text.group(1))
+    return {
+        "detail": {
+            "data": {
+                "title": title["content"] if title else "N/A",
+                "year": "N/A",
+                "image": image["content"] if image else "",
+            }
+        }
+    }
 
-@Client.on_message(filters.command("sl") & filters.private)
-async def pvt_sl_cmd(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=False
-    )
 
 @Client.on_message(filters.command("sl") & filters.group & force_sub_filter())
-async def sonyliv_handler(client, message: Message):
+async def sonyliv_handler(client: Client, message: Message):
+    """
+    Usage: /sl <sonyliv link>
+    Example: /sl https://www.sonyliv.com/movies/agent-telugu-1590014246
+    """
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+        return await message.reply("❌ This chat is not authorized. Contact @MrSagar_RoBot")
 
     if len(message.command) < 2:
         return await message.reply("⚡ Usage: `/sl <sonyliv link>`", quote=True)
 
     url = message.command[1].strip()
-
-    status = await message.reply("🔍 Fetching SonyLIV data...")
+    status = await message.reply("🔍 Fetching SonyLIV details...")
 
     try:
         data = await fetch_sonyliv_page(url)
-    except Exception as e:
-        return await status.edit_text(f"❌ Failed to fetch SonyLIV page:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
-    try:
-        # Navigate JSON (SonyLIV structure may vary, so we fallback safely)
-        details = data.get("detail", {}).get("data", {}) or data.get("detail", {})
-        title = details.get("title") or "N/A"
-        year = details.get("year") or "N/A"
-        image_url = details.get("image") or details.get("poster") or ""
+        detail = data.get("detail", {}).get("data", {})
+        title = detail.get("title", "N/A")
+        year = detail.get("year", "N/A")
+        poster = detail.get("image", "")
 
-        caption = (
-            f"<b>{title} ({year})</b>\n\n"
-            f"<b>SonyLIV Poster:</b> {image_url}\n\n"
-            f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
-        )
+        caption = f"<b>{title} ({year})</b>\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
 
-        if image_url:
+        if poster:
             await status.edit_text(
-                f"**SonyLIV Poster:** {image_url}\n\n{caption}",
+                f"**SonyLIV Poster:** {poster}\n\n{caption}",
                 disable_web_page_preview=False,
                 reply_markup=update_button
             )
             await client.send_message(
                 chat_id=dump_chat,
-                text=f"**SonyLIV Poster:** {image_url}\n\n{caption}",
+                text=f"**SonyLIV Poster:** {poster}\n\n{caption}",
                 disable_web_page_preview=False,
                 reply_markup=update_button
             )
-            if message.from_user:
-                usage_stats[message.from_user.id]["SonyLIV"] += 1
         else:
             await status.edit_text(caption, disable_web_page_preview=False)
 
+        # ✅ increment usage
+        if message.from_user:
+            usage_stats[message.from_user.id]["SonyLIV"] += 1
+
     except Exception as e:
-        await status.edit_text(f"❌ Error parsing SonyLIV data:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
