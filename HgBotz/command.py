@@ -1178,7 +1178,7 @@ async def sonyliv_handler(client, message: Message):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
 
     if len(message.command) < 2:
-        return await message.reply("⚡ Usage: `/sl <sonyliv link>`", quote=True)
+        return await message.reply_text("⚡ Usage: `/sl <sonyliv link>`", quote=True)
 
     link = message.text.split(" ", 1)[1].strip()
     if not re.match(r'https?://(www\.)?sonyliv\.com', link, re.IGNORECASE):
