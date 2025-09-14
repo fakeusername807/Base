@@ -1109,7 +1109,7 @@ async def handle_zee_request(client, message, url):
 import re
 import httpx
 from pyrogram import filters, enums
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message
 
 @Client.on_message(filters.command("sl") & filters.private)
 async def pvt_sl_cmd(client, message: Message):
@@ -1131,35 +1131,41 @@ async def sonyliv_handler(client, message: Message):
 
     url = message.command[1].strip()
 
-    # Extract content ID from SonyLIV link
+    # Extract numeric ID from link
     match = re.search(r'-(\d+)$', url)
     if not match:
         return await message.reply("❌ Invalid SonyLIV link!", quote=True)
 
     content_id = match.group(1)
 
-    # Detect content type from URL
-    if "movie" in url:
-        content_type = "MOVIE"
-    elif "show" in url or "tv-shows" in url:
-        content_type = "SHOW"
-    else:
-        content_type = "MOVIE"  # fallback
-
-    api_url = f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_type}~{content_id}"
+    # First try without prefix
+    api_urls = [
+        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_id}",
+        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/MOVIE~{content_id}",
+        f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/SHOW~{content_id}"
+    ]
 
     status = await message.reply("🔍 Fetching SonyLIV data...")
 
+    data = None
     try:
         async with httpx.AsyncClient(timeout=30) as client_http:
-            resp = await client_http.get(api_url)
-            resp.raise_for_status()
-            data = resp.json()
+            for api_url in api_urls:
+                try:
+                    resp = await client_http.get(api_url)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        break
+                except Exception:
+                    continue
     except Exception as e:
         return await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n{e}")
 
+    if not data:
+        return await status.edit_text("❌ Could not fetch SonyLIV details (all attempts failed).")
+
     try:
-        details = data["details"]
+        details = data.get("details", {})
         title = details.get("title", "N/A")
         year = details.get("year", "N/A")
         image_url = details.get("image", "")
@@ -1176,15 +1182,12 @@ async def sonyliv_handler(client, message: Message):
                 disable_web_page_preview=False,
                 reply_markup=update_button
             )
-
             await client.send_message(
                 chat_id=dump_chat,
                 text=f"**SonyLIV Poster:** {image_url}\n\n{caption}",
                 disable_web_page_preview=False,
                 reply_markup=update_button
             )
-
-            # ✅ increment usage
             if message.from_user:
                 usage_stats[message.from_user.id]["SonyLIV"] += 1
         else:
