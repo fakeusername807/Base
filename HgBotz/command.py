@@ -1105,111 +1105,88 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV POSTER FUNCTION -----------------------
-import json
-import cloudscraper
-from bs4 import BeautifulSoup
+# ----------------------- SONYLIV FUNCTION -----------------------
+import re, httpx
 
-# Cloudscraper for bypassing CF
-scraper = cloudscraper.create_scraper()
-
-def extract_sonyliv(link: str):
-    """Extract poster and details from SonyLIV page (with retries)"""
-    try:
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Linux; Android 10; SM-G975F) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/91.0.4472.114 Mobile Safari/537.36"
-            )
-        }
-
-        # Retry up to 3 times
-        for attempt in range(3):
-            try:
-                res = scraper.get(link, timeout=30, headers=headers, allow_redirects=True)
-                res.raise_for_status()
-                break
-            except Exception as e:
-                if attempt == 2:  # last try
-                    raise Exception(f"Failed to fetch page after retries: {e}")
-                continue
-
-    except Exception as e:
-        raise Exception(f"Failed to fetch page: {e}")
-
-    soup = BeautifulSoup(res.text, "html.parser")
-
-    # Look for JSON-LD metadata
-    json_ld = soup.find("script", {"type": "application/ld+json"})
-    if not json_ld:
-        raise Exception("Metadata not found in page")
-
-    try:
-        data = json.loads(json_ld.string)
-    except Exception:
-        raise Exception("Failed to parse metadata JSON")
-
-    title = data.get("name", "N/A")
-    year = "N/A"
-    if "datePublished" in data:
-        year = str(data["datePublished"]).split("-")[0]
-
-    poster_url = data.get("image", "")
-
-    return {
-        "title": title,
-        "year": year,
-        "poster": poster_url
-    }
-
-# ----------------------- TELEGRAM HANDLER -----------------------
-@Client.on_message(filters.command(["sonyliv", "sl"]) & filters.private)
-async def pvt_sl_cmd(client, message: Message):
+@Client.on_message(filters.command("sl") & filters.private)
+async def pvt_sonyliv_cmd(client, message: Message):
     await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        "<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
         disable_web_page_preview=False
     )
 
-@Client.on_message(filters.command(["sonyliv", "sl"]) & filters.group & force_sub_filter())
+
+@Client.on_message(filters.command("sl") & filters.group & force_sub_filter())
 async def sonyliv_handler(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
 
+    if not message.from_user:
+        return await message.reply("⚠️ Cannot detect sender (maybe sent from a channel).", quote=True)
+
     if len(message.command) < 2:
-        return await message.reply_text("⚡ Usage: `/sl <sonyliv link>`", quote=True)
+        return await message.reply("⚡ Usage: `/sl <sonyliv link>`", quote=True)
 
-    link = message.text.split(" ", 1)[1].strip()
-    if not re.match(r'https?://(www\.)?sonyliv\.com', link, re.IGNORECASE):
-        return await message.reply("❌ Invalid SonyLIV link. Must start with `https://www.sonyliv.com`")
+    url = message.command[1].strip()
 
-    status = await message.reply("🔍 Fetching SonyLIV poster...")
+    # Extract content ID from SonyLIV link
+    match = re.search(r'(\d+)$', url)
+    if not match:
+        return await message.reply("❌ Invalid SonyLIV link!", quote=True)
+
+    content_id = match.group(1)
+    api_url = f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_id}"
+
+    status = await message.reply("🔍 Fetching SonyLIV data...")
 
     try:
-        data = extract_sonyliv(link)
-        caption = (
-            f"<b>{data['title']} ({data['year']})</b>\n\n"
-            f"<b>SonyLIV Poster:</b> {data['poster']}\n\n"
-            "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
-        )
-
-        await status.edit_text(caption, disable_web_page_preview=False, reply_markup=update_button)
-
-        # ✅ Dump log
-        await client.send_message(
-            chat_id=dump_chat,
-            text=caption,
-            disable_web_page_preview=False,
-            reply_markup=update_button
-        )
-
-        # ✅ Increment usage
-        if message.from_user:
-            usage_stats[message.from_user.id]["SonyLIV"] += 1
-
+        async with httpx.AsyncClient(timeout=30) as client_http:
+            resp = await client_http.get(api_url)
+            resp.raise_for_status()
+            data = resp.json()
     except Exception as e:
-        await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n{e}")
+        return await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n{e}")
+
+    # Parse API response
+    containers = data.get("containers", [])
+    if not containers:
+        return await status.edit_text("❌ No metadata found for this content.")
+
+    details = containers[0].get("metadata", {})
+    title = details.get("title", "N/A")
+    year = details.get("year", "N/A")
+    portrait = details.get("images", {}).get("cover", "")
+    landscape = details.get("images", {}).get("coverHorizontal", "")
+
+    # Build caption
+    caption = f"<b>{title} ({year})</b>\n\n"
+    if portrait:
+        caption += f"🖼️ Portrait Poster:\n{portrait}\n\n"
+    else:
+        caption += "🖼️ Portrait Poster:\nNot Available\n\n"
+
+    if landscape:
+        caption += f"🌄 Landscape Poster:\n{landscape}\n\n"
+    else:
+        caption += "🌄 Landscape Poster:\nNot Available\n\n"
+
+    caption += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+
+    # Edit the message with results
+    await status.edit_text(caption, disable_web_page_preview=False, reply_markup=update_button)
+
+    # ✅ log to dump_chat
+    await client.send_message(
+        chat_id=dump_chat,
+        text=caption,
+        disable_web_page_preview=False,
+        reply_markup=update_button
+    )
+
+    # ✅ increment usage for SonyLIV
+    if message.from_user:
+        usage_stats[message.from_user.id]["SonyLIV"] += 1
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
