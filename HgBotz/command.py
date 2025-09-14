@@ -1187,10 +1187,14 @@ async def handle_zee_request(client, message, url):
 import aiohttp
 from pyrogram import Client, filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from config import API_ID, API_HASH, BOT_TOKEN   # ✅ import from config.py
 
 # ===== BOT INSTANCE =====
 client = Client("ott_scraper_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# ===== CONFIG =====
+API_ID = 26334970
+API_HASH = "e7d1141cca9fbe1ab45804163b5080c8"
+BOT_TOKEN = "7928207862:AAFUk521pf1mHSGUxNf7WOxSm9NSJAR6w98"
 
 # ===== INLINE BUTTON =====
 update_button = InlineKeyboardMarkup(
