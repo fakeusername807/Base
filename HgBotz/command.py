@@ -1185,21 +1185,16 @@ async def handle_zee_request(client, message, url):
 #Don't Remove Credit @Hgbotz 
 
 import aiohttp
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-
-# ===== CONFIG =====
-API_ID = 26334970
-API_HASH = "e7d1141cca9fbe1ab45804163b5080c8"
-BOT_TOKEN = "7928207862:AAFUk521pf1mHSGUxNf7WOxSm9NSJAR6w98"
-
+from config import API_ID, API_HASH, BOT_TOKEN   # ✅ import from config.py
 
 # ===== BOT INSTANCE =====
 client = Client("ott_scraper_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # ===== INLINE BUTTON =====
 update_button = InlineKeyboardMarkup(
-    [[InlineKeyboardButton("😶‍🌫️ Updates", url ="https://t.me/hgbotz")]]
+    [[InlineKeyboardButton("😶‍🌫️ Updates", url="https://t.me/hgbotz")]]
 )
 
 # ===== COMMON FUNCTION =====
@@ -1218,19 +1213,27 @@ async def handle_ott_command(message: Message, api_url: str):
             return await msg.edit_text("❌ Failed to fetch data from API.")
 
         title = data.get("title") or "No Title"
+        year = data.get("year") or ""   # ✅ year support
+        provider = data.get("provider") or data.get("platform") or data.get("service") or "Unknown"
         image_url = data.get("poster") or data.get("landscape")
+        link = data.get("url") or data.get("link")  # ✅ if API gives watch link
 
         if not title and not image_url:
             return await msg.edit_text("⚠️ No title or poster found for this URL.")
-            
-            #Don't Remove Credit @Hgbotz 
+
+        # ✅ Format title with year
+        display_title = f"{title} ({year})" if year else title
 
         text = (
-            f"🎬 <b>{title}</b>\n\n"
-            f"🖼️ Poster: {image_url}\n\n"
-            
-            "<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
+            f"🎬 <b>{display_title}</b>\n"
+            f"📺 <b>OTT:</b> {provider}\n\n"
+            f"🖼️ Poster: {image_url}\n"
         )
+
+        if link:
+            text += f"\n🔗 <b>Watch here:</b> {link}\n\n"
+
+        text += "<b><blockquote>Powered By <a href='https://t.me/hgbotz'>𝙷𝙶𝙱𝙾𝚃ᶻ 🦋</a></blockquote></b>"
 
         await msg.edit_text(
             text=text,
@@ -1239,18 +1242,25 @@ async def handle_ott_command(message: Message, api_url: str):
         )
 
     except Exception as e:
-        await msg.edit_text(f"❌ Error: {e}")
+        await msg.edit_text(f"❌ Error: {e}", parse_mode=enums.ParseMode.HTML)
 
-#Don't Remove Credit @Hgbotz 
-# ===== COMMAND HANDLERS =====
+# ===== PRIVATE MODE =====
+@Client.on_message(filters.command(["sunnext", "hulu", "stage", "adda", "wetv", "plex", "iqiyi"]) & filters.private)
+async def ott_cmd_private(client, message: Message):
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=True
+    )
+
+# ===== GROUP MODE =====
 @Client.on_message(filters.command(["sunnext", "hulu", "stage", "adda", "wetv", "plex", "iqiyi"]) & filters.group & force_sub_filter())
-async def ott_cmd(client, message: Message):
+async def ott_cmd_group(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
     if len(message.command) < 2:
         return await message.reply("🔗 Please provide an OTT URL.\n\nExample:\n`/sunnext https://...`")
-        
 
     ott_url = message.text.split(None, 1)[1].strip()
     api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
