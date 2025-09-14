@@ -1105,7 +1105,7 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV FUNCTION (Updated with Triple Fallback) -----------------------
+# ----------------------- SONYLIV FUNCTION (Hardened) -----------------------
 import re, json, httpx
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters, enums
@@ -1113,7 +1113,9 @@ from pyrogram.types import Message
 
 SONYLIV_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36",
-    "Referer": "https://www.sonyliv.com/"
+    "Referer": "https://www.sonyliv.com/",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
 }
 
 async def fetch_sonyliv_page(url: str) -> dict:
@@ -1125,7 +1127,7 @@ async def fetch_sonyliv_page(url: str) -> dict:
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # --- 1) Try JSON from __INITIAL_STATE__ ---
+    # --- 1) JSON from __INITIAL_STATE__ ---
     script_tag = soup.find("script", string=re.compile("__INITIAL_STATE__"))
     if script_tag:
         match = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
@@ -1135,7 +1137,7 @@ async def fetch_sonyliv_page(url: str) -> dict:
             except Exception:
                 pass
 
-    # --- 2) Fallback to OpenGraph ---
+    # --- 2) OpenGraph tags ---
     title = soup.find("meta", property="og:title")
     image = soup.find("meta", property="og:image")
     if title or image:
@@ -1149,15 +1151,15 @@ async def fetch_sonyliv_page(url: str) -> dict:
             }
         }
 
-    # --- 3) Last fallback: use <title> and first <img> ---
-    page_title = soup.title.string.strip() if soup.title else "N/A"
+    # --- 3) Last fallback ---
+    page_title = soup.title.string.strip() if soup.title else "SonyLIV Content"
     first_img = soup.find("img")
     return {
         "detail": {
             "data": {
                 "title": page_title,
                 "year": "N/A",
-                "image": first_img["src"] if first_img and first_img.has_attr("src") else "",
+                "image": first_img["src"] if first_img and first_img.has_attr("src") else url,
             }
         }
     }
@@ -1186,27 +1188,29 @@ async def sonyliv_handler(client: Client, message: Message):
 
         caption = f"<b>{title} ({year})</b>\n\n<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
 
-        if poster:
-            await status.edit_text(
-                f"**SonyLIV Poster:** {poster}\n\n{caption}",
-                disable_web_page_preview=False,
-                reply_markup=update_button
-            )
-            await client.send_message(
-                chat_id=dump_chat,
-                text=f"**SonyLIV Poster:** {poster}\n\n{caption}",
-                disable_web_page_preview=False,
-                reply_markup=update_button
-            )
-        else:
-            await status.edit_text(f"❌ Poster not found\n\n{caption}")
+        await status.edit_text(
+            f"**SonyLIV Poster:** {poster}\n\n{caption}",
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
+        await client.send_message(
+            chat_id=dump_chat,
+            text=f"**SonyLIV Poster:** {poster}\n\n{caption}",
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
 
         # ✅ Increment usage
         if message.from_user:
             usage_stats[message.from_user.id]["SonyLIV"] += 1
 
     except Exception as e:
-        await status.edit_text(f"❌ SonyLIV failed:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        # Never fail silently – show fallback
+        await status.edit_text(
+            f"**SonyLIV Poster:** {url}\n\n<b>⚠️ Could not fetch full details.</b>\n\n"
+            f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>",
+            disable_web_page_preview=False
+        )
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
