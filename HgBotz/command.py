@@ -1568,7 +1568,7 @@ async def poster_cmd(client, message: Message):
 
 # ================== TMDB Config ==================
 
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "fe6745c215b5ed09da847340eae06b9e")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "e38cc297dbea6c22b0ca1f13f92b009d")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original"
 
@@ -2010,7 +2010,7 @@ async def pvt_cmd(client, message: Message):
 async def rename_episode(client: Client, message: Message):
     reply = message.reply_to_message
 
-    TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"  # Replace with your real key
+    TMDB_API_KEY = "e38cc297dbea6c22b0ca1f13f92b009d"  # Replace with your real key
 
     if len(message.command) < 2:
         return await message.reply("Send like: `/rename The Boys S01E01`")
@@ -2056,7 +2056,7 @@ async def rename_episode(client: Client, message: Message):
             f"**<blockquote>Powered by <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote>**"
         )
 #--------- OTT Availability Checker -----------------
-TMDB_API_KEY = "fe6745c215b5ed09da847340eae06b9e"
+TMDB_API_KEY = "e38cc297dbea6c22b0ca1f13f92b009d"
 
 # Private command response
 @Client.on_message(filters.command("where") & filters.private)
@@ -2145,7 +2145,7 @@ db = mongo_client[HgBotz.DB_NAME]
 templates_col = db["caption_templates"]
 
 # TMDB API key directly from environment
-TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "fe6745c215b5ed09da847340eae06b9e")
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "e38cc297dbea6c22b0ca1f13f92b009d")
 
 # Helper: format file size
 def format_size(size):
