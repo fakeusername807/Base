@@ -1105,25 +1105,26 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV FUNCTION -----------------------
-import re, httpx
+# ----------------------- SONYLIV POSTER FUNCTION -----------------------
+import re
+import httpx
+from pyrogram import filters, enums
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 @Client.on_message(filters.command("sl") & filters.private)
-async def pvt_sonyliv_cmd(client, message: Message):
+async def pvt_sl_cmd(client, message: Message):
     await message.reply_text(
-        "<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
         disable_web_page_preview=False
     )
-
 
 @Client.on_message(filters.command("sl") & filters.group & force_sub_filter())
 async def sonyliv_handler(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if not message.from_user:
-        return await message.reply("⚠️ Cannot detect sender (maybe sent from a channel).", quote=True)
+        return await message.reply(
+            "❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot"
+        )
 
     if len(message.command) < 2:
         return await message.reply("⚡ Usage: `/sl <sonyliv link>`", quote=True)
@@ -1131,12 +1132,21 @@ async def sonyliv_handler(client, message: Message):
     url = message.command[1].strip()
 
     # Extract content ID from SonyLIV link
-    match = re.search(r'(\d+)$', url)
+    match = re.search(r'-(\d+)$', url)
     if not match:
         return await message.reply("❌ Invalid SonyLIV link!", quote=True)
 
     content_id = match.group(1)
-    api_url = f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_id}"
+
+    # Detect content type from URL
+    if "movie" in url:
+        content_type = "MOVIE"
+    elif "show" in url or "tv-shows" in url:
+        content_type = "SHOW"
+    else:
+        content_type = "MOVIE"  # fallback
+
+    api_url = f"https://apiv2.sonyliv.com/AGL/1.7/A/ENG/WEB/IN/CONTENT/DETAIL/{content_type}~{content_id}"
 
     status = await message.reply("🔍 Fetching SonyLIV data...")
 
@@ -1148,45 +1158,40 @@ async def sonyliv_handler(client, message: Message):
     except Exception as e:
         return await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n{e}")
 
-    # Parse API response
-    containers = data.get("containers", [])
-    if not containers:
-        return await status.edit_text("❌ No metadata found for this content.")
+    try:
+        details = data["details"]
+        title = details.get("title", "N/A")
+        year = details.get("year", "N/A")
+        image_url = details.get("image", "")
 
-    details = containers[0].get("metadata", {})
-    title = details.get("title", "N/A")
-    year = details.get("year", "N/A")
-    portrait = details.get("images", {}).get("cover", "")
-    landscape = details.get("images", {}).get("coverHorizontal", "")
+        caption = (
+            f"<b>{title} ({year})</b>\n\n"
+            f"<b>SonyLIV Poster:</b> {image_url}\n\n"
+            f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+        )
 
-    # Build caption
-    caption = f"<b>{title} ({year})</b>\n\n"
-    if portrait:
-        caption += f"🖼️ Portrait Poster:\n{portrait}\n\n"
-    else:
-        caption += "🖼️ Portrait Poster:\nNot Available\n\n"
+        if image_url:
+            await status.edit_text(
+                f"**SonyLIV Poster:** {image_url}\n\n{caption}",
+                disable_web_page_preview=False,
+                reply_markup=update_button
+            )
 
-    if landscape:
-        caption += f"🌄 Landscape Poster:\n{landscape}\n\n"
-    else:
-        caption += "🌄 Landscape Poster:\nNot Available\n\n"
+            await client.send_message(
+                chat_id=dump_chat,
+                text=f"**SonyLIV Poster:** {image_url}\n\n{caption}",
+                disable_web_page_preview=False,
+                reply_markup=update_button
+            )
 
-    caption += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+            # ✅ increment usage
+            if message.from_user:
+                usage_stats[message.from_user.id]["SonyLIV"] += 1
+        else:
+            await status.edit_text(caption, disable_web_page_preview=False)
 
-    # Edit the message with results
-    await status.edit_text(caption, disable_web_page_preview=False, reply_markup=update_button)
-
-    # ✅ log to dump_chat
-    await client.send_message(
-        chat_id=dump_chat,
-        text=caption,
-        disable_web_page_preview=False,
-        reply_markup=update_button
-    )
-
-    # ✅ increment usage for SonyLIV
-    if message.from_user:
-        usage_stats[message.from_user.id]["SonyLIV"] += 1
+    except Exception as e:
+        await status.edit_text(f"❌ Error parsing SonyLIV response:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
