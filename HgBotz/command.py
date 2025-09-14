@@ -1243,10 +1243,14 @@ async def handle_ott_command(message: Message, api_url: str):
 
 #Don't Remove Credit @Hgbotz 
 # ===== COMMAND HANDLERS =====
-@client.on_message(filters.command(["sunnext", "hulu", "stage", "adda", "wetv", "plex", "iqiyi"]))
+@Client.on_message(filters.command(["sunnext", "hulu", "stage", "adda", "wetv", "plex", "iqiyi"]) & filters.group & force_sub_filter())
 async def ott_cmd(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
     if len(message.command) < 2:
         return await message.reply("🔗 Please provide an OTT URL.\n\nExample:\n`/sunnext https://...`")
+        
 
     ott_url = message.text.split(None, 1)[1].strip()
     api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
