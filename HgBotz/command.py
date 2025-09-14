@@ -1105,106 +1105,109 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# -----------------------SONYLIV POSTER FUNCTION -----------------------
-import json, re, requests
-from pyrogram import Client, filters
-from PIL import Image
-from io import BytesIO
+# ----------------------- SONYLIV POSTER FUNCTION -----------------------
+import cloudscraper
+from bs4 import BeautifulSoup
+import re, json
 
-@Client.on_message(filters.command("sliv") & filters.private)
-async def pvt_sliv_cmd(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=False
-    )
-# -----------------------SONYLIV POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("sliv") & filters.group & force_sub_filter())
-async def sonyliv_handler(client, message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+# Create Cloudflare bypass session
+scraper = cloudscraper.create_scraper(browser={"custom": "chrome"})
 
-    if len(message.command) < 2:
-        return await message.reply("❗ Usage:\n/sliv <SonyLIV Show URL>", quote=True)
+def extract_sonyliv(link: str):
+    """Extract poster and details from SonyLIV page"""
+    try:
+        res = scraper.get(link, timeout=20)
+        res.raise_for_status()
+    except Exception as e:
+        raise Exception(f"Failed to fetch page: {e}")
 
-    url = message.command[1].strip()
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept-Language": "en-US,en;q=0.9"
-    }
+    soup = BeautifulSoup(res.text, "html.parser")
+
+    # Look for structured data (JSON-LD)
+    json_ld = soup.find("script", {"type": "application/ld+json"})
+    if not json_ld:
+        raise Exception("Metadata not found")
 
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        response.raise_for_status()
-        html = response.text
+        data = json.loads(json_ld.string)
+    except Exception:
+        raise Exception("Failed to parse metadata")
+
+    title = data.get("name", "N/A")
+    year = "N/A"
+    if "datePublished" in data:
+        year = str(data["datePublished"]).split("-")[0]
+
+    poster_url = data.get("image", "")
+
+    return {
+        "title": title,
+        "year": year,
+        "poster": poster_url
+    }
+
+
+@Client.on_message(filters.command(["sliv", "sonyliv"]) & filters.private)
+async def pvt_sonyliv_cmd(client, message: Message):
+    await message.reply_text(
+        "<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=False
+    )
+
+
+@Client.on_message(filters.command(["sliv", "sonyliv"]) & filters.group & force_sub_filter())
+async def sonyliv_handler(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply(
+            "❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot"
+        )
+
+    if len(message.command) < 2:
+        return await message.reply(
+            "⚡ Usage: `/sliv https://www.sonyliv.com/shows/...`", quote=True
+        )
+
+    url = message.command[1].strip()
+    if not re.match(r"https?://(www\.)?sonyliv\.com", url, re.IGNORECASE):
+        return await message.reply("❌ Invalid SonyLIV URL!", quote=True)
+
+    msg = await message.reply("🔍 Fetching SonyLIV poster...")
+
+    try:
+        data = extract_sonyliv(url)
+
+        caption = (
+            f"**SonyLIV Poster: {data['poster']}**\n\n"
+            f"<b>{data['title']} ({data['year']})</b>\n\n"
+            f"<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+        )
+
+        if data["poster"]:
+            await msg.edit_text(
+                caption,
+                disable_web_page_preview=False,
+                reply_markup=update_button
+            )
+            await client.send_message(
+                chat_id=dump_chat,
+                text=caption,
+                disable_web_page_preview=False,
+                reply_markup=update_button
+            )
+
+            # ✅ increment usage for SonyLIV
+            if message.from_user:
+                usage_stats[message.from_user.id]["SonyLIV"] += 1
+
+        else:
+            await msg.edit_text(
+                f"<b>{data['title']} ({data['year']})</b>\n\n❌ Poster not available",
+                disable_web_page_preview=True
+            )
+
     except Exception as e:
-        return await message.reply(f"❌ Failed to fetch page:\n{e}", quote=True)
-
-    # 🔍 Extract JSON-LD script
-    jsonld_match = re.search(
-        r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',
-        html, re.DOTALL | re.IGNORECASE
-    )
-
-    if jsonld_match:
-        try:
-            data = json.loads(jsonld_match.group(1))
-            full_name = data.get("name", "Unknown")
-
-            # Clean the title
-            title = re.sub(r'Watch\s+', '', full_name, flags=re.IGNORECASE)
-            title = re.sub(r'\s*-\s*Sony LIV', '', title, flags=re.IGNORECASE)
-            title = re.sub(r'\s*Online$', '', title, flags=re.IGNORECASE)
-            title = title.strip()
-
-            # Keep only main name before first language/genre keyword
-            title = re.split(r'\s+(Malayalam|Hindi|Tamil|Telugu|Kannada|Action|Thriller|Movie|Full HD)\b',
-                             title, flags=re.IGNORECASE)[0].strip()
-
-            upload_date = data.get("uploadDate", "")
-            year = upload_date[:4] if upload_date else "Unknown"
-        except Exception:
-            title, year = "Unknown", "Unknown"
-    else:
-        title, year = "Unknown", "Unknown"
-
-    # 🔍 Poster extraction
-    all_images = re.findall(
-        r'https?://[^\s"\']+videoasset_images/[^\s"\']+\.(?:jpg|jpeg|png|webp)',
-        html, re.IGNORECASE
-    )
-
-    portrait, landscape = None, None
-    for img in all_images:
-        lower = img.lower()
-        if not portrait and "portrait" in lower:
-            portrait = img
-        elif not landscape and "landscape" in lower:
-            if "images.slivcdn.com" in img:
-                img = img.replace("images.slivcdn.com", "origin-staticv2.sonyliv.com")
-            landscape = img
-        if portrait and landscape:
-            break
-
-    def get_dimensions(img_url):
-        try:
-            r = requests.get(img_url, timeout=10)
-            im = Image.open(BytesIO(r.content))
-            return f"{im.width}×{im.height}"
-        except:
-            return "Unknown size"
-
-    # 🔹 Build reply
-    result = []
-    if landscape:
-        size = get_dimensions(landscape)
-        result.append(f"🌄 Landscape Poster: {landscape}\n📐 Size: {size}\n")
-    if portrait:
-        size = get_dimensions(portrait)
-        result.append(f"🖼 Portrait Poster: {portrait}\n📐 Size: {size}\n")
-    result.append(f"🎬 {title} ({year})")
-
-    await message.reply("\n".join(result), quote=True)
+        await msg.edit_text(f"❌ Failed to fetch SonyLIV data:\n`{e}`")
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
 
