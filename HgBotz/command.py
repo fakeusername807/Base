@@ -1105,11 +1105,11 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
-# ----------------------- SONYLIV FUNCTION -----------------------
+# ----------------------- SONYLIV FUNCTION (Updated with Triple Fallback) -----------------------
 import re, json, httpx
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters, enums
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message
 
 SONYLIV_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36",
@@ -1117,7 +1117,7 @@ SONYLIV_HEADERS = {
 }
 
 async def fetch_sonyliv_page(url: str) -> dict:
-    """Fetch SonyLIV page and extract metadata JSON or fallback to meta tags"""
+    """Fetch SonyLIV page and extract metadata JSON or fallback to meta tags/images"""
     async with httpx.AsyncClient(timeout=30, headers=SONYLIV_HEADERS) as client_http:
         resp = await client_http.get(url)
         resp.raise_for_status()
@@ -1125,26 +1125,39 @@ async def fetch_sonyliv_page(url: str) -> dict:
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # --- Try to extract JSON from script ---
+    # --- 1) Try JSON from __INITIAL_STATE__ ---
     script_tag = soup.find("script", string=re.compile("__INITIAL_STATE__"))
     if script_tag:
-        json_text = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
-        if json_text:
+        match = re.search(r"__INITIAL_STATE__\s*=\s*(\{.*\});", script_tag.string)
+        if match:
             try:
-                return json.loads(json_text.group(1))
+                return json.loads(match.group(1))
             except Exception:
-                pass  # fallback below
+                pass
 
-    # --- Fallback: use OpenGraph meta tags ---
+    # --- 2) Fallback to OpenGraph ---
     title = soup.find("meta", property="og:title")
     image = soup.find("meta", property="og:image")
+    if title or image:
+        return {
+            "detail": {
+                "data": {
+                    "title": title["content"] if title else "N/A",
+                    "year": "N/A",
+                    "image": image["content"] if image else "",
+                }
+            }
+        }
 
+    # --- 3) Last fallback: use <title> and first <img> ---
+    page_title = soup.title.string.strip() if soup.title else "N/A"
+    first_img = soup.find("img")
     return {
         "detail": {
             "data": {
-                "title": title["content"] if title else "N/A",
+                "title": page_title,
                 "year": "N/A",
-                "image": image["content"] if image else "",
+                "image": first_img["src"] if first_img and first_img.has_attr("src") else "",
             }
         }
     }
@@ -1152,10 +1165,7 @@ async def fetch_sonyliv_page(url: str) -> dict:
 
 @Client.on_message(filters.command("sl") & filters.group & force_sub_filter())
 async def sonyliv_handler(client: Client, message: Message):
-    """
-    Usage: /sl <sonyliv link>
-    Example: /sl https://www.sonyliv.com/movies/agent-telugu-1590014246
-    """
+    """Handle /sl SonyLIV poster fetch"""
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized. Contact @MrSagar_RoBot")
@@ -1189,14 +1199,14 @@ async def sonyliv_handler(client: Client, message: Message):
                 reply_markup=update_button
             )
         else:
-            await status.edit_text(caption, disable_web_page_preview=False)
+            await status.edit_text(f"❌ Poster not found\n\n{caption}")
 
-        # ✅ increment usage
+        # ✅ Increment usage
         if message.from_user:
             usage_stats[message.from_user.id]["SonyLIV"] += 1
 
     except Exception as e:
-        await status.edit_text(f"❌ Failed to fetch SonyLIV data:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
+        await status.edit_text(f"❌ SonyLIV failed:\n`{e}`", parse_mode=enums.ParseMode.MARKDOWN)
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
