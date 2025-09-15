@@ -218,7 +218,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
-            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/leech {gofile_link} -n {file_title}")
+            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"`/l {gofile_link} -n {file_title}`")
 
     except Exception as e:
         print(f"⚠️ Error processing movie: {e}")
