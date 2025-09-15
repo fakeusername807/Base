@@ -154,6 +154,17 @@ def save_processed_urls(urls):
     with open(STATE_FILE, "w") as f:
         json.dump({"processed_urls": urls}, f)
 
+def clean_title(title: str) -> str:
+    # Remove [size], (size), {size} patterns like [1.7GB], (850MB), {2.3 GB}
+    title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
+    # Strip extra spaces
+    title = re.sub(r'\s+', ' ', title).strip()
+    # Always add .mkv
+    if not title.lower().endswith(".mkv"):
+        title = f"{title}.mkv"
+    return title
+
+
 async def get_latest_movies():
     try:
         async with aiohttp.ClientSession() as session:
@@ -201,8 +212,9 @@ async def process_and_send_movie(client: Client, movie_url: str):
             text=text,
             disable_web_page_preview=True
         )
+        
         # Add .mkv extension to title
-        file_title = f"{title}.mkv"
+        file_title = clean_title(title)
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
