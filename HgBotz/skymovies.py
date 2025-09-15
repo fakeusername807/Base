@@ -57,6 +57,7 @@ async def extract_external_links(url: str) -> list:
 # ===========================
 BASE_URL = "https://skymovieshd.credit/"
 STATE_FILE = "skymovies_state.json"
+
 TARGET_CHANNEL = -1002557688309   # full post here
 GOFILE_CHANNELS = [
     {"id": -1002996723284, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
@@ -69,15 +70,12 @@ ADMIN_ID = 7965786027
 CHECK_INTERVAL = 420  # seconds
 
 # ===========================
-# Utility: pick last gofile link
+# Utils
 # ===========================
 def pick_last_gofile(links: list) -> str:
     gofiles = [l.strip() for l in links if l and "gofile.io" in l]
     return gofiles[-1] if gofiles else ""
 
-# ===========================
-# Clean title for /l command
-# ===========================
 def clean_title(title: str) -> str:
     # Remove size markers like [1.7GB], (850MB), {2.3 GB}
     title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
@@ -88,7 +86,7 @@ def clean_title(title: str) -> str:
     return title
 
 # ===========================
-# Format target channel post
+# Format post for target channel
 # ===========================
 def format_target_post(title: str, watch_url: str, all_links: list) -> str:
     gofile_links = [l for l in all_links if "gofile.io" in l]
@@ -114,7 +112,7 @@ def format_target_post(title: str, watch_url: str, all_links: list) -> str:
     return text
 
 # ===========================
-# Manual command (/sky)
+# Manual command (/sky) – only reply
 # ===========================
 @Client.on_message(filters.command("sky") & filters.private)
 async def skymovies_full_command(client: Client, message: Message):
@@ -137,9 +135,9 @@ async def skymovies_full_command(client: Client, message: Message):
     server01_links = await extract_external_links(data.get("SERVER 01", ""))
 
     all_links = gdrive_links + server01_links
-
-    # ✅ Only reply to user, not to channels
     text = format_target_post(title, watch_url, all_links)
+
+    # ✅ reply only, don’t push to channels
     await M.edit_text(text, disable_web_page_preview=True)
 
 # ===========================
@@ -203,11 +201,14 @@ async def process_and_send_movie(client: Client, movie_url: str):
             disable_web_page_preview=True
         )
         
-        # ✅ Only gofile in gofile channels
+        # ✅ Only GoFile link(s) in GoFile channels
         if gofile_link:
             file_title = clean_title(title)
             for ch in GOFILE_CHANNELS:
-                custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
+                if "tag" in ch and "uid" in ch:
+                    custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}\nTag: {ch['tag']} {ch['uid']}"
+                else:
+                    custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
                 try:
                     await client.send_message(chat_id=ch["id"], text=custom_text)
                 except Exception as e:
