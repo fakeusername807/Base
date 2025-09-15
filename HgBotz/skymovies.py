@@ -61,7 +61,7 @@ STATE_FILE = "skymovies_state.json"
 TARGET_CHANNEL = -1002825305780   # full post here
 GOFILE_CHANNELS = [
     {"id": -1002952205354, "prefix": "/l3", "tag": "@S_g_music", "uid": 7606037374},
-    {"id": -1002996723284, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
+    {"id": -1002996723284, "prefix": "/l5", "tag": "@MrSagar0", "uid": 7965786027},
     {"id": -1002825305780, "prefix": "/l"}  # ✅ no tag/uid here
 ]
 
