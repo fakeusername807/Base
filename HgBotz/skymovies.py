@@ -58,7 +58,13 @@ async def extract_external_links(url: str) -> list:
 BASE_URL = "https://skymovieshd.credit/"
 STATE_FILE = "skymovies_state.json"
 TARGET_CHANNEL = -1002557688309   # full post here
-GOFILE_CHANNEL = -1002996723284   # only /leech gofile link
+GOFILE_CHANNELS = [
+    {"id": -1002996723284, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
+    {"id": -1002715187536, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
+    {"id": -1003062830864, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
+    {"id": -1002557688309, "prefix": "/l"}  # ✅ no tag/uid here
+]    # only /leech gofile link
+
 ADMIN_ID = 7965786027
 CHECK_INTERVAL = 420  # seconds
 
@@ -155,11 +161,10 @@ def save_processed_urls(urls):
         json.dump({"processed_urls": urls}, f)
 
 def clean_title(title: str) -> str:
-    # Remove [size], (size), {size} patterns like [1.7GB], (850MB), {2.3 GB}
+    # Remove size markers like [1.7GB], (850MB), {2.3 GB}
     title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
-    # Strip extra spaces
     title = re.sub(r'\s+', ' ', title).strip()
-    # Always add .mkv
+    # Ensure .mkv extension
     if not title.lower().endswith(".mkv"):
         title = f"{title}.mkv"
     return title
@@ -218,10 +223,14 @@ async def process_and_send_movie(client: Client, movie_url: str):
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
-            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/l {gofile_link} -n {file_title}\nTag: @MrSagar0 7965786027")
-
-    except Exception as e:
-        print(f"⚠️ Error processing movie: {e}")
+    file_title = clean_title(title)
+    for ch in GOFILE_CHANNELS:
+        # No Tag, just prefix + link + title
+        custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
+        try:
+            await client.send_message(chat_id=ch["id"], text=custom_text)
+        except Exception as e:
+            print(f"❌ Failed to send to {ch['id']}: {e}")
 
 async def monitor_new_movies(client: Client):
     state = load_processed_urls()
