@@ -63,7 +63,7 @@ GOFILE_CHANNELS = [
     {"id": -1002715187536, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
     {"id": -1003062830864, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027},
     {"id": -1002557688309, "prefix": "/l"}  # ✅ no tag/uid here
-]    # only /leech gofile link
+]
 
 ADMIN_ID = 7965786027
 CHECK_INTERVAL = 420  # seconds
@@ -74,6 +74,18 @@ CHECK_INTERVAL = 420  # seconds
 def pick_last_gofile(links: list) -> str:
     gofiles = [l.strip() for l in links if l and "gofile.io" in l]
     return gofiles[-1] if gofiles else ""
+
+# ===========================
+# Clean title for /l command
+# ===========================
+def clean_title(title: str) -> str:
+    # Remove size markers like [1.7GB], (850MB), {2.3 GB}
+    title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
+    title = re.sub(r'\s+', ' ', title).strip()
+    # Ensure .mkv extension
+    if not title.lower().endswith(".mkv"):
+        title = f"{title}.mkv"
+    return title
 
 # ===========================
 # Format target channel post
@@ -102,9 +114,9 @@ def format_target_post(title: str, watch_url: str, all_links: list) -> str:
     return text
 
 # ===========================
-# Manual command
+# Manual command (/sky)
 # ===========================
-@Client.on_message(filters.command("sky") & filters.all)
+@Client.on_message(filters.command("sky") & filters.private)
 async def skymovies_full_command(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply("❌ Usage: /sky <skymovieshd_url>")
@@ -125,27 +137,10 @@ async def skymovies_full_command(client: Client, message: Message):
     server01_links = await extract_external_links(data.get("SERVER 01", ""))
 
     all_links = gdrive_links + server01_links
-    gofile_link = pick_last_gofile(all_links)
 
-    # ✅ Send formatted text post to target channel
+    # ✅ Only reply to user, not to channels
     text = format_target_post(title, watch_url, all_links)
-    try:
-        await client.send_message(
-            chat_id=TARGET_CHANNEL,
-            text=text,
-            disable_web_page_preview=True
-        )
-    except Exception as e:
-        print(f"❌ Failed to post to TARGET_CHANNEL: {e}")
-
-    # ✅ Send only /leech GoFile link to GoFile channel
-    if gofile_link:
-        try:
-            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/leech {gofile_link}")
-        except Exception as e:
-            print(f"❌ Failed to post gofile to GOFILE_CHANNEL: {e}")
-
-    await M.edit_text("✅ Posted to both channels")
+    await M.edit_text(text, disable_web_page_preview=True)
 
 # ===========================
 # Auto Monitor
@@ -159,16 +154,6 @@ def load_processed_urls():
 def save_processed_urls(urls):
     with open(STATE_FILE, "w") as f:
         json.dump({"processed_urls": urls}, f)
-
-def clean_title(title: str) -> str:
-    # Remove size markers like [1.7GB], (850MB), {2.3 GB}
-    title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
-    title = re.sub(r'\s+', ' ', title).strip()
-    # Ensure .mkv extension
-    if not title.lower().endswith(".mkv"):
-        title = f"{title}.mkv"
-    return title
-
 
 async def get_latest_movies():
     try:
@@ -218,10 +203,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
             disable_web_page_preview=True
         )
         
-        # Add .mkv extension to title
-        file_title = clean_title(title)
-
-        # ✅ Only gofile in gofile channel
+        # ✅ Only gofile in gofile channels
         if gofile_link:
             file_title = clean_title(title)
             for ch in GOFILE_CHANNELS:
@@ -231,6 +213,8 @@ async def process_and_send_movie(client: Client, movie_url: str):
                 except Exception as e:
                     print(f"❌ Failed to send to {ch['id']}: {e}")
 
+    except Exception as e:
+        print(f"⚠️ Error processing movie: {e}")
 
 async def monitor_new_movies(client: Client):
     state = load_processed_urls()
