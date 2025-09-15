@@ -119,11 +119,27 @@ async def skymovies_full_command(client: Client, message: Message):
     server01_links = await extract_external_links(data.get("SERVER 01", ""))
 
     all_links = gdrive_links + server01_links
+    gofile_link = pick_last_gofile(all_links)
 
-    # ✅ Format the reply only to the user
+    # ✅ Send formatted text post to target channel
     text = format_target_post(title, watch_url, all_links)
+    try:
+        await client.send_message(
+            chat_id=TARGET_CHANNEL,
+            text=text,
+            disable_web_page_preview=True
+        )
+    except Exception as e:
+        print(f"❌ Failed to post to TARGET_CHANNEL: {e}")
 
-    await M.edit_text(text, disable_web_page_preview=True)
+    # ✅ Send only /leech GoFile link to GoFile channel
+    if gofile_link:
+        try:
+            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/leech {gofile_link}")
+        except Exception as e:
+            print(f"❌ Failed to post gofile to GOFILE_CHANNEL: {e}")
+
+    await M.edit_text("✅ Posted to both channels")
 
 # ===========================
 # Auto Monitor
@@ -202,7 +218,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
-            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/l {gofile_link} -n {file_title}")
+            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/l {gofile_link} -n {file_title}\nTag: @MrSagar0 7965786027")
 
     except Exception as e:
         print(f"⚠️ Error processing movie: {e}")
