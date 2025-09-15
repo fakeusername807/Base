@@ -201,10 +201,12 @@ async def process_and_send_movie(client: Client, movie_url: str):
             text=text,
             disable_web_page_preview=True
         )
+        # Add .mkv extension to title
+        file_title = f"{title}.mkv"
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
-            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/leech {gofile_link}")
+            await client.send_message(chat_id=GOFILE_CHANNEL, text=f"/leech {gofile_link} -n {file_title}")
 
     except Exception as e:
         print(f"⚠️ Error processing movie: {e}")
