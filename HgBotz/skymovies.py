@@ -223,14 +223,14 @@ async def process_and_send_movie(client: Client, movie_url: str):
 
         # ✅ Only gofile in gofile channel
         if gofile_link:
-    file_title = clean_title(title)
-    for ch in GOFILE_CHANNELS:
-        # No Tag, just prefix + link + title
-        custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
-        try:
-            await client.send_message(chat_id=ch["id"], text=custom_text)
-        except Exception as e:
-            print(f"❌ Failed to send to {ch['id']}: {e}")
+            file_title = clean_title(title)
+            for ch in GOFILE_CHANNELS:
+                custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
+                try:
+                    await client.send_message(chat_id=ch["id"], text=custom_text)
+                except Exception as e:
+                    print(f"❌ Failed to send to {ch['id']}: {e}")
+
 
 async def monitor_new_movies(client: Client):
     state = load_processed_urls()
