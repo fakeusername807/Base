@@ -1103,6 +1103,88 @@ async def handle_zee_request(client, message, url):
     except Exception as e:
         await message.reply(f"❌ Error: {str(e)}")
 
+# ===== ALL (["sunnext", "hulu", "stage", "adda", "wetv", "plex", "iqiyi"]) =====
+
+import aiohttp
+from pyrogram import Client, filters, enums
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+
+
+# ===== CONFIG =====
+API_ID = 26334970
+API_HASH = "e7d1141cca9fbe1ab45804163b5080c8"
+BOT_TOKEN = "7928207862:AAFUk521pf1mHSGUxNf7WOxSm9NSJAR6w98"
+
+# ===== BOT INSTANCE =====
+client = Client("ott_scraper_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# ===== COMMON FUNCTION =====
+async def fetch_ott_data(api_url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api_url) as resp:
+            if resp.status != 200:
+                return None
+            return await resp.json()
+
+async def handle_ott_command(message: Message, api_url: str):
+    msg = await message.reply("🔍")
+    try:
+        data = await fetch_ott_data(api_url)
+        if not data:
+            return await msg.edit_text("❌ Failed to fetch data from API.")
+
+        title = data.get("title") or "No Title"
+        year = data.get("year") or ""   # ✅ year support
+        image_url = data.get("poster") or data.get("landscape")
+        link = data.get("url") or data.get("link")  # ✅ if API gives watch link
+
+        if not title and not image_url:
+            return await msg.edit_text("⚠️ No title or poster found for this URL.")
+
+        # ✅ Format title with year
+        display_title = f"{title} ({year})" if year else title
+
+        text = (
+            f"🎬 <b>{display_title}</b>\n\n"
+            f"🖼️ <b>Poster: {image_url}</b>\n\n"
+        )
+
+        if link:
+            text += f"\n🔗 <b>Watch here:</b> {link}\n\n"
+
+        text += "<b><blockquote>Powered By <a href='https://t.me/MrSagarbots'>MrSagarbots</a></blockquote></b>"
+
+        await msg.edit_text(
+            text=text,
+            disable_web_page_preview=False,
+            reply_markup=update_button
+        )
+
+    except Exception as e:
+        await msg.edit_text(f"❌ Error: {e}", parse_mode=enums.ParseMode.HTML)
+        
+# ===== PRIVATE MODE =====
+@Client.on_message(filters.command(["snxt", "hulu", "stage", "adda", "wetv", "plex", "iq"]) & filters.private)
+async def ott_cmd_private(client, message: Message):
+    await message.reply_text(
+        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
+        disable_web_page_preview=True
+    )
+    
+# ===== GROUP MODE =====
+@Client.on_message(filters.command(["snxt", "hulu", "stage", "adda", "wetv", "plex", "iq"]) & filters.group & force_sub_filter())
+async def ott_cmd_group(client, message: Message):
+    chat_id = message.chat.id
+    if not await is_chat_authorized(chat_id):
+        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
+
+    if len(message.command) < 2:
+        return await message.reply("🔗 Please provide URL After command")
+
+    ott_url = message.text.split(None, 1)[1].strip()
+    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
+    await handle_ott_command(message, api_url)
+
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
 
 @Client.on_message(filters.command("nf") & filters.private)
