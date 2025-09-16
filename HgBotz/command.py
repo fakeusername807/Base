@@ -1242,7 +1242,7 @@ async def handle_ott_command(message: Message, api_url: str):
         await msg.edit_text(f"❌ Error: {e}", parse_mode=enums.ParseMode.HTML)
 
 # ----------------------- SUNNEXT POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("snxt) & filters.private)
+@Client.on_message(filters.command("snxt") & filters.private)
 async def ott_cmd_private(client, message: Message):
     await message.reply_text(
         text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
