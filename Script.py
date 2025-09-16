@@ -40,6 +40,13 @@ MX Player</blockquote>
 /yt YouTube_url
 /aha aha_url
 /shemaroomee ShemarooMe_url
+/snxt SunNXT_url
+/hulu Hulu_url
+/stage Stage_url
+/adda AddaTimes_url
+/wetv WeTv_url 
+/plex PlexTv_url
+/iq iQIYI_url
 <blockquote>For Theater Print or Leatest Realese</blockquote>
 /bms leatest_release
 /p Movie/Series_name
