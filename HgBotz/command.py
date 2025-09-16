@@ -1240,149 +1240,24 @@ async def handle_ott_command(message: Message, api_url: str):
 
     except Exception as e:
         await msg.edit_text(f"❌ Error: {e}", parse_mode=enums.ParseMode.HTML)
-
-# ----------------------- SUNNEXT POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("snxt") & filters.private)
+        
+# ===== PRIVATE MODE =====
+@Client.on_message(filters.command(["snxt", "hulu", "stage", "adda", "wetv", "plex", "iq"]) & filters.private)
 async def ott_cmd_private(client, message: Message):
     await message.reply_text(
         text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
         disable_web_page_preview=True
     )
-
-@Client.on_message(filters.command("snxt") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a SunNxt URL.\n(https://www.sunnxt.com)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
-
-# ----------------------- HULU POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("hulu") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("hulu") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a Hulu URL.\n(https://www.hulu.com)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
     
-# ----------------------- STAGE POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("stage") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("stage") & filters.group & force_sub_filter())
+# ===== GROUP MODE =====
+@Client.on_message(filters.command(["snxt", "hulu", "stage", "adda", "wetv", "plex", "iq"]) & filters.group & force_sub_filter())
 async def ott_cmd_group(client, message: Message):
     chat_id = message.chat.id
     if not await is_chat_authorized(chat_id):
         return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
 
     if len(message.command) < 2:
-        return await message.reply("Please provide a Stage URL.\n(https://www.sunnxt.in)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
-    
-# ----------------------- ADDATIMES POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("adda") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("adda") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a AddaTimes URL.\n(https://www.addatimes.com)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
-    
-# ----------------------- WETV POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("wetv") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("wetv") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a WeTv URL.\n(https://www.wetv.vip/en)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
-    
-# ----------------------- PLEX TV POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("plex") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("plex") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a Plex Tv URL.\n(https://www.plex.tv/)")
-
-    ott_url = message.text.split(None, 1)[1].strip()
-    api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
-    await handle_ott_command(message, api_url)
-    
-# ----------------------- IQIYI POSTER FUNCTION -----------------------
-@Client.on_message(filters.command("iq") & filters.private)
-async def ott_cmd_private(client, message: Message):
-    await message.reply_text(
-        text="<b>This command is only available in specific groups.\nContact Admin @MrSagar_RoBot to get the link.</b>",
-        disable_web_page_preview=True
-    )
-
-@Client.on_message(filters.command("iq") & filters.group & force_sub_filter())
-async def ott_cmd_group(client, message: Message):
-    chat_id = message.chat.id
-    if not await is_chat_authorized(chat_id):
-        return await message.reply("❌ This chat is not authorized to use this command. Contact @MrSagar_RoBot")
-
-    if len(message.command) < 2:
-        return await message.reply("Please provide a iQIYI URL.\n(https://www.iq.com/)")
+        return await message.reply("🔗 Please provide URL After command")
 
     ott_url = message.text.split(None, 1)[1].strip()
     api_url = f"https://hgbots.vercel.app/bypaas/asa.php?url={ott_url}"
