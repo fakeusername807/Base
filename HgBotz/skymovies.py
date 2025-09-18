@@ -202,7 +202,7 @@ async def process_and_send_movie(client: Client, movie_url: str):
         )
         
         # ✅ Only GoFile link(s) in GoFile channels
-        if gofile_link:
+if gofile_link:
     base_title = clean_title(title)
     for ch in GOFILE_CHANNELS:
         file_title = base_title
