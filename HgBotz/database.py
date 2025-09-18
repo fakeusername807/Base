@@ -6,6 +6,7 @@ db = client[HgBotz.DB_NAME]
 chnl_ids = db.chnl_ids
 users = db.users
 group_settings = db.group_settings
+pm_users_col = db.pm_users
 
 
 
@@ -50,3 +51,25 @@ async def is_chat_authorized(chat_id: int) -> bool:
 # Get all authorized chats
 async def get_all_authorized_chats():
     return group_settings.find({})
+
+# Add user
+async def add_pm_user(user_id: int):
+    await pm_users_col.update_one(
+        {"user_id": user_id},
+        {"$set": {"user_id": user_id}},
+        upsert=True
+    )
+
+# Remove user
+async def remove_pm_user(user_id: int):
+    await pm_users_col.delete_one({"user_id": user_id})
+
+# List users
+async def list_pm_users():
+    users = await pm_users_col.find().to_list(length=None)
+    return [u["user_id"] for u in users]
+
+# Check if user is allowed
+async def is_pm_user(user_id: int) -> bool:
+    user = await pm_users_col.find_one({"user_id": user_id})
+    return bool(user)
