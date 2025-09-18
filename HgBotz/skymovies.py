@@ -202,23 +202,23 @@ async def process_and_send_movie(client: Client, movie_url: str):
         )
         
         # ✅ Only GoFile link(s) in GoFile channels
-if gofile_link:
-    base_title = clean_title(title)
-    for ch in GOFILE_CHANNELS:
-        file_title = base_title
-        # ✅ Replace " or " with " - " only if flagged
-        if ch.get("replace_or"):
-            file_title = file_title.replace(" or ", " - ")
+        if gofile_link:
+            base_title = clean_title(title)
+            for ch in GOFILE_CHANNELS:
+                file_title = base_title
+                # ✅ Replace " or " with " - " only if flagged
+                if ch.get("replace_or"):
+                    file_title = file_title.replace(" or ", " - ")
 
-        if "tag" in ch and "uid" in ch:
-            custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}\nTag: {ch['tag']} {ch['uid']}"
-        else:
-            custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
+                if "tag" in ch and "uid" in ch:
+                    custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}\nTag: {ch['tag']} {ch['uid']}"
+                else:
+                    custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
 
-        try:
-            await client.send_message(chat_id=ch["id"], text=custom_text)
-        except Exception as e:
-            print(f"❌ Failed to send to {ch['id']}: {e}")
+                try:
+                    await client.send_message(chat_id=ch["id"], text=custom_text)
+                except Exception as e:
+                    print(f"❌ Failed to send to {ch['id']}: {e}")
 
     except Exception as e:
         print(f"⚠️ Error processing movie: {e}")
