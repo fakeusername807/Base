@@ -1388,6 +1388,22 @@ async def sonyliv_handler(client, message: Message):
 
 
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
+from pyrogram import Client, filters
+from pyrogram.types import Message
+from database import is_pm_user  # ✅ function we added for MongoDB check
+
+# ✅ Example for any command
+@Client.on_message(filters.command("nf"))
+async def netflix_handler(client, message: Message):
+    if message.chat.type == "private":
+        if not await is_pm_user(message.from_user.id):
+            return await message.reply(
+                "❌ You are not authorized to use this bot in PM.\n\n"
+                "👉 Contact @MrSagar_RoBot for access."
+            )
+
+    # ===== Your normal Netflix logic goes here =====
+    await message.reply("✅ Netflix command working for allowed user!")
 
 @Client.on_message(filters.command("nf") & filters.private)
 async def pvt_nf_cmd(client, message: Message):
@@ -2774,3 +2790,44 @@ async def my_template_cmd(client, message: Message):
         )
     else:
         await message.reply_text("❌ You don't have a saved template.")
+
+# commands.py
+from pyrogram import Client, filters
+from pyrogram.types import Message
+from config import HgBotz
+from database import add_pm_user, remove_pm_user, list_pm_users
+from database import is_pm_user  # make sure this import is at top of commands.py
+
+# /addpm <user_id>
+@Client.on_message(filters.command("addpm") & filters.user(HgBotz.ADMIN))
+async def add_pm_cmd(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("⚡ Usage: `/addpm user_id`")
+    try:
+        user_id = int(message.command[1])
+        await add_pm_user(user_id)
+        await message.reply(f"✅ User `{user_id}` added to PM access list.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+
+# /removepm <user_id>
+@Client.on_message(filters.command("removepm") & filters.user(HgBotz.ADMIN))
+async def remove_pm_cmd(client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply("⚡ Usage: `/removepm user_id`")
+    try:
+        user_id = int(message.command[1])
+        await remove_pm_user(user_id)
+        await message.reply(f"✅ User `{user_id}` removed from PM access list.")
+    except Exception as e:
+        await message.reply(f"❌ Error: {e}")
+
+# /listpm
+@Client.on_message(filters.command("listpm") & filters.user(HgBotz.ADMIN))
+async def list_pm_cmd(client, message: Message):
+    users = await list_pm_users()
+    if not users:
+        return await message.reply("⚠️ No PM users found.")
+    text = "✅ <b>PM Access Users:</b>\n" + "\n".join([f"- `{uid}`" for uid in users])
+    await message.reply(text)
+
