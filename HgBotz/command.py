@@ -1390,7 +1390,7 @@ async def sonyliv_handler(client, message: Message):
 # -----------------------NETFLIX POSTER FUNCTION -----------------------
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from database import is_pm_user  # ✅ function we added for MongoDB check
+from .database import is_pm_user  # ✅ function we added for MongoDB check
 
 # ✅ Example for any command
 @Client.on_message(filters.command("nf"))
@@ -2795,8 +2795,8 @@ async def my_template_cmd(client, message: Message):
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import HgBotz
-from database import add_pm_user, remove_pm_user, list_pm_users
-from database import is_pm_user  # make sure this import is at top of commands.py
+from .database import add_pm_user, remove_pm_user, list_pm_users
+from .database import is_pm_user  # make sure this import is at top of commands.py
 
 # /addpm <user_id>
 @Client.on_message(filters.command("addpm") & filters.user(HgBotz.ADMIN))
