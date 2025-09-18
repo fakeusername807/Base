@@ -60,9 +60,9 @@ STATE_FILE = "skymovies_state.json"
 
 TARGET_CHANNEL = -1002825305780   # full post here
 GOFILE_CHANNELS = [
-    {"id": -1002952205354, "prefix": "/l3", "tag": "@S_g_music", "uid": 7606037374},
-    {"id": -1002996723284, "prefix": "/l1", "tag": "@MrSagar0", "uid": 7965786027},
-    {"id": -1002825305780, "prefix": "/l"}  # ✅ no tag/uid here
+    {"id": -1002952205354, "prefix": "/l3", "tag": "@S_g_music", "uid": 7606037374, "replace_or": False},
+    {"id": -1002996723284, "prefix": "/l1", "tag": "@MrSagar0", "uid": 7965786027, "replace_or": True},
+    {"id": -1002825305780, "prefix": "/l", "replace_or": False}  # ✅ no tag/uid here
 ]
 
 ADMIN_ID = 7965786027
@@ -202,12 +202,18 @@ async def process_and_send_movie(client: Client, movie_url: str):
         
         # ✅ Only GoFile link(s) in GoFile channels
         if gofile_link:
-            file_title = clean_title(title)
+            base_title = clean_title(title)
             for ch in GOFILE_CHANNELS:
+                file_title = base_title
+                # ✅ Replace " or " with " - " only if flagged
+                if ch.get("replace_or"):
+                    file_title = file_title.replace(" or ", " - ")
+
                 if "tag" in ch and "uid" in ch:
                     custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}\nTag: {ch['tag']} {ch['uid']}"
                 else:
                     custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
+
                 try:
                     await client.send_message(chat_id=ch["id"], text=custom_text)
                 except Exception as e:
