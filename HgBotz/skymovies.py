@@ -1,27 +1,11 @@
-# skymovies.py
+# skymovieshd.py
 import os, re, aiohttp, json, asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from bs4 import BeautifulSoup
 
 # ===========================
-# CONFIG
-# ===========================
-BASE_URL = "https://skymovieshd.credit/"
-STATE_FILE = "skymovies_state.json"
-
-TARGET_CHANNEL = -1002825305780   # full post here
-GOFILE_CHANNELS = [
-    {"id": -1002952205354, "prefix": "/l3", "tag": "@S_g_music", "uid": 7606037374, "replace_or": False},
-    {"id": -1002996723284, "prefix": "/l1", "tag": "@MrSagar0", "uid": 7965786027, "replace_or": True}
-    # ✅ removed target channel from this list, handled separately
-]
-
-ADMIN_ID = 7965786027
-CHECK_INTERVAL = 420  # seconds
-
-# ===========================
-# Scraper Utils
+# Step 1: Scrape first 3 links
 # ===========================
 async def scrape_first_three_links(page_url: str) -> dict:
     try:
@@ -40,68 +24,94 @@ async def scrape_first_three_links(page_url: str) -> dict:
         if len(a_tags) < 3:
             return {"error": "❌ Less than 3 links found"}
 
-        return {
+        result = {
             "WATCH ONLINE": a_tags[0].get("href", "").strip(),
             "Google Drive Direct Links": a_tags[1].get("href", "").strip(),
             "SERVER 01": a_tags[2].get("href", "").strip(),
         }
+        return result
+
     except Exception as e:
         return {"error": f"❌ Exception in main page: {e}"}
 
+# ===========================
+# Step 2: Extract external links
+# ===========================
 async def extract_external_links(url: str) -> list:
     if not url:
         return []
     headers = {"User-Agent": "Mozilla/5.0"}
     try:
         async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url, timeout=20) as resp:
-                if resp.status != 200:
+            async with session.get(url, timeout=20) as response:
+                if response.status != 200:
                     return []
-                html = await resp.text()
-        soup = BeautifulSoup(html, "html.parser")
-        return [a["href"].strip() for a in soup.find_all("a", rel="external") if a.has_attr("href")]
+                html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                return [a["href"].strip() for a in soup.find_all("a", rel="external") if a.has_attr("href")]
     except Exception:
         return []
 
+# ===========================
+# CONFIG
+# ===========================
+BASE_URL = "https://skymovieshd.credit/"
+STATE_FILE = "skymovies_state.json"
+
+TARGET_CHANNEL = -1002825305780   # full post here
+GOFILE_CHANNELS = [
+    {"id": -1002952205354, "prefix": "/l3", "tag": "@S_g_music", "uid": 7606037374},
+    {"id": -1002996723284, "prefix": "/l1", "tag": "@MrSagar0", "uid": 7965786027},
+    {"id": -1002825305780, "prefix": "/l"}  # ✅ no tag/uid here
+]
+
+ADMIN_ID = 7965786027
+CHECK_INTERVAL = 420  # seconds
+
+# ===========================
+# Utils
+# ===========================
 def pick_last_gofile(links: list) -> str:
     gofiles = [l.strip() for l in links if l and "gofile.io" in l]
     return gofiles[-1] if gofiles else ""
 
 def clean_title(title: str) -> str:
+    # Remove size markers like [1.7GB], (850MB), {2.3 GB}
     title = re.sub(r'[\[\(\{]\s*\d+(\.\d+)?\s*(GB|MB)\s*[\]\)\}]', '', title, flags=re.IGNORECASE)
     title = re.sub(r'\s+', ' ', title).strip()
+    # Ensure .mkv extension
     if not title.lower().endswith(".mkv"):
         title = f"{title}.mkv"
     return title
 
 # ===========================
-# Format Post
+# Format post for target channel
 # ===========================
 def format_target_post(title: str, watch_url: str, all_links: list) -> str:
     gofile_links = [l for l in all_links if "gofile.io" in l]
     normal_links = [l for l in all_links if "gofile.io" not in l]
 
     text = "<b>🎬 New Post Just Dropped! ✅</b>\n\n"
-    text += f"<b>📌 Title </b>: <code>{title}</code>\n"
+    text += f"<b>📌 Title </b>: <code>{title}</code>\n" 
 
     if gofile_links:
         text += "\n<b><blockquote>🔰 GoFile Link 🔰 (Directly Leech)</blockquote></b>\n"
-        for link in gofile_links:
+        for i, link in enumerate(gofile_links, 1):
             text += f"<b>• {link}</b>\n"
-
+          
     if watch_url:
         text += f"\n<b><blockquote>🐬 Stream Tape Link 🐬</blockquote>\n {watch_url}</b>\n"
-
+      
     if normal_links:
         text += "\n<b><blockquote>🍿 All Cloud Links 🍿</blockquote></b>\n"
         for i, link in enumerate(normal_links, 1):
-            text += f"<b>{i}. {link}</b>\n"
+            text += f"<b>{i}. {link}</b>\n"        
 
-    text += "\n<b><blockquote>Scraped from <a href='https://t.me/MrSagarbots'>SkymoviesHD</a></blockquote></b>"
+    text += f"\n<b><blockquote>Scraped from <a href='https://t.me/MrSagarbots'>SkymoviesHD</a></blockquote></b>"
     return text
 
 # ===========================
-# Manual Command (/sky)
+# Manual command (/sky) – only reply
 # ===========================
 @Client.on_message(filters.command("sky") & filters.private)
 async def skymovies_full_command(client: Client, message: Message):
@@ -112,7 +122,7 @@ async def skymovies_full_command(client: Client, message: Message):
     M = await message.reply("🔍 scraping...")
 
     pattern = r'.*/(.*)\.html$'
-    match = re.match(pattern, url)
+    match = re.match(pattern, url) 
     title = match.group(1).replace("-", " ") if match else "Unknown Title"
 
     data = await scrape_first_three_links(url)
@@ -126,10 +136,11 @@ async def skymovies_full_command(client: Client, message: Message):
     all_links = gdrive_links + server01_links
     text = format_target_post(title, watch_url, all_links)
 
+    # ✅ reply only, don’t push to channels
     await M.edit_text(text, disable_web_page_preview=True)
 
 # ===========================
-# Monitor Functions
+# Auto Monitor
 # ===========================
 def load_processed_urls():
     if os.path.exists(STATE_FILE):
@@ -165,10 +176,12 @@ async def get_latest_movies():
 
 async def process_and_send_movie(client: Client, movie_url: str):
     try:
+        # Title
         pattern = r'.*/(.*)\.html$'
-        match = re.match(pattern, movie_url)
+        match = re.match(pattern, movie_url) 
         title = match.group(1).replace("-", " ") if match else "Unknown Title"
 
+        # Scrape
         data = await scrape_first_three_links(movie_url)
         if "error" in data:
             return
@@ -186,32 +199,20 @@ async def process_and_send_movie(client: Client, movie_url: str):
             text=text,
             disable_web_page_preview=True
         )
-
+        
+        # ✅ Only GoFile link(s) in GoFile channels
         if gofile_link:
-            base_title = clean_title(title)
-
-            # ✅ Send GoFile link (no tag, no replace) to target channel
-            custom_text_target = f"/l {gofile_link} -n {base_title}"
-            try:
-                await client.send_message(chat_id=TARGET_CHANNEL, text=custom_text_target)
-            except Exception as e:
-                print(f"❌ Failed to send gofile link to target: {e}")
-
-            # ✅ Send customized GoFile links to other GoFile channels
+            file_title = clean_title(title)
             for ch in GOFILE_CHANNELS:
-                file_title = base_title
-                if ch.get("replace_or"):
-                    file_title = file_title.replace(" or ", " - ")
-
                 if "tag" in ch and "uid" in ch:
                     custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}\nTag: {ch['tag']} {ch['uid']}"
                 else:
                     custom_text = f"{ch['prefix']} {gofile_link} -n {file_title}"
-
                 try:
                     await client.send_message(chat_id=ch["id"], text=custom_text)
                 except Exception as e:
                     print(f"❌ Failed to send to {ch['id']}: {e}")
+
     except Exception as e:
         print(f"⚠️ Error processing movie: {e}")
 
