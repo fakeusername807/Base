@@ -63,7 +63,7 @@ GOFILE_CHANNELS = [
     {"id": -1002996723284, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027, "replace_or": True},
     {"id": -1002715187536, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027, "replace_or": False},
     {"id": -1003062830864, "prefix": "/l", "tag": "@MrSagar0", "uid": 7965786027, "replace_or": False},
-    {"id": -1002557688309, "prefix": "/l", "replace_or": True}  # ✅ no tag/uid here
+    {"id": -1002557688309, "prefix": "/l1", "replace_or": True}  # ✅ no tag/uid here
 ]
 
 ADMIN_ID = 7965786027
